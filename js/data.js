@@ -304,5 +304,344 @@ passos:[
 {texto:"Travessa: creme, bolacha, creme, bolacha até acabar.", timer:0},
 {texto:"Finalize com creme e 2 paçocas esfareladas por cima. Geladeira 3h.", timer:180, label:"Gelando"}
 ]
+},
+// ===== FIT (3) =====
+{
+id:"frango-grelhado-fit", titulo:"Frango Grelhado Fit com Legumes", categoria_principal:"Fit", categorias:["Fit","Saudável","Brasileira"], tempo:"20 min", foto:"assets/frango-grelhado-fit.jpg", airfryer:true, personalizada:true,
+ingredientes:[
+{nome:"300g peito frango em bifes", qtd:"300g", peso:"300g", kcal:495, beneficio:"Proteína magra"},
+{nome:"1 abobrinha e 1 cenoura em tiras (200g)", qtd:"200g", peso:"200g", kcal:55, beneficio:"Fibras"},
+{nome:"1 colher azeite (15ml)", qtd:"15ml", peso:"15g", kcal:135, beneficio:"Gordura boa"},
+{nome:"Limon, alho, sal e pimenta", qtd:"a gosto", peso:"10g", kcal:8, beneficio:"Tempero"}
+],
+passos:[
+{texto:"Tempere frango com limão, alho, sal e pimenta 10 min.", timer:10, label:"Frango Marinando"},
+{texto:"Grelhe 5 min cada lado até dourar.", timer:10, label:"Frango Grelhando"},
+{texto:"Salteie legumes rapidamente no azeite 3 min al dente.", timer:3, label:"Legumes Salteando"}
+]
+},
+{
+id:"salada-proteica-tunada", titulo:"Salada Proteica Tunada", categoria_principal:"Fit", categorias:["Fit","Saudável","Rápida"], tempo:"15 min", foto:"assets/salada-proteica.jpg", airfryer:false, personalizada:true,
+ingredientes:[
+{nome:"150g frango desfiado ou atum", qtd:"150g", peso:"150g", kcal:220, beneficio:"Proteína"},
+{nome:"2 xícaras mix folhas (60g)", qtd:"60g", peso:"60g", kcal:15, beneficio:"Vitaminas"},
+{nome:"1/2 abacate picado (80g)", qtd:"80g", peso:"80g", kcal:128, beneficio:"Gordura boa"},
+{nome:"1 ovo cozido + tomate + quinoa cozida 3 colheres (60g)", qtd:"110g", peso:"110g", kcal:150, beneficio:"Completo"}
+],
+passos:[
+{texto:"Misture folhas, tomate, quinoa, frango e abacate.", timer:0},
+{texto:"Tempere com limão, azeite e sal. Finalize com ovo cozido.", timer:0}
+]
+},
+{
+id:"wrap-fit-frango", titulo:"Wrap Fit de Frango", categoria_principal:"Fit", categorias:["Fit","Lanche","Saudável"], tempo:"12 min", foto:"assets/wrap-fit.jpg", airfryer:false, personalizada:true,
+ingredientes:[
+{nome:"1 tortilha integral (40g)", qtd:"40g", peso:"40g", kcal:110, beneficio:"Fibra"},
+{nome:"100g frango grelhado fatiado", qtd:"100g", peso:"100g", kcal:165, beneficio:"Proteína"},
+{nome:"2 colheres guacamole ou creme ricota (40g)", qtd:"40g", peso:"40g", kcal:55, beneficio:"Cremoso"},
+{nome:"Alface, tomate e cenoura ralada (50g)", qtd:"50g", peso:"50g", kcal:15, beneficio:"Crocância"}
+],
+passos:[
+{texto:"Aqueça tortilha 1 min.", timer:1, label:"Tortilha Aquecendo"},
+{texto:"Recheie com guacamole, frango e salada, enrole firme.", timer:0}
+]
+},
+
+// ===== ITALIANA (3) =====
+{
+id:"lasanha-bolonhesa-caseira", titulo:"Lasanha Bolonhesa Caseira", categoria_principal:"Italiana", categorias:["Italiana","Brasileira"], tempo:"60 min", foto:"assets/lasanha-bolonhesa.jpg", airfryer:false, personalizada:true,
+ingredientes:[
+{nome:"500g carne moída patinho", qtd:"500g", peso:"500g", kcal:650, beneficio:"Recheio"},
+{nome:"1 pacote massa lasanha pré-cozida (200g)", qtd:"200g", peso:"200g", kcal:700, beneficio:"Massa"},
+{nome:"400g molho tomate + 300g muçarela fatiada", qtd:"700g", peso:"700g", kcal:1100, beneficio:"Molho e queijo"},
+{nome:"1 cebola, alho, manjericão", qtd:"100g", peso:"100g", kcal:35, beneficio:"Aroma"}
+],
+passos:[
+{texto:"Refogue cebola, alho, carne, junte molho e manjericão. Cozinhe 15 min.", timer:15, label:"Bolonhesa Apurando"},
+{texto:"Monte: molho, massa, molho, muçarela repetindo.", timer:0},
+{texto:"Finalize com muçarela e forno 200°C 25 min até borbulhar.", timer:25, label:"Lasanha Gratinando"}
+]
+},
+{
+id:"carbonara-cremosa", titulo:"Carbonara Cremosa Original", categoria_principal:"Italiana", categorias:["Italiana","Rápida"], tempo:"20 min", foto:"assets/carbonara-cremosa.jpg", airfryer:false, personalizada:true,
+ingredientes:[
+{nome:"200g espaguete", qtd:"200g", peso:"200g", kcal:700, beneficio:"Massa"},
+{nome:"150g bacon ou pancetta em cubos", qtd:"150g", peso:"150g", kcal:645, beneficio:"Defumado"},
+{nome:"3 gemas + 1 ovo inteiro (80g)", qtd:"80g", peso:"80g", kcal:180, beneficio:"Cremosidade"},
+{nome:"50g parmesão ralado + pimenta preta", qtd:"50g", peso:"50g", kcal:180, beneficio:"Sabor"}
+],
+passos:[
+{texto:"Cozinhe espaguete al dente. Reserve 1 concha água massa.", timer:10, label:"Massa Cozinhando"},
+{texto:"Frite bacon até dourar e crocante.", timer:6, label:"Bacon Dourando"},
+{texto:"Fora fogo, misture massa quente com ovos, parmesão e água do cozimento até creme brilhante. Sem virar omelete.", timer:0}
+]
+},
+{
+id:"risoto-funghi-cremoso", titulo:"Risoto de Funghi Cremoso", categoria_principal:"Italiana", categorias:["Italiana"], tempo:"35 min", foto:"assets/risoto-funghi.jpg", airfryer:false, personalizada:true,
+ingredientes:[
+{nome:"1 xíc arroz arbóreo (200g)", qtd:"200g", peso:"200g", kcal:700, beneficio:"Base cremosa"},
+{nome:"200g mix funghi fresco", qtd:"200g", peso:"200g", kcal:60, beneficio:"Umami"},
+{nome:"1L caldo legumes quente", qtd:"1L", peso:"1000g", kcal:20, beneficio:"Sabor"},
+{nome:"50g manteiga gelada + 50g parmesão", qtd:"100g", peso:"100g", kcal:450, beneficio:"Mantecatura"}
+],
+passos:[
+{texto:"Refogue funghi com alho até dourar. Reserve.", timer:6, label:"Funghi Dourando"},
+{texto:"Na mesma panela refogue cebola, junte arroz, vinho branco (opcional) e vá adicionando caldo quente mexendo 18 min.", timer:18, label:"Risoto Mexendo"},
+{texto:"Desligue, manteiga gelada e parmesão, mexa vigoroso até cremoso. Volte funghi.", timer:0}
+]
+},
+
+// ===== LANCHE (3) =====
+{
+id:"misto-quente-airfryer", titulo:"Misto Quente de Airfryer", categoria_principal:"Lanche", categorias:["Lanche","Rápida","Airfryer"], tempo:"8 min", foto:"assets/misto-quente-airfryer.jpg", airfryer:true, personalizada:true,
+ingredientes:[
+{nome:"2 fatias pão forma (60g)", qtd:"60g", peso:"60g", kcal:150, beneficio:"Base"},
+{nome:"2 fatias muçarela (40g)", qtd:"40g", peso:"40g", kcal:120, beneficio:"Queijo"},
+{nome:"2 fatias presunto (40g)", qtd:"40g", peso:"40g", kcal:60, beneficio:"Recheio"},
+{nome:"Manteiga para pincelar (10g)", qtd:"10g", peso:"10g", kcal:73, beneficio:"Dourado"}
+],
+passos:[
+{texto:"Monte misto, pincele manteiga fora.", timer:0},
+{texto:"Airfryer 180°C 5 min virando na metade até dourar e queijo esticar.", timer:5, label:"Misto Dourando"}
+]
+},
+{
+id:"pastel-forno-queijo", titulo:"Pastel de Forno de Queijo", categoria_principal:"Lanche", categorias:["Lanche","Airfryer","Brasileira"], tempo:"30 min", foto:"assets/pastel-forno.jpg", airfryer:true, personalizada:true,
+ingredientes:[
+{nome:"1 rolo massa pastel (300g)", qtd:"300g", peso:"300g", kcal:750, beneficio:"Massa"},
+{nome:"200g muçarela ralada", qtd:"200g", peso:"200g", kcal:600, beneficio:"Recheio puxa"},
+{nome:"1 gema para pincelar (20g)", qtd:"20g", peso:"20g", kcal:55, beneficio:"Brilho"},
+{nome:"Orégano e tomate seco opcional (20g)", qtd:"20g", peso:"20g", kcal:15, beneficio:"Sabor"}
+],
+passos:[
+{texto:"Corte discos, recheie com queijo, feche apertando com garfo.", timer:0},
+{texto:"Pincele gema, orégano.", timer:0},
+{texto:"Forno ou Airfryer 200°C 12 min até dourar e estufar.", timer:12, label:"Pastel Assando"}
+]
+},
+{
+id:"coxinha-creme-frango", titulo:"Coxinha com Catupiry Cremosa", categoria_principal:"Lanche", categorias:["Lanche","Brasileira","Airfryer"], tempo:"50 min", foto:"assets/coxinha-creme.jpg", airfryer:true, personalizada:true,
+ingredientes:[
+{nome:"300g peito frango cozido desfiado", qtd:"300g", peso:"300g", kcal:330, beneficio:"Recheio"},
+{nome:"2 xícaras farinha trigo (240g) + 2 xícaras leite (400ml) + caldo frango", qtd:"640g", peso:"640g", kcal:800, beneficio:"Massa"},
+{nome:"100g catupiry (100g)", qtd:"100g", peso:"100g", kcal:250, beneficio:"Cremoso"},
+{nome:"Farinha panko para empanar", qtd:"100g", peso:"100g", kcal:350, beneficio:"Crocância"}
+],
+passos:[
+{texto:"Leite, caldo, manteiga ferver, jogue farinha de uma vez mexendo até desgrudar.", timer:5, label:"Massa Cozinhando"},
+{texto:"Sove massa quente, abra, recheie frango com catupiry, modele coxinha.", timer:0},
+{texto:"Passe leite e panko, Airfryer 200°C 12 min ou frite.", timer:12, label:"Coxinha Dourando"}
+]
+},
+// ===== MEXICANA (3) =====
+{
+id:"tacos-carne-mexicana", titulo:"Tacos de Carne Mexicana", categoria_principal:"Mexicana", categorias:["Mexicana","Rápida"], tempo:"20 min", foto:"assets/tacos-carne-mexicana.jpg", airfryer:false, personalizada:true,
+ingredientes:[
+{nome:"Carne moída", qtd:"300g", kcal:450, beneficio:"Proteína"},
+{nome:"Tortilhas de milho", qtd:"6 unidades (120g)", kcal:240, beneficio:"Base"},
+{nome:"Alface, tomate e cebola roxa picados", qtd:"150g", kcal:35, beneficio:"Frescor"},
+{nome:"Queijo cheddar ralado", qtd:"50g", kcal:200, beneficio:"Cremoso"},
+{nome:"Páprica, cominho e pimenta", qtd:"a gosto", kcal:8, beneficio:"Tempero mexicano"}
+],
+passos:[
+{texto:"Refogue carne com páprica, cominho, sal e pimenta até dourar e secar.", timer:8, label:"Carne Tacos"},
+{texto:"Aqueça tortilhas 1 min na frigideira.", timer:0},
+{texto:"Monte com carne, salada e cheddar por cima.", timer:0}
+]
+},
+{
+id:"burrito-frango", titulo:"Burrito de Frango Cremoso", categoria_principal:"Mexicana", categorias:["Mexicana","Lanche"], tempo:"25 min", foto:"assets/burrito-frango.jpg", airfryer:true, personalizada:true,
+ingredientes:[
+{nome:"Peito de frango em tiras", qtd:"300g", kcal:330, beneficio:"Proteína leve"},
+{nome:"Tortilha grande", qtd:"2 unidades (140g)", kcal:320, beneficio:"Enrolado"},
+{nome:"Feijão refrito ou cozido", qtd:"100g", kcal:90, beneficio:"Fibra"},
+{nome:"Requeijão cremoso", qtd:"40g", kcal:80, beneficio:"Cremosidade"},
+{nome:"Milho e pimentão picado", qtd:"80g", kcal:50, beneficio:"Cor"}
+],
+passos:[
+{texto:"Grelhe frango temperado 8 min até dourar.", timer:8, label:"Frango Grelhando"},
+{texto:"Misture feijão, requeijão, milho e pimentão.", timer:0},
+{texto:"Recheie tortilha, enrole burrito e doure 3 min na chapa.", timer:3, label:"Burrito Fechando"}
+]
+},
+{
+id:"quesadilla-queijo", titulo:"Quesadilla de Queijo com Salsa", categoria_principal:"Mexicana", categorias:["Mexicana","Rápida","Lanche"], tempo:"12 min", foto:"assets/quesadilla-queijo.jpg", airfryer:false, personalizada:true,
+ingredientes:[
+{nome:"Tortilha grande", qtd:"2 unidades", kcal:320, beneficio:"Crocante"},
+{nome:"Muçarela ralada", qtd:"120g", kcal:360, beneficio:"Derrete"},
+{nome:"Tomate sem semente picado", qtd:"1 médio (80g)", kcal:15, beneficio:"Salsa"},
+{nome:"Coentro e limão", qtd:"a gosto", kcal:3, beneficio:"Frescor"}
+],
+passos:[
+{texto:"Recheie uma tortilha com muçarela e tomate, cubra com a outra.", timer:0},
+{texto:"Frigideira sem óleo 4 min cada lado até queijo derreter e ficar dourada.", timer:8, label:"Quesadilla Dourando"},
+{texto:"Corte em triângulos e sirva com limão.", timer:0}
+]
+},
+
+// ===== ORIENTAL (2 que faltam) + 1 extra pra fechar 3 =====
+{
+id:"yakisoba-frango", titulo:"Yakisoba de Frango Rápido", categoria_principal:"Oriental", categorias:["Oriental","Rápida"], tempo:"22 min", foto:"assets/yakisoba-frango.jpg", airfryer:false, personalizada:true,
+ingredientes:[
+{nome:"Macarrão para yakisoba", qtd:"200g", kcal:700, beneficio:"Base"},
+{nome:"Peito frango em tiras", qtd:"250g", kcal:275, beneficio:"Proteína"},
+{nome:"Mix legumes yakisoba (repolho, cenoura, brócolis)", qtd:"250g", kcal:80, beneficio:"Fibras"},
+{nome:"Molho shoyu + óleo de gergelim", qtd:"3 colheres + 1 colher chá", kcal:40, beneficio:"Umami"}
+],
+passos:[
+{texto:"Cozinhe macarrão 5 min al dente, escorra.", timer:5, label:"Macarrão"},
+{texto:"Wok bem quente, salteie frango 6 min, junte legumes 4 min.", timer:10, label:"Salteado"},
+{texto:"Misture macarrão e shoyu, salteie 2 min.", timer:2, label:"Yakisoba Final"}
+]
+},
+{
+id:"tempura-legumes", titulo:"Tempurá de Legumes Crocante", categoria_principal:"Oriental", categorias:["Oriental","Vegana","Rápida"], tempo:"20 min", foto:"assets/tempura-legumes.jpg", airfryer:true, personalizada:true,
+ingredientes:[
+{nome:"Abobrinha, cenoura e brócolis em palitos", qtd:"300g", kcal:90, beneficio:"Crocância"},
+{nome:"Farinha de trigo + amido", qtd:"1/2 xícara cada (60g)", kcal:210, beneficio:"Massa leve"},
+{nome:"Água com gás bem gelada", qtd:"150ml", kcal:0, beneficio:"Leveza"},
+{nome:"Shoyu para mergulhar", qtd:"30ml", kcal:15, beneficio:"Acompanhamento"}
+],
+passos:[
+{texto:"Misture farinhas com água gelada até massa rala e com grumos.", timer:0},
+{texto:"Passe legumes na massa.", timer:0},
+{texto:"Airfryer 200°C 10 min borrifando azeite até dourar e ficar sequinho.", timer:10, label:"Tempurá Crocante"}
+]
+},
+{
+id:"ramen-cremoso", titulo:"Ramen Cremoso de Frango", categoria_principal:"Oriental", categorias:["Oriental","Caldo"], tempo:"30 min", foto:"assets/ramen-cremoso.jpg", airfryer:false, personalizada:true,
+ingredientes:[
+{nome:"Macarrão instantâneo sem tempero", qtd:"1 pacote (90g)", kcal:350, beneficio:"Base"},
+{nome:"Caldo de frango", qtd:"500ml", kcal:30, beneficio:"Sabor"},
+{nome:"Ovo cozido mole", qtd:"1 unidade", kcal:70, beneficio:"Proteína"},
+{nome:"Frango desfiado, cebolinha e nori", qtd:"100g", kcal:120, beneficio:"Finalização"}
+],
+passos:[
+{texto:"Ferva caldo, cozinhe macarrão 4 min dentro do caldo.", timer:4, label:"Ramen Cozinhando"},
+{texto:"Sirva com frango, ovo cortado ao meio, cebolinha e nori.", timer:0}
+]
+},
+
+// ===== RÁPIDA (3) =====
+{
+id:"omelete-rapido", titulo:"Omelete de Forno Rápido", categoria_principal:"Rápida", categorias:["Rápida","Café da Manhã","Fit"], tempo:"12 min", foto:"assets/omelete-rapido.jpg", airfryer:true, personalizada:true,
+ingredientes:[
+{nome:"3 ovos", qtd:"150g", kcal:210, beneficio:"Proteína"},
+{nome:"Tomate picado e muçarela", qtd:"80g", kcal:100, beneficio:"Recheio"},
+{nome:"Sal, pimenta e cheiro verde", qtd:"a gosto", kcal:2, beneficio:"Tempero"}
+],
+passos:[
+{texto:"Bata ovos, misture recheio.", timer:0},
+{texto:"Frigideira antiaderente ou Airfryer 180°C 8 min.", timer:8, label:"Omelete Firme"}
+]
+},
+{
+id:"macarrao-alho-15min", titulo:"Macarrão Alho e Óleo 15min", categoria_principal:"Rápida", categorias:["Rápida","Italiana"], tempo:"15 min", foto:"assets/macarrao-alho-15min.jpg", airfryer:false, personalizada:true,
+ingredientes:[
+{nome:"Espaguete", qtd:"200g", kcal:700, beneficio:"Base"},
+{nome:"Alho fatiado", qtd:"4 dentes", kcal:16, beneficio:"Aroma"},
+{nome:"Azeite", qtd:"2 colheres sopa", kcal:180, beneficio:"Sabor"},
+{nome:"Pimenta calabresa", qtd:"1 pitada", kcal:2, beneficio:"Picância"}
+],
+passos:[
+{texto:"Cozinhe macarrão al dente.", timer:9, label:"Macarrão Cozinhando"},
+{texto:"Doure alho no azeite 2 min sem queimar, junte macarrão com 1 concha da água do cozimento.", timer:2, label:"Alho Dourando"}
+]
+},
+{
+id:"tapioca-doce-rapida", titulo:"Tapioca Doce de Leite Ninho", categoria_principal:"Rápida", categorias:["Rápida","Doce"], tempo:"8 min", foto:"assets/tapioca-doce-rapida.jpg", airfryer:false, personalizada:true,
+ingredientes:[
+{nome:"Goma de tapioca", qtd:"80g", kcal:110, beneficio:"Base"},
+{nome:"Leite ninho", qtd:"2 colheres sopa (20g)", kcal:80, beneficio:"Doçura"},
+{nome:"Leite condensado", qtd:"1 colher sopa (20g)", kcal:64, beneficio:"Creme"},
+{nome:"Morango fatiado", qtd:"50g", kcal:16, beneficio:"Frescor"}
+],
+passos:[
+{texto:"Faça disco de tapioca 2 min cada lado.", timer:4, label:"Tapioca"},
+{texto:"Recheie com leite ninho, leite condensado e morango.", timer:0}
+]
+},
+
+// ===== SAUDÁVEL (1 que falta pra fechar 3) =====
+{
+id:"bowl-quinoa-colorido", titulo:"Bowl de Quinoa Colorido", categoria_principal:"Saudável", categorias:["Saudável","Vegana","Fit"], tempo:"20 min", foto:"assets/bowl-quinoa-colorido.jpg", airfryer:false, personalizada:true,
+ingredientes:[
+{nome:"Quinoa cozida", qtd:"1 xícara (150g)", kcal:180, beneficio:"Proteína vegetal"},
+{nome:"Grão de bico cozido", qtd:"80g", kcal:100, beneficio:"Fibra"},
+{nome:"Abacate em cubos", qtd:"50g", kcal:80, beneficio:"Gordura boa"},
+{nome:"Tomate cereja e pepino", qtd:"100g", kcal:25, beneficio:"Frescor"}
+],
+passos:[
+{texto:"Cozinhe quinoa 12 min.", timer:12, label:"Quinoa"},
+{texto:"Monte bowl com quinoa, grão bico, abacate, tomate e pepino. Tempere com limão.", timer:0}
+]
+},
+{
+id:"sopa-detox-verde", titulo:"Sopa Detox Verde", categoria_principal:"Saudável", categorias:["Saudável","Vegana","Caldo"], tempo:"25 min", foto:"assets/sopa-detox-verde.jpg", airfryer:false, personalizada:true,
+ingredientes:[
+{nome:"Abobrinha picada", qtd:"200g", kcal:30, beneficio:"Leve"},
+{nome:"Couve picada", qtd:"100g", kcal:35, beneficio:"Detox"},
+{nome:"Ervilha fresca", qtd:"80g", kcal:70, beneficio:"Proteína"},
+{nome:"Gengibre e alho", qtd:"10g", kcal:8, beneficio:"Termogênico"}
+],
+passos:[
+{texto:"Refogue alho e gengibre, junte legumes e 600ml água. Cozinhe 15 min.", timer:15, label:"Sopa Cozinhando"},
+{texto:"Bata metade para ficar cremosa com pedaços.", timer:0}
+]
+},
+{
+id:"frango-grelhado-legumes", titulo:"Frango Grelhado com Legumes", categoria_principal:"Saudável", categorias:["Saudável","Fit","Rápida"], tempo:"18 min", foto:"assets/frango-grelhado-legumes.jpg", airfryer:true, personalizada:true,
+ingredientes:[
+{nome:"Peito de frango", qtd:"300g", kcal:330, beneficio:"Proteína magra"},
+{nome:"Abobrinha e cenoura em tiras", qtd:"200g", kcal:50, beneficio:"Vitaminas"},
+{nome:"Azeite e limão", qtd:"1 colher + 1/2 limão", kcal:95, beneficio:"Tempero"}
+],
+passos:[
+{texto:"Tempere frango com limão, sal e pimenta.", timer:0},
+{texto:"Grelhe frango 6 min cada lado e legumes junto. Airfryer 200°C 12 min.", timer:12, label:"Frango Grelhando"}
+]
+},
+
+// ===== VEGANA (3) =====
+{
+id:"curry-grao-bico", titulo:"Curry de Grão de Bico Cremoso", categoria_principal:"Vegana", categorias:["Vegana","Saudável"], tempo:"28 min", foto:"assets/curry-grao-bico.jpg", airfryer:false, personalizada:true,
+ingredientes:[
+{nome:"Grão de bico cozido", qtd:"250g", kcal:280, beneficio:"Proteína vegetal"},
+{nome:"Leite de coco", qtd:"200ml", kcal:300, beneficio:"Cremoso"},
+{nome:"Curry em pó e cúrcuma", qtd:"1 colher chá cada", kcal:8, beneficio:"Anti-inflamatório"},
+{nome:"Tomate pelado", qtd:"200g", kcal:40, beneficio:"Base"}
+],
+passos:[
+{texto:"Refogue cebola, alho, curry e cúrcuma 2 min.", timer:2, label:"Curry Abrindo"},
+{texto:"Junte grão bico, tomate e leite coco, ferva 15 min até engrossar.", timer:15, label:"Curry Apurando"}
+]
+},
+{
+id:"hamburguer-lentilha", titulo:"Hambúrguer de Lentilha", categoria_principal:"Vegana", categorias:["Vegana","Lanche","Saudável"], tempo:"30 min", foto:"assets/hamburguer-lentilha.jpg", airfryer:true, personalizada:true,
+ingredientes:[
+{nome:"Lentilha cozida escorrida", qtd:"200g", kcal:230, beneficio:"Ferro"},
+{nome:"Aveia em flocos", qtd:"40g", kcal:140, beneficio:"Liga"},
+{nome:"Cebola roxa e alho", qtd:"50g", kcal:20, beneficio:"Sabor"},
+{nome:"Cominho e páprica", qtd:"1 colher chá cada", kcal:6, beneficio:"Tempero"}
+],
+passos:[
+{texto:"Processe lentilha, aveia, cebola, alho e temperos até massa moldável.", timer:0},
+{texto:"Modele 4 hambúrgueres.", timer:0},
+{texto:"Airfryer 200°C 12 min virando, ou frigideira 4 min cada lado.", timer:12, label:"Hambúrguer Vegano"}
+]
+},
+{
+id:"brownie-vegano", titulo:"Brownie Vegano de Chocolate", categoria_principal:"Vegana", categorias:["Vegana","Doce"], tempo:"28 min", foto:"assets/brownie-vegano.jpg", airfryer:true, personalizada:true,
+ingredientes:[
+{nome:"Farinha de trigo", qtd:"120g", kcal:430, beneficio:"Base"},
+{nome:"Cacau 100%", qtd:"30g", kcal:90, beneficio:"Chocolate intenso"},
+{nome:"Açúcar mascavo", qtd:"100g", kcal:380, beneficio:"Doçura"},
+{nome:"Óleo + água", qtd:"60ml + 120ml", kcal:500, beneficio:"Umidade"}
+],
+passos:[
+{texto:"Misture secos, junte óleo e água até massa grossa brilhante.", timer:0},
+{texto:"Forma 20cm forrada, Airfryer 160°C 18 min ou forno 180°C 22 min - centro úmido.", timer:18, label:"Brownie Assando"},
+{texto:"Deixe esfriar 20 min para firmar.", timer:20, label:"Brownie Firmando"}
+]
 }
 ];
