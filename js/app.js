@@ -79,10 +79,9 @@ function abrirReceita(id){
     .flip-inner.virando{ transform: rotateY(180deg); }
     .view{ backface-visibility:hidden; }
     #view-preparo{ position:absolute; top:0; left:0; width:100%; transform: rotateY(180deg); }
-    .btn-whatsapp{ width:100%; background:#25D366; color:white; border:none; padding:14px; border-radius:14px; font-weight:900; font-size:15px; margin-top:12px; cursor:pointer; }
+    .btn-whatsapp{ width:100%; background:#25D366; color:white; border:none; padding:14px; border-radius:14px; font-weight:900; font-size:15px; margin-top:16px; cursor:pointer; }
     .btn-modo{ width:100%; background:#FF6B35; color:white; border:none; padding:18px; border-radius:16px; font-weight:900; font-size:18px; margin-top:12px; cursor:pointer; box-shadow:0 4px 12px rgba(255,107,53,0.3); }
     .btn-voltar{ width:100%; background:#1A1A1A; color:white; border:none; padding:18px; border-radius:16px; font-weight:900; font-size:18px; margin-top:24px; cursor:pointer; }
-    .btn-fav-modal{ width:100%; background:white; border:1.5px solid #FFE9DC; padding:12px; border-radius:14px; font-weight:900; cursor:pointer; transition:0.2s; }
     .passo-detalhado{ background:white; border:1.5px solid #FFE9DC; border-radius:16px; padding:16px; margin-bottom:14px; display:flex; gap:12px; align-items:flex-start; }
   </style>
   <img class="capa" src="${r.foto}">
@@ -94,8 +93,6 @@ function abrirReceita(id){
           <h1 style="font-size:24px;font-weight:900;line-height:1.2">${r.titulo}</h1>
           <div style="display:flex;gap:8px;margin:12px 0"><span style="background:#FFF0E6;padding:6px 12px;border-radius:20px;font-size:13px;font-weight:700">⏰ ${r.tempo}</span><span style="background:#FFF0E6;padding:6px 12px;border-radius:20px;font-size:13px;font-weight:700">🔥 ${getKcal(r)} kcal</span><span style="background:#FFF0E6;padding:6px 12px;border-radius:20px;font-size:13px;font-weight:700">${r.categoria_principal}</span></div>
           
-          <button id="btn-fav-modal" class="btn-fav-modal" onclick="toggleFavModal()">♡ Favoritar</button>
-
           <h3 style="margin:20px 0 12px;font-size:18px">🛒 Ingredientes (${r.ingredientes.length} itens)</h3>
           <ul style="list-style:none;display:flex;flex-direction:column;gap:10px;padding:0">
             ${r.ingredientes.map(i=>`<li style="background:#FFFBF8;border:1px solid #FFE9DC;padding:14px;border-radius:14px;display:flex;justify-content:space-between;align-items:center"><span><b style="font-size:15px">${i.nome||i.name}</b><br><small style="color:#6B5E57">${i.qtd||''}</small><br><small style="color:#FF6B35;font-weight:700">${i.beneficio||''}</small></span><b style="background:#FFE9DC;padding:6px 10px;border-radius:10px">${i.kcal||0} kcal</b></li>`).join('')}
@@ -116,7 +113,7 @@ function abrirReceita(id){
             const key=`${r.id}-${i}`; const ativo=timersAtivos[key]; const rest=ativo?Math.max(0, Math.floor((ativo.fim - Date.now())/1000)):0;
             const txt=ativo?`⏳ ${Math.floor(rest/60)}:${(rest%60).toString().padStart(2,'0')} rodando`:`⏱ Timer ${p.tempoMin} min`;
             return `<div class="passo-detalhado">
-              <input type="checkbox" id="chk-${i}" onchange="this.parentElement.style.opacity=this.checked?0.6:1">
+              <input type="checkbox" onchange="this.parentElement.style.opacity=this.checked?0.6:1">
               <div style="flex:1">
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><b style="color:#FF6B35;font-size:13px;text-transform:uppercase">${p.label}</b><span style="font-size:12px;background:#FFF0E6;padding:4px 8px;border-radius:8px">Passo ${i+1}/${passosDetalhados.length}</span></div>
                 <div style="font-weight:600;line-height:1.4;font-size:15px">${p.texto}</div>
@@ -137,7 +134,7 @@ function abrirReceita(id){
   document.getElementById('flip-inner').classList.remove('virando');
   document.getElementById('view-ingredientes').style.display='block';
   document.getElementById('view-preparo').style.display='none';
-  setTimeout(()=>atualizarBtnFav(), 60);
+  setTimeout(()=>atualizarBtnFav(), 80);
 }
 
 function irParaModoPreparo(){
@@ -153,7 +150,6 @@ function irParaModoPreparo(){
     document.getElementById('modal-corpo').scrollTop=0;
   },350);
 }
-
 function voltarIngredientes(){
   const flip=document.getElementById('flip-inner');
   const v1=document.getElementById('view-ingredientes');
@@ -165,10 +161,9 @@ function voltarIngredientes(){
     document.getElementById('modal-corpo').scrollTop=0;
   },350);
 }
-
 function fecharModal(){ document.getElementById('modal').classList.remove('mostrar'); }
 
-// ===== FAVORITOS CORRIGIDO =====
+// FAVORITOS CORRIGIDO - USA O BOTÃO DE CIMA
 function toggleFav(id){ 
   if(favoritos.includes(id)) favoritos=favoritos.filter(x=>x!==id); 
   else favoritos.push(id); 
@@ -180,14 +175,23 @@ function toggleFav(id){
   if(receitaAtual && receitaAtual.id===id) atualizarBtnFav();
 }
 function toggleFavModal(){ if(!receitaAtual) return; toggleFav(receitaAtual.id); }
-function atualizarBtnFav(){ 
-  const btn=document.getElementById('btn-fav-modal'); 
-  if(!btn || !receitaAtual) return; 
+function atualizarBtnFav(){
+  // Pega o botão que já existe no topo (do seu index.html)
+  let btn = document.getElementById('btn-fav-modal');
+  if(!btn){
+    // Se não achar por ID, procura pelo botão de favoritar do header
+    const headerBtns = document.querySelectorAll('#modal button');
+    for(let b of headerBtns){
+      if(b.innerText.includes('Favoritar') || b.innerText.includes('Favorito')){
+        btn = b;
+        btn.id = 'btn-fav-modal';
+        break;
+      }
+    }
+  }
+  if(!btn || !receitaAtual) return;
   const isFav=favoritos.includes(receitaAtual.id);
   btn.innerHTML=isFav ? '❤️ Favorito' : '♡ Favoritar';
-  btn.style.background=isFav ? '#FFE9DC' : 'white';
-  btn.style.borderColor=isFav ? '#FF6B35' : '#FFE9DC';
-  btn.style.color=isFav ? '#FF6B35' : '#1A1A1A';
 }
 
 function iniciarTimer(min, idx){
@@ -202,7 +206,6 @@ function iniciarTimer(min, idx){
   if(btn) btn.innerText=`⏳ ${min}:00 rodando`;
   atualizarPaginaTimers();
 }
-
 function restaurarTimersGlobais(){
   setInterval(()=>{
     let mudou=false;
@@ -223,12 +226,11 @@ function restaurarTimersGlobais(){
     if(document.getElementById('page-timer')?.classList.contains('ativa')) atualizarPaginaTimers();
   },1000);
 }
-
 function atualizarPaginaTimers(){
   const global=document.getElementById('timer-global'); if(!global) return;
   const chaves=Object.keys(timersAtivos);
   if(chaves.length===0){
-    global.innerHTML=`<div style="text-align:center;padding:30px;color:#9A8C83">Nenhum timer ativo</div><div style="text-align:center"><button onclick="limparTodosTimers()" style="background:#1A1A1A;color:white;padding:12px 20px;border-radius:20px;border:none;font-weight:800">🧹 ZERAR TUDO</button></div>`;
+    global.innerHTML=`<div style="text-align:center;padding:30px;color:#9A8C83">Nenhum timer ativo</div>`;
     return;
   }
   global.innerHTML=chaves.map(key=>{
@@ -237,9 +239,8 @@ function atualizarPaginaTimers(){
     return `<div style="background:white;border:1.5px solid #FFE9DC;border-radius:16px;padding:14px;margin-bottom:10px"><b>${t.titulo} - Passo ${t.passo}</b><div style="font-size:36px;font-weight:900">⏱ ${m}:${(s+'').padStart(2,'0')}</div><button onclick="cancelarTimerPorChave('${key}')" style="margin-top:8px;padding:8px 14px;border-radius:20px;border:1px solid #E8DDD6;background:white">❌ Cancelar</button></div>`;
   }).join('') + `<div style="text-align:center;margin-top:20px"><button onclick="limparTodosTimers()" style="background:#FF6B35;color:white;padding:12px 20px;border-radius:20px;border:none;font-weight:800">🧹 LIMPAR TODOS</button></div>`;
 }
-
-function cancelarTimerPorChave(key){ delete timersAtivos[key]; salvarTimers(); enviarParaSW('CANCEL_TIMER', {key}); atualizarPaginaTimers(); if(receitaAtual) abrirReceita(receitaAtual.id); }
-function limparTodosTimers(){ localStorage.removeItem('hk_timers'); timersAtivos={}; salvarTimers(); enviarParaSW('CLEAR_ALL', {}); atualizarPaginaTimers(); if(receitaAtual) abrirReceita(receitaAtual.id); alert('Timers zerados!'); }
+function cancelarTimerPorChave(key){ delete timersAtivos[key]; salvarTimers(); enviarParaSW('CANCEL_TIMER', {key}); atualizarPaginaTimers(); }
+function limparTodosTimers(){ localStorage.removeItem('hk_timers'); timersAtivos={}; salvarTimers(); enviarParaSW('CLEAR_ALL', {}); atualizarPaginaTimers(); alert('Timers zerados!'); }
 function mudarPage(nome){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('ativa')); document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('ativo'));
   document.getElementById(`page-${nome}`)?.classList.add('ativa'); document.getElementById(`nav-${nome}`)?.classList.add('ativo');
