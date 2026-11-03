@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HK Receitas Premium</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#FF6B35">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,sans-serif}
+  body{background:#FFF8F3;padding-bottom:85px}
+  .logo-header{background:white;padding:14px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #FFE9DC}
+  .logo-header h1{font-size:20px;font-weight:900} .logo-header span{background:#FF6B35;color:white;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:800}
+  .header-fixo{position:sticky;top:0;z-index:100;background:#FFFBF8;padding:12px 16px;border-bottom:1px solid #FFE9DC}
+  .top-bar{display:flex;gap:8px} #busca{flex:1;padding:14px 16px;border-radius:18px;border:1.5px solid #FFE9DC;background:white;font-weight:600;outline:none}
+  #ordem{padding:12px;border-radius:18px;border:1.5px solid #FFE9DC;background:white;font-weight:700;font-size:13px}
+  #categorias{display:flex;gap:8px;overflow-x:auto;padding-top:12px;scrollbar-width:none} #categorias::-webkit-scrollbar{display:none}
+  .cat-btn{white-space:nowrap;padding:10px 14px;border-radius:12px;border:1.5px solid #E8DDD6;background:white;font-weight:700;font-size:13px;flex-shrink:0;line-height:1.2;text-align:center;min-height:56px}
+  .cat-btn.ativo{background:#1A1A1A;color:white;border-color:#1A1A1A}
+  #grid-receitas{padding:14px;display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+  .card{background:white;border-radius:20px;overflow:hidden;box-shadow:0 4px 12px rgba(0,0,0,0.05);cursor:pointer;position:relative}
+  .card img{width:100%;height:160px;object-fit:cover;display:block}
+  .card-body{padding:10px 12px 14px 12px} .badge{background:#FF8C42;color:white;padding:4px 10px;border-radius:20px;font-size:10px;font-weight:800}
+  .card-info{display:flex;gap:10px;font-size:12px;margin-top:4px;color:#6B5E57;align-items:center}
+  .fav-btn{position:absolute;top:8px;right:8px;background:rgba(255,255,255,0.9);border:none;width:32px;height:32px;border-radius:50%;font-size:16px}
+  #modal{position:fixed;inset:0;background:white;z-index:999;overflow-y:auto;display:none;padding-bottom:90px} #modal.mostrar{display:block}
+  #modal img.capa{width:100%;height:280px;object-fit:cover}
+  .modal-conteudo{padding:16px} .passo{display:flex;gap:12px;background:#FFF8F3;border:1.5px solid #FFE9DC;padding:12px;border-radius:16px;margin-bottom:10px}
+  .passo.feito{opacity:0.5;text-decoration:line-through} .passo input{width:22px;height:22px;flex-shrink:0}
+  .timer-btn{background:#1A1A1A;color:white;border:none;padding:7px 12px;border-radius:20px;font-size:11px;font-weight:800;margin-top:6px}
+  .bottom-nav{position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid #FFE9DC;display:flex;justify-content:space-around;padding:8px 0 12px 0;z-index:200}
+  .nav-item{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11px;font-weight:700;color:#9A8C83;background:none;border:none}
+  .nav-item.ativo{color:#FF6B35} .nav-item span.icone{font-size:20px}
+  .page{display:none} .page.ativa{display:block}
+</style>
+</head>
+<body>
+
+<div id="page-home" class="page ativa">
+  <div class="logo-header"><h1>🍳 HK Receitas</h1><span>PREMIUM</span></div>
+  <div class="header-fixo">
+    <div class="top-bar">
+      <input id="busca" placeholder="🔍 Buscar receita premium..." oninput="filtrar()">
+      <select id="ordem" onchange="filtrar()"><option value="padrao">✨ Padrão</option><option value="az">🔤 A-Z</option><option value="tempo">⏱ Mais rápido</option><option value="kcal">🔥 Menos kcal</option></select>
+    </div>
+    <div id="categorias"></div>
+  </div>
+  <div id="grid-receitas"></div>
+</div>
+
+<div id="page-favoritos" class="page"><div style="padding:16px"><h2>❤️ Favoritos</h2><div id="grid-favoritos" style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:14px"></div></div></div>
+<div id="page-timer" class="page"><div style="padding:16px"><h2>⏱ Timers Ativos</h2><div id="timer-global" style="margin-top:20px"></div></div></div>
+<div id="page-recentes" class="page"><div style="padding:16px"><h2>👀 Vistos Recentemente</h2><div id="grid-recentes" style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:14px"></div></div></div>
+
+<div id="modal">
+  <div style="position:sticky;top:0;z-index:10;background:white;padding:12px;display:flex;justify-content:space-between;border-bottom:1px solid #FFE9DC">
+    <button onclick="fecharModal()" style="padding:8px 16px;border-radius:20px;border:1.5px solid #E8DDD6;background:white;font-weight:800">← Voltar</button>
+    <button id="btn-fav-modal" onclick="toggleFavModal()" style="padding:8px 16px;border-radius:20px;background:#FF6B35;color:white;border:none;font-weight:800">♡ Favoritar</button>
+  </div>
+  <div id="modal-corpo"></div>
+</div>
+
+<nav class="bottom-nav">
+  <button class="nav-item ativo" id="nav-home" onclick="mudarPage('home')"><span class="icone">🏠</span>Início</button>
+  <button class="nav-item" id="nav-favoritos" onclick="mudarPage('favoritos')"><span class="icone">❤️</span>Favoritos</button>
+  <button class="nav-item" id="nav-timer" onclick="mudarPage('timer')"><span class="icone">⏱️</span>Timer</button>
+  <button class="nav-item" id="nav-recentes" onclick="mudarPage('recentes')"><span class="icone">👁️</span>Recentes</button>
+</nav>
+
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
