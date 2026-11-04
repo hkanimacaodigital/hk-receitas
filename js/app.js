@@ -12,7 +12,7 @@ function setCategoria(id){categoriaAtiva=id;renderCategorias();if(ingredientesSe
 function getKcal(r){return r.ingredientes?r.ingredientes.reduce((a,b)=>a+(b.kcal||b.calorias||0),0):0;}
 function getTempo(r){const m=(r.tempo||'').match(/(\d+)/);return m?parseInt(m[1]):999;}
 function filtrar(){if(!RECEITAS)return;if(ingredientesSelecionados.length>0){salvarEFiltrar();return;}const busca=(document.getElementById('busca')?.value||'').toLowerCase();const ordem=document.getElementById('ordem')?.value||'padrao';let lista=[...RECEITAS];if(categoriaAtiva!=='tudo'){if(categoriaAtiva==='airfryer')lista=lista.filter(r=>r.airfryer===true);else{const nome=CATEGORIAS.find(c=>c.id===categoriaAtiva)?.nome.toLowerCase()||categoriaAtiva;lista=lista.filter(r=>(r.categoria_principal||'').toLowerCase()===nome||(r.categorias||[]).map(x=>x.toLowerCase()).includes(nome));}}if(busca)lista=lista.filter(r=>r.titulo.toLowerCase().includes(busca));if(ordem==='az')lista.sort((a,b)=>a.titulo.localeCompare(b.titulo));else if(ordem==='tempo')lista.sort((a,b)=>getTempo(a)-getTempo(b));else if(ordem==='kcal')lista.sort((a,b)=>getKcal(a)-getKcal(b));renderReceitas(lista,'grid-receitas');}
-function renderReceitas(lista,alvoId){const cont=document.getElementById(alvoId);if(!cont)return;if(lista.length===0){cont.innerHTML=`<div style="grid-column:1/3;text-align:center;padding:30px">Nenhuma receita completa com esses ingredientes<br><small style="color:#9A8C83">Selecione mais</small></div>`;return;}cont.innerHTML=lista.map(r=>{const isFav=favoritos.includes(r.id);return `<div class="card" onclick="abrirReceita('${r.id}')"><button class="fav-btn" onclick="event.stopPropagation();toggleFav('${r.id}')">${isFav?'❤️':'🤍'}</button><img src="${r.foto}" loading="lazy"><div class="card-body"><span class="badge">${r.categoria_principal}</span><h3 style="margin:8px 0 4px;font-weight:800">${r.titulo}</h3><div class="card-info"><span>⏰ ${r.tempo}</span><span>🔥 ${getKcal(r)} kcal</span></div></div></div>`}).join('');}
+function renderReceitas(lista,alvoId){const cont=document.getElementById(alvoId);if(!cont)return;if(lista.length===0){cont.innerHTML=`<div style="grid-column:1/3;text-align:center;padding:30px">Nenhuma receita completa com esses ingredientes<br><small>Selecione mais</small></div>`;return;}cont.innerHTML=lista.map(r=>{const isFav=favoritos.includes(r.id);return `<div class="card" onclick="abrirReceita('${r.id}')"><button class="fav-btn" onclick="event.stopPropagation();toggleFav('${r.id}')">${isFav?'❤️':'🤍'}</button><img src="${r.foto}" loading="lazy"><div class="card-body"><span class="badge">${r.categoria_principal}</span><h3 style="margin:8px 0 4px;font-weight:800">${r.titulo}</h3><div class="card-info"><span>⏰ ${r.tempo}</span><span>🔥 ${getKcal(r)} kcal</span></div></div></div>`}).join('');}
 function normalizarPasso(p){if(typeof p==='string')return{texto:p,tempoMin:extrairMin(p)};return{texto:p.texto||p.passo||'',tempoMin:p.timer||p.tempoMin||extrairMin(p.texto||''),label:p.label||''};}
 function extrairMin(t){const m=(t||'').match(/(\d+)\s*min/);return m?parseInt(m[1]):0;}
 function detalharPasso(p,idx,total){let base=p.texto;let dica=idx===0?"<br><small style='color:#9A8C83'>💡 Separe tudo antes.</small>":idx===total-1?"<br><small style='color:#FF6B35;font-weight:700'>🔥 Sirva na hora!</small>":"<br><small style='color:#9A8C83'>👉 Capriche aqui.</small>";let tempo=p.tempoMin>0?p.tempoMin:2;return{texto:base+dica,tempoMin:tempo,label:p.label||`Passo ${idx+1}` };}
@@ -31,19 +31,51 @@ function cancelarTimerPorChave(key){delete timersAtivos[key];salvarTimers();envi
 function limparTodosTimers(){localStorage.removeItem('hk_timers');timersAtivos={};salvarTimers();enviarParaSW('CLEAR_ALL',{});atualizarPaginaTimers();alert('Timers zerados!');}
 function mudarPage(nome){document.querySelectorAll('.page').forEach(p=>p.classList.remove('ativa'));document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('ativo'));document.getElementById(`page-${nome}`)?.classList.add('ativa');document.getElementById(`nav-${nome}`)?.classList.add('ativo');if(nome==='favoritos')renderReceitas(RECEITAS.filter(r=>favoritos.includes(r.id)),'grid-favoritos');if(nome==='recentes')renderReceitas(recentes.map(id=>RECEITAS.find(r=>r.id===id)).filter(Boolean),'grid-recentes');if(nome==='timer')atualizarPaginaTimers();}
 
-// ===== GELADEIRA - FINAL SEM PALAVRAS ESTRANHAS + TOPO FIXO =====
-const CONDIMENTOS_TIRAR = ['caldo','alho','agua','água','acucar','açucar','açúcar','sal','pimenta','oleo','óleo','azeite','vinagre','manteiga','margarina','cominho','oregano','orégano','salsinha','cebolinha','coentro','alecrim','manjericão','canela','cravo','noz moscada','paprica','páprica','curry','açafrão','cheiro verde','shoyu','molho shoyu','sal grosso','pimenta reino','limão','azeite de dendê','água com gás','amido','polvilho'];
+// ===== GELADEIRA - FINAL CORRETO - AGRUPA TUDO + TOPO FIXO SEM DUPLICAR =====
+const CONDIMENTOS_TIRAR = ['agua','água','acucar','açucar','açúcar','sal','pimenta','oleo','óleo','azeite','vinagre','manteiga','margarina','cominho','oregano','orégano','salsinha','cebolinha','coentro','alecrim','manjericão','canela','cravo','noz moscada','paprica','páprica','curry','açafrão','cheiro verde','shoyu','molho shoyu','sal grosso','pimenta reino','limão','azeite de dendê','água com gás','amido','polvilho','fermento'];
 let ingredientesSelecionados = JSON.parse(localStorage.getItem('hk_ing_possuo')||'[]');
 
 function paraRaiz(nome){
   nome = nome.toLowerCase().trim();
-  let semAcento = nome.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-  if(semAcento.includes('ovo')) return 'ovo';
-  if(semAcento.includes('tomate')) return 'tomate';
-  if(semAcento.includes('pimentao')) return 'pimentão';
-  if(semAcento.includes('cebola')) return 'cebola';
-  if(semAcento.includes('abobora')) return 'abóbora';
-  if(semAcento.includes('batata')) return 'batata';
+  let s = nome.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  
+  // GRUPOS QUE VOCÊ PEDIU - TUDO VIRA UM SÓ
+  if(s.includes('ovo')) return 'ovo';
+  if(s.includes('tomate')) return 'tomate';
+  if(s.includes('pimentao')) return 'pimentão';
+  if(s.includes('cebola')) return 'cebola';
+  if(s.includes('abobora')) return 'abóbora';
+  if(s.includes('batata')) return 'batata';
+  if(s.includes('feijao')) return 'feijão';
+  if(s.includes('tortilha') || s.includes('tortilla')) return 'tortilha';
+  if(s.includes('requeijao')) return 'requeijão';
+  if(s.includes('frango')) return 'frango';
+  if(s.includes('carne') || s.includes('patinho')) return 'carne';
+  if(s.includes('queijo') || s.includes('mucarela') || s.includes('mussarela') || s.includes('parmesao') || s.includes('cheddar') || s.includes('catupiry') || s.includes('meia cura') || s.includes('presunto')) return 'queijo';
+  if(s.includes('leite condensado')) return 'leite condensado';
+  if(s.includes('leite de coco')) return 'leite de coco';
+  if(s.includes('leite')) return 'leite';
+  if(s.includes('farinha') || s.includes('panko') || s.includes('massa') || s.includes('espaguete') || s.includes('macarrao')) return 'massa';
+  if(s.includes('abobrinha')) return 'abobrinha';
+  if(s.includes('cenoura')) return 'cenoura';
+  if(s.includes('couve')) return 'couve';
+  if(s.includes('alface')) return 'alface';
+  if(s.includes('arroz')) return 'arroz';
+  if(s.includes('grao de bico') || s.includes('lentilha') || s.includes('ervilha')) return 'grãos';
+  if(s.includes('quinoa') || s.includes('aveia')) return 'grãos';
+  if(s.includes('pao')) return 'pão';
+  if(s.includes('linguica') || s.includes('bacon') || s.includes('calabresa') || s.includes('paio') || s.includes('costela')) return 'linguiça';
+  if(s.includes('camarao') || s.includes('robalo') || s.includes('salmao')) return 'peixe';
+  if(s.includes('abacate')) return 'abacate';
+  if(s.includes('pepino')) return 'pepino';
+  if(s.includes('brocolis')) return 'brócolis';
+  if(s.includes('repolho')) return 'repolho';
+  if(s.includes('milho')) return 'milho';
+  if(s.includes('morango')) return 'morango';
+  if(s.includes('coco')) return 'coco';
+  if(s.includes('chocolate') || s.includes('cacau') || s.includes('pacoca') || s.includes('bolacha') || s.includes('acucar') || s.includes('doce de leite')) return 'doce';
+  if(s.includes('hortela') || s.includes('salsinha') || s.includes('coentro') || s.includes('manjericao') || s.includes('alecrim') || s.includes('cebolinha') || s.includes('cheiro verde')) return 'tempero verde';
+  
   return nome;
 }
 function getIngredientesObrigatoriosDaReceita(receita){
@@ -53,8 +85,9 @@ function getIngredientesObrigatoriosDaReceita(receita){
     let nome = (ing.nome||'').toLowerCase().trim();
     if(!nome) return;
     if(CONDIMENTOS_TIRAR.some(c=> nome.includes(c))) return;
+    if(nome.includes('tempero verde')) return;
     let raiz = paraRaiz(nome);
-    if(raiz.length>=3) obrigatorios.push(raiz);
+    if(raiz.length>=3 && !CONDIMENTOS_TIRAR.includes(raiz)) obrigatorios.push(raiz);
   });
   return [...new Set(obrigatorios)];
 }
@@ -73,56 +106,39 @@ function abrirModalIngredientesPossuo(){
   const lista = document.getElementById('lista-todos-ingredientes');
   if(!modal||!lista){ alert('Use o index.html novo'); return; }
   
-  // CSS DO TOPO FIXO - INJETA AUTOMATICAMENTE
-  if(!document.getElementById('style-topo-fixo')){
+  // REMOVE TOPO DUPLICADO SE EXISTIR E CRIA CSS FIXO SEM DUPLICAR
+  const duplicados = modal.querySelectorAll('.topo-fixo-geladeira');
+  if(duplicados.length>1){ for(let i=1;i<duplicados.length;i++) duplicados[i].remove(); }
+  
+  if(!document.getElementById('style-topo-fixo-final')){
     const style = document.createElement('style');
-    style.id = 'style-topo-fixo';
+    style.id = 'style-topo-fixo-final';
     style.innerHTML = `
       #modal-ingredientes > div{
         display: flex !important;
         flex-direction: column !important;
-        max-height: 90vh !important;
+        max-height: 85vh !important;
+        overflow: hidden !important;
       }
-      #modal-ingredientes .topo-fixo-geladeira{
+      #modal-ingredientes > div > div:first-child{
         position: sticky !important;
         top: 0 !important;
         background: white !important;
         z-index: 100 !important;
-        padding: 16px !important;
-        border-bottom: 2px solid #FFE9DC !important;
         flex-shrink: 0 !important;
+        padding-bottom: 12px !important;
+        border-bottom: 1.5px solid #FFE9DC !important;
       }
       #lista-todos-ingredientes{
         overflow-y: auto !important;
         flex: 1 !important;
-        padding: 12px 16px !important;
+        padding-top: 12px !important;
       }
     `;
     document.head.appendChild(style);
   }
 
   const todos = getTodosIngredientesUnicos();
-  
-  // Verifica se já existe topo fixo
-  let topo = modal.querySelector('.topo-fixo-geladeira');
-  if(!topo){
-    const container = modal.querySelector('div') || modal;
-    const htmlTopo = `
-      <div class="topo-fixo-geladeira">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-          <h2 style="font-weight:900;font-size:18px;margin:0">Selecione o que tem na geladeira</h2>
-          <button onclick="fecharModalIngredientesPossuo()" style="background:none;border:none;font-size:22px">✕</button>
-        </div>
-        <input type="text" id="busca-ingrediente" placeholder="🔍 Buscar ingrediente..." oninput="filtrarListaIngredientes()" style="width:100%;padding:12px;border:1.5px solid #FFE9DC;border-radius:12px;margin-bottom:12px;box-sizing:border-box">
-        <div style="display:flex;gap:10px">
-          <button onclick="limparSelecaoIngredientes()" style="flex:1;background:white;border:1.5px solid #E8DDD6;padding:12px;border-radius:12px;font-weight:700">Limpar tudo</button>
-          <button onclick="fecharModalIngredientesPossuo()" style="flex:1;background:#FF6B35;color:white;border:none;padding:12px;border-radius:12px;font-weight:800">Ver Receitas (filtrar)</button>
-        </div>
-      </div>
-    `;
-    container.insertAdjacentHTML('afterbegin', htmlTopo);
-  }
-
   lista.innerHTML = todos.map(item=>{
     const checked = ingredientesSelecionados.includes(item.id) ? 'checked' : '';
     const bg = checked ? '#FFF0E6' : '#FFFBF8';
@@ -133,7 +149,7 @@ function abrirModalIngredientesPossuo(){
 }
 function fecharModalIngredientesPossuo(){ document.getElementById('modal-ingredientes').style.display='none'; salvarEFiltrar(); }
 function filtrarListaIngredientes(){ const termo = document.getElementById('busca-ingrediente').value.toLowerCase(); document.querySelectorAll('#lista-todos-ingredientes label').forEach(l=>{ const txt = l.innerText.toLowerCase(); l.style.display = txt.includes(termo) ? 'flex' : 'none'; }); }
-function toggleIngredientePossuo(id){ if(ingredientesSelecionados.includes(id)){ ingredientesSelecionados = ingredientesSelecionados.filter(x=>x!==id); } else { ingredientesSelecionados.push(id); } localStorage.setItem('hk_ing_possuo', JSON.stringify(ingredientesSelecionados)); const todos = getTodosIngredientesUnicos(); const lista = document.getElementById('lista-todos-ingredientes'); lista.innerHTML = todos.map(item=>{ const checked = ingredientesSelecionados.includes(item.id) ? 'checked' : ''; const bg = checked ? '#FFF0E6' : '#FFFBF8'; return `<label style="display:flex;align-items:center;gap:12px;background:${bg};border:1.5px solid #FFE9DC;padding:12px;border-radius:12px;cursor:pointer;margin-bottom:8px"><input type="checkbox" value="${item.id}" ${checked} onchange="toggleIngredientePossuo(this.value)" style="width:20px;height:20px"><span style="font-weight:600;text-transform:capitalize">${item.label}</span></label>`; }).join(''); const cont=document.getElementById('contador-ingredientes-possuo'); if(cont) cont.innerText=`${ingredientesSelecionados.length} selecionados`; }
+function toggleIngredientePossuo(id){ if(ingredientesSelecionados.includes(id)){ ingredientesSelecionados = ingredientesSelecionados.filter(x=>x!==id); } else { ingredientesSelecionados.push(id); } localStorage.setItem('hk_ing_possuo', JSON.stringify(ingredientesSelecionados)); const todos = getTodosIngredientesUnicos(); const lista = document.getElementById('lista-todos-ingredientes'); if(!lista) return; lista.innerHTML = todos.map(item=>{ const checked = ingredientesSelecionados.includes(item.id) ? 'checked' : ''; const bg = checked ? '#FFF0E6' : '#FFFBF8'; return `<label style="display:flex;align-items:center;gap:12px;background:${bg};border:1.5px solid #FFE9DC;padding:12px;border-radius:12px;cursor:pointer;margin-bottom:8px"><input type="checkbox" value="${item.id}" ${checked} onchange="toggleIngredientePossuo(this.value)" style="width:20px;height:20px"><span style="font-weight:600;text-transform:capitalize">${item.label}</span></label>`; }).join(''); const cont=document.getElementById('contador-ingredientes-possuo'); if(cont) cont.innerText=`${ingredientesSelecionados.length} selecionados`; }
 function limparSelecaoIngredientes(){ ingredientesSelecionados=[]; localStorage.setItem('hk_ing_possuo', JSON.stringify([])); abrirModalIngredientesPossuo(); salvarEFiltrar(); }
 function salvarEFiltrar(){
   const contador = document.getElementById('contador-ingredientes-possuo'); if(contador) contador.innerText = `${ingredientesSelecionados.length} selecionados`;
