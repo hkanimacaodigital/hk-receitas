@@ -16,8 +16,8 @@ function renderReceitas(lista,alvoId){const cont=document.getElementById(alvoId)
 function normalizarPasso(p){if(typeof p==='string')return{texto:p,tempoMin:extrairMin(p)};return{texto:p.texto||p.passo||'',tempoMin:p.timer||p.tempoMin||extrairMin(p.texto||''),label:p.label||''};}
 function extrairMin(t){const m=(t||'').match(/(\d+)\s*min/);return m?parseInt(m[1]):0;}
 function detalharPasso(p,idx,total){let base=p.texto;let dica=idx===0?"<br><small style='color:#9A8C83'>💡 Separe tudo antes.</small>":idx===total-1?"<br><small style='color:#FF6B35;font-weight:700'>🔥 Sirva na hora!</small>":"<br><small style='color:#9A8C83'>👉 Capriche aqui.</small>";let tempo=p.tempoMin>0?p.tempoMin:2;return{texto:base+dica,tempoMin:tempo,label:p.label||`Passo ${idx+1}` };}
-function compartilharWhatsApp(){if(!receitaAtual)return;const ingList=receitaAtual.ingredientes.map(i=>`• ${i.nome||i.name} - ${i.qtd||''}`).join('\n');const passosList=receitaAtual.passos.map((p,i)=>`${i+1}. ${p.texto||p}`).join('\n');const texto=`*${receitaAtual.titulo}* - ${receitaAtual.tempo}\n\n*INGREDIENTES:*\n${ingList}\n\n*MODO DE PREPARO:*\n${passosList}\n\nTotal: ${getKcal(receitaAtual)} kcal`;window.open(`https://wa.me/?text=${encodeURIComponent(texto)}`,'_blank');}
-function abrirReceita(id){const r=RECEITAS.find(x=>x.id===id);if(!r)return;receitaAtual=r;if(!recentes.includes(id)){recentes.unshift(id);recentes=recentes.slice(0,12);localStorage.setItem('hk_rec',JSON.stringify(recentes));}const modal=document.getElementById('modal');const corpo=document.getElementById('modal-corpo');const passosNorm=r.passos.map(normalizarPasso);const passosDetalhados=passosNorm.map((p,i)=>detalharPasso(p,i,passosNorm.length));corpo.innerHTML=`<style>.flip-wrapper{ perspective:1200px; } .flip-inner{ position:relative; width:100%; transition: transform 0.7s; transform-style: preserve-3d; } .flip-inner.virando{ transform: rotateY(180deg); } .view{ backface-visibility:hidden; } #view-preparo{ position:absolute; top:0; left:0; width:100%; transform: rotateY(180deg); } .btn-whatsapp{ width:100%; background:#25D366; color:white; border:none; padding:14px; border-radius:14px; font-weight:900; font-size:15px; margin-top:16px; cursor:pointer; } .btn-modo{ width:100%; background:#FF6B35; color:white; border:none; padding:18px; border-radius:16px; font-weight:900; font-size:18px; margin-top:12px; cursor:pointer; } .btn-voltar{ width:100%; background:#1A1A1A; color:white; border:none; padding:18px; border-radius:16px; font-weight:900; font-size:18px; margin-top:24px; cursor:pointer; } .passo-detalhado{ background:white; border:1.5px solid #FFE9DC; border-radius:16px; padding:16px; margin-bottom:14px; display:flex; gap:12px; }</style><img class="capa" src="${r.foto}"><div class="flip-wrapper"><div class="flip-inner" id="flip-inner"><div class="view" id="view-ingredientes"><div class="modal-conteudo"><h1 style="font-size:24px;font-weight:900">${r.titulo}</h1><div style="display:flex;gap:8px;margin:12px 0"><span style="background:#FFF0E6;padding:6px 12px;border-radius:20px;font-size:13px;font-weight:700">⏰ ${r.tempo}</span><span style="background:#FFF0E6;padding:6px 12px;border-radius:20px;font-size:13px;font-weight:700">🔥 ${getKcal(r)} kcal</span></div><h3 style="margin:20px 0 12px">🛒 Ingredientes (${r.ingredientes.length})</h3><ul style="list-style:none;display:flex;flex-direction:column;gap:10px;padding:0">${r.ingredientes.map(i=>`<li style="background:#FFFBF8;border:1px solid #FFE9DC;padding:14px;border-radius:14px;display:flex;justify-content:space-between"><span><b>${i.nome||i.name}</b><br><small>${i.qtd||''}</small></span><b style="background:#FFE9DC;padding:6px 10px;border-radius:10px">${i.kcal||0} kcal</b></li>`).join('')}</ul><button class="btn-whatsapp" onclick="compartilharWhatsApp()">📲 Exportar para WhatsApp</button><button class="btn-modo" onclick="irParaModoPreparo()">👨‍🍳 MODO DE PREPARO →</button></div></div><div class="view" id="view-preparo"><div class="modal-conteudo"><h1 style="font-size:22px;font-weight:900">${r.titulo}</h1><p style="color:#9A8C83;margin:6px 0 16px">Modo de preparo detalhado • ${passosDetalhados.length} passos</p>${passosDetalhados.map((p,i)=>{const key=`${r.id}-${i}`;const ativo=timersAtivos[key];const rest=ativo?Math.max(0,Math.floor((ativo.fim-Date.now())/1000)):0;const txt=ativo?`⏳ ${Math.floor(rest/60)}:${(rest%60).toString().padStart(2,'0')} rodando`:`⏱ Timer ${p.tempoMin} min`;return `<div class="passo-detalhado"><input type="checkbox" onchange="this.parentElement.style.opacity=this.checked?0.6:1"><div style="flex:1"><div style="display:flex;justify-content:space-between;margin-bottom:6px"><b style="color:#FF6B35;font-size:13px">${p.label}</b><span style="font-size:12px;background:#FFF0E6;padding:4px 8px;border-radius:8px">Passo ${i+1}/${passosDetalhados.length}</span></div><div style="font-weight:600;font-size:15px">${p.texto}</div><button id="btn-timer-${i}" onclick="iniciarTimer(${p.tempoMin},${i})" style="margin-top:10px;background:#1A1A1A;color:white;border:none;padding:10px 16px;border-radius:20px;font-weight:800">${txt}</button></div></div>`;}).join('')}<button class="btn-voltar" onclick="voltarIngredientes()">← INGREDIENTES</button></div></div></div></div>`;modal.classList.add('mostrar');document.getElementById('flip-inner').classList.remove('virando');document.getElementById('view-ingredientes').style.display='block';document.getElementById('view-preparo').style.display='none';setTimeout(()=>atualizarBtnFav(),80);}
+function compartilharWhatsApp(){if(!receitaAtual)return;const ingList=receitaAtual.ingredientes.map(i=>`• ${i.nome} - ${i.qtd||''}`).join('\n');const passosList=receitaAtual.passos.map((p,i)=>`${i+1}. ${p.texto||p}`).join('\n');const texto=`*${receitaAtual.titulo}* - ${receitaAtual.tempo}\n\n*INGREDIENTES:*\n${ingList}\n\n*MODO DE PREPARO:*\n${passosList}\n\nTotal: ${getKcal(receitaAtual)} kcal`;window.open(`https://wa.me/?text=${encodeURIComponent(texto)}`,'_blank');}
+function abrirReceita(id){const r=RECEITAS.find(x=>x.id===id);if(!r)return;receitaAtual=r;if(!recentes.includes(id)){recentes.unshift(id);recentes=recentes.slice(0,12);localStorage.setItem('hk_rec',JSON.stringify(recentes));}const modal=document.getElementById('modal');const corpo=document.getElementById('modal-corpo');const passosNorm=r.passos.map(normalizarPasso);const passosDetalhados=passosNorm.map((p,i)=>detalharPasso(p,i,passosNorm.length));corpo.innerHTML=`<style>.flip-wrapper{ perspective:1200px; } .flip-inner{ position:relative; width:100%; transition: transform 0.7s; transform-style: preserve-3d; } .flip-inner.virando{ transform: rotateY(180deg); } .view{ backface-visibility:hidden; } #view-preparo{ position:absolute; top:0; left:0; width:100%; transform: rotateY(180deg); } .btn-whatsapp{ width:100%; background:#25D366; color:white; border:none; padding:14px; border-radius:14px; font-weight:900; font-size:15px; margin-top:16px; cursor:pointer; } .btn-modo{ width:100%; background:#FF6B35; color:white; border:none; padding:18px; border-radius:16px; font-weight:900; font-size:18px; margin-top:12px; cursor:pointer; } .btn-voltar{ width:100%; background:#1A1A1A; color:white; border:none; padding:18px; border-radius:16px; font-weight:900; font-size:18px; margin-top:24px; cursor:pointer; } .passo-detalhado{ background:white; border:1.5px solid #FFE9DC; border-radius:16px; padding:16px; margin-bottom:14px; display:flex; gap:12px; }</style><img class="capa" src="${r.foto}"><div class="flip-wrapper"><div class="flip-inner" id="flip-inner"><div class="view" id="view-ingredientes"><div class="modal-conteudo"><h1 style="font-size:24px;font-weight:900">${r.titulo}</h1><div style="display:flex;gap:8px;margin:12px 0"><span style="background:#FFF0E6;padding:6px 12px;border-radius:20px;font-size:13px;font-weight:700">⏰ ${r.tempo}</span><span style="background:#FFF0E6;padding:6px 12px;border-radius:20px;font-size:13px;font-weight:700">🔥 ${getKcal(r)} kcal</span></div><h3 style="margin:20px 0 12px">🛒 Ingredientes (${r.ingredientes.length})</h3><ul style="list-style:none;display:flex;flex-direction:column;gap:10px;padding:0">${r.ingredientes.map(i=>`<li style="background:#FFFBF8;border:1px solid #FFE9DC;padding:14px;border-radius:14px;display:flex;justify-content:space-between"><span><b>${i.nome}</b><br><small>${i.qtd||''}</small></span><b style="background:#FFE9DC;padding:6px 10px;border-radius:10px">${i.kcal||0} kcal</b></li>`).join('')}</ul><button class="btn-whatsapp" onclick="compartilharWhatsApp()">📲 Exportar para WhatsApp</button><button class="btn-modo" onclick="irParaModoPreparo()">👨‍🍳 MODO DE PREPARO →</button></div></div><div class="view" id="view-preparo"><div class="modal-conteudo"><h1 style="font-size:22px;font-weight:900">${r.titulo}</h1><p style="color:#9A8C83;margin:6px 0 16px">Modo de preparo detalhado • ${passosDetalhados.length} passos</p>${passosDetalhados.map((p,i)=>{const key=`${r.id}-${i}`;const ativo=timersAtivos[key];const rest=ativo?Math.max(0,Math.floor((ativo.fim-Date.now())/1000)):0;const txt=ativo?`⏳ ${Math.floor(rest/60)}:${(rest%60).toString().padStart(2,'0')} rodando`:`⏱ Timer ${p.tempoMin} min`;return `<div class="passo-detalhado"><input type="checkbox" onchange="this.parentElement.style.opacity=this.checked?0.6:1"><div style="flex:1"><div style="display:flex;justify-content:space-between;margin-bottom:6px"><b style="color:#FF6B35;font-size:13px">${p.label}</b><span style="font-size:12px;background:#FFF0E6;padding:4px 8px;border-radius:8px">Passo ${i+1}/${passosDetalhados.length}</span></div><div style="font-weight:600;font-size:15px">${p.texto}</div><button id="btn-timer-${i}" onclick="iniciarTimer(${p.tempoMin},${i})" style="margin-top:10px;background:#1A1A1A;color:white;border:none;padding:10px 16px;border-radius:20px;font-weight:800">${txt}</button></div></div>`;}).join('')}<button class="btn-voltar" onclick="voltarIngredientes()">← INGREDIENTES</button></div></div></div></div>`;modal.classList.add('mostrar');document.getElementById('flip-inner').classList.remove('virando');document.getElementById('view-ingredientes').style.display='block';document.getElementById('view-preparo').style.display='none';setTimeout(()=>atualizarBtnFav(),80);}
 function irParaModoPreparo(){const flip=document.getElementById('flip-inner');const v1=document.getElementById('view-ingredientes');const v2=document.getElementById('view-preparo');flip.classList.add('virando');setTimeout(()=>{v1.style.display='none';v2.style.display='block';v2.style.position='relative';v2.style.transform='rotateY(180deg)';document.getElementById('modal-corpo').scrollTop=0;},350);}
 function voltarIngredientes(){const flip=document.getElementById('flip-inner');const v1=document.getElementById('view-ingredientes');const v2=document.getElementById('view-preparo');flip.classList.remove('virando');setTimeout(()=>{v2.style.display='none';v1.style.display='block';document.getElementById('modal-corpo').scrollTop=0;},350);}
 function fecharModal(){document.getElementById('modal').classList.remove('mostrar');}
@@ -31,34 +31,66 @@ function cancelarTimerPorChave(key){delete timersAtivos[key];salvarTimers();envi
 function limparTodosTimers(){localStorage.removeItem('hk_timers');timersAtivos={};salvarTimers();enviarParaSW('CLEAR_ALL',{});atualizarPaginaTimers();alert('Timers zerados!');}
 function mudarPage(nome){document.querySelectorAll('.page').forEach(p=>p.classList.remove('ativa'));document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('ativo'));document.getElementById(`page-${nome}`)?.classList.add('ativa');document.getElementById(`nav-${nome}`)?.classList.add('ativo');if(nome==='favoritos')renderReceitas(RECEITAS.filter(r=>favoritos.includes(r.id)),'grid-favoritos');if(nome==='recentes')renderReceitas(recentes.map(id=>RECEITAS.find(r=>r.id===id)).filter(Boolean),'grid-recentes');if(nome==='timer')atualizarPaginaTimers();}
 
-// ===== GELADEIRA - VERSÃO FINAL QUE FUNCIONA =====
-const CONDIMENTOS_TIRAR = ['agua','água','acucar','açucar','açúcar','sal','pimenta','oleo','óleo','azeite','vinagre','manteiga','margarina','cominho','oregano','orégano','salsinha','cebolinha','coentro','alecrim','manjericão','canela','cravo','noz moscada','paprica','páprica','curry','açafrão','cheiro verde','shoyu','molho shoyu','sal grosso','pimenta reino','limão','limon'];
-
-const PALAVRAS_LIXO = ['fatias','fatia','folha','folhas','goma','rodelas','rodela','unidade','unidades','colher','colheres','xicara','xícara','lata','pacote','rolo','maço','talo','talos','dente','dentes','pote','caixa','pedaco','pedaço','cubos','cubo','tiras','tira','fatiada','fatiado','fina','fino','picado','picada','cozida','cozido','pre-cozida','crua','cru','grande','pequeno','medio','verde','seco','opcional','para','com','sem','pincelar','em','inteira','inteiro','média','media','pequena','inteiros'];
+// ===== GELADEIRA - AGRUPAMENTO INTELIGENTE FINAL =====
+const CONDIMENTOS_TIRAR = ['agua','água','acucar','açucar','açúcar','sal','pimenta','oleo','óleo','azeite','vinagre','manteiga','margarina','cominho','oregano','orégano','salsinha','cebolinha','coentro','alecrim','manjericão','canela','cravo','noz moscada','paprica','páprica','curry','açafrão','cheiro verde','shoyu','molho shoyu','sal grosso','pimenta reino','limão','azeite de dendê','água com gás'];
 
 let ingredientesSelecionados = JSON.parse(localStorage.getItem('hk_ing_possuo')||'[]');
 
-function limparNomeParaRaiz(nome){
+// AQUI ESTÁ O SEGREDO - TUDO QUE CONTÉM A MESMA RAIZ VIRA UM SÓ
+function paraRaiz(nome){
   nome = nome.toLowerCase().trim();
-  nome = nome.replace(/\(.*?\)/g, '').trim();
-  PALAVRAS_LIXO.forEach(lixo=>{ nome = nome.replace(new RegExp('\\b'+lixo+'\\b','g'), ''); });
-  nome = nome.replace(/\s+/g, ' ').trim();
-  if(nome.length<3) return '';
-  return nome;
+  // remove acento para comparar
+  let semAcento = nome.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  
+  if(semAcento.includes('ovo')) return 'ovo';
+  if(semAcento.includes('tomate')) return 'tomate';
+  if(semAcento.includes('pimentao')) return 'pimentão';
+  if(semAcento.includes('cebola')) return 'cebola';
+  if(semAcento.includes('queijo') || semAcento.includes('mucarela') || semAcento.includes('muçarela') || semAcento.includes('mussarela') || semAcento.includes('parmesao') || semAcento.includes('cheddar') || semAcento.includes('catupiry')) return 'queijo';
+  if(semAcento.includes('frango') || semAcento.includes('coxa de frango') || semAcento.includes('peito de frango')) return 'frango';
+  if(semAcento.includes('carne moida') || semAcento.includes('carne')) return 'carne';
+  if(semAcento.includes('batata')) return 'batata';
+  if(semAcento.includes('abobrinha')) return 'abobrinha';
+  if(semAcento.includes('cenoura')) return 'cenoura';
+  if(semAcento.includes('abobora')) return 'abóbora';
+  if(semAcento.includes('couve')) return 'couve';
+  if(semAcento.includes('leite condensado')) return 'leite condensado';
+  if(semAcento.includes('leite de coco')) return 'leite de coco';
+  if(semAcento.includes('leite')) return 'leite';
+  if(semAcento.includes('farinha') || semAcento.includes('polvilho') || semAcento.includes('amido') || semAcento.includes('trigo')) return 'farinha';
+  if(semAcento.includes('arroz')) return 'arroz';
+  if(semAcento.includes('feijao') || semAcento.includes('feijão')) return 'feijão';
+  if(semAcento.includes('grao de bico') || semAcento.includes('grão de bico')) return 'grão de bico';
+  if(semAcento.includes('quinoa')) return 'quinoa';
+  if(semAcento.includes('tortilha') || semAcento.includes('pao') || semAcento.includes('massa')) return 'massa';
+  if(semAcento.includes('linguica') || semAcento.includes('linguiça') || semAcento.includes('bacon') || semAcento.includes('presunto') || semAcento.includes('paio') || semAcento.includes('costela')) return 'embutidos';
+  if(semAcento.includes('camarao') || semAcento.includes('camarão') || semAcento.includes('robalo') || semAcento.includes('salmao') || semAcento.includes('salmão')) return 'frutos do mar';
+  if(semAcento.includes('abacate') || semAcento.includes('avocado')) return 'abacate';
+  if(semAcento.includes('pepino')) return 'pepino';
+  if(semAcento.includes('alface')) return 'alface';
+  if(semAcento.includes('brocolis') || semAcento.includes('brócolis')) return 'brócolis';
+  if(semAcento.includes('repolho')) return 'repolho';
+  if(semAcento.includes('lentilha')) return 'lentilha';
+  if(semAcento.includes('ervilha')) return 'ervilha';
+  if(semAcento.includes('milho')) return 'milho';
+  if(semAcento.includes('morango')) return 'morango';
+  if(semAcento.includes('chocolate') || semAcento.includes('cacau')) return 'chocolate';
+  if(semAcento.includes('paçoca') || semAcento.includes('pacoca')) return 'paçoca';
+  if(semAcento.includes('bolacha')) return 'bolacha';
+  
+  // se não achou nada, pega a primeira palavra
+  let primeira = nome.split(' ')[0];
+  return primeira;
 }
 
 function getIngredientesObrigatoriosDaReceita(receita){
   let obrigatorios = [];
   if(!receita.ingredientes) return [];
   receita.ingredientes.forEach(ing=>{
-    let nomeOriginal = (ing.nome||ing.name||'').toLowerCase().trim();
-    if(!nomeOriginal) return;
-    // se é condimento, ignora
-    if(CONDIMENTOS_TIRAR.some(c=> nomeOriginal === c || nomeOriginal.includes(c))) return;
-    let raiz = limparNomeParaRaiz(nomeOriginal);
-    if(!raiz) return;
-    if(PALAVRAS_LIXO.includes(raiz)) return;
-    if(CONDIMENTOS_TIRAR.includes(raiz)) return;
+    let nome = (ing.nome||'').toLowerCase().trim();
+    if(!nome) return;
+    if(CONDIMENTOS_TIRAR.some(c=> nome.includes(c))) return;
+    let raiz = paraRaiz(nome);
     if(raiz.length>=3) obrigatorios.push(raiz);
   });
   return [...new Set(obrigatorios)];
@@ -96,7 +128,6 @@ function salvarEFiltrar(){
   if(ingredientesSelecionados.length===0){ const box = document.getElementById('receitas-filtradas-possuo'); if(box) box.innerHTML=''; filtrar(); return; }
   let filtradas = [...RECEITAS];
   if(categoriaAtiva!=='tudo'){ if(categoriaAtiva==='airfryer') filtradas=filtradas.filter(r=>r.airfryer===true); else{ const nome=CATEGORIAS.find(c=>c.id===categoriaAtiva)?.nome.toLowerCase()||categoriaAtiva; filtradas=filtradas.filter(r=>(r.categoria_principal||'').toLowerCase()===nome||(r.categorias||[]).map(x=>x.toLowerCase()).includes(nome)); } }
-  // Receita só aparece se TODOS os ingredientes obrigatórios dela estão selecionados
   filtradas = filtradas.filter(receita=>{ const obrigatorios = getIngredientesObrigatoriosDaReceita(receita); if(obrigatorios.length===0) return false; return obrigatorios.every(ob => ingredientesSelecionados.includes(ob)); });
   const box = document.getElementById('receitas-filtradas-possuo'); if(box){ if(filtradas.length===0){ box.innerHTML=`<div style="text-align:center;padding:16px;background:#FFF0E6;border-radius:12px">Com <b>${ingredientesSelecionados.join(', ')}</b> ainda não dá pra fazer nenhuma receita completa<br><small>Dica: Bowl Quinoa precisa: quinoa + grão de bico + abacate + tomate + pepino</small></div>`; } else { box.innerHTML=`<div style="font-weight:800;margin-bottom:8px">✅ Você consegue fazer ${filtradas.length} receitas com: ${ingredientesSelecionados.join(', ')}</div>`; } }
   renderReceitas(filtradas,'grid-receitas');
