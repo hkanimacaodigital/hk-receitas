@@ -30,7 +30,6 @@ function init(){
   filtrar(); 
   restaurarTimersGlobais(); 
   if(Notification.permission!=='granted') Notification.requestPermission();
-  // Gaveta automática
   const cont = document.getElementById('contador-ingredientes-possuo');
   if(cont){
     cont.innerText = `${ingredientesSelecionados.length} selecionados`;
@@ -44,18 +43,37 @@ function renderCategorias(){
   const todas=[{id:'tudo',nome:'Tudo',icone:'✨'},...ord];
   c.innerHTML=todas.map(cat=>`<button class="cat-btn ${categoriaAtiva===cat.id?'ativo':''}" onclick="setCategoria('${cat.id}')">${cat.icone}<br>${cat.nome}<br>(${contar(cat.id)})</button>`).join('');
 }
-function setCategoria(id){ categoriaAtiva=id; renderCategorias(); filtrar(); }
+function setCategoria(id){ 
+  categoriaAtiva=id; 
+  renderCategorias(); 
+  if(ingredientesSelecionados.length>0){
+    salvarEFiltrar();
+  } else {
+    filtrar(); 
+  }
+}
 function getKcal(r){ return r.ingredientes?r.ingredientes.reduce((a,b)=>a+(b.kcal||b.calorias||0),0):0; }
 function getTempo(r){ const m=(r.tempo||'').match(/(\d+)/); return m?parseInt(m[1]):999; }
 function filtrar(){
   if(!RECEITAS) return; 
-  // Se tiver filtro da geladeira ativo, não reseta
-  if(ingredientesSelecionados.length>0) { salvarEFiltrar(); return; }
-  const busca=(document.getElementById('busca')?.value||'').toLowerCase(); const ordem=document.getElementById('ordem')?.value||'padrao';
+  if(ingredientesSelecionados.length>0){ 
+    salvarEFiltrar(); 
+    return; 
+  }
+  const busca=(document.getElementById('busca')?.value||'').toLowerCase(); 
+  const ordem=document.getElementById('ordem')?.value||'padrao';
   let lista=[...RECEITAS];
-  if(categoriaAtiva!=='tudo'){ if(categoriaAtiva==='airfryer') lista=lista.filter(r=>r.airfryer===true); else{ const nome=CATEGORIAS.find(c=>c.id===categoriaAtiva)?.nome.toLowerCase()||categoriaAtiva; lista=lista.filter(r=>(r.categoria_principal||'').toLowerCase()===nome||(r.categorias||[]).map(x=>x.toLowerCase()).includes(nome)); }}
+  if(categoriaAtiva!=='tudo'){ 
+    if(categoriaAtiva==='airfryer') lista=lista.filter(r=>r.airfryer===true); 
+    else{ 
+      const nome=CATEGORIAS.find(c=>c.id===categoriaAtiva)?.nome.toLowerCase()||categoriaAtiva; 
+      lista=lista.filter(r=>(r.categoria_principal||'').toLowerCase()===nome||(r.categorias||[]).map(x=>x.toLowerCase()).includes(nome)); 
+    }
+  }
   if(busca) lista=lista.filter(r=>r.titulo.toLowerCase().includes(busca));
-  if(ordem==='az') lista.sort((a,b)=>a.titulo.localeCompare(b.titulo)); else if(ordem==='tempo') lista.sort((a,b)=>getTempo(a)-getTempo(b)); else if(ordem==='kcal') lista.sort((a,b)=>getKcal(a)-getKcal(b));
+  if(ordem==='az') lista.sort((a,b)=>a.titulo.localeCompare(b.titulo)); 
+  else if(ordem==='tempo') lista.sort((a,b)=>getTempo(a)-getTempo(b)); 
+  else if(ordem==='kcal') lista.sort((a,b)=>getKcal(a)-getKcal(b));
   renderReceitas(lista,'grid-receitas');
 }
 function renderReceitas(lista, alvoId){
@@ -198,20 +216,55 @@ function mudarPage(nome){
   if(nome==='timer') atualizarPaginaTimers();
 }
 
-// ===== GELADEIRA INTELIGENTE - AUTOMÁTICA =====
+// ===== GELADEIRA INTELIGENTE - CORRIGIDA E LIMPA =====
 const TEMPEROS_EXCLUIR = ['sal','pimenta','orégano','oregano','cominho','cheiro verde','salsinha','cebolinha','coentro','alecrim','manjericão','azeite','óleo','oleo','vinagre','alho','cebola','manteiga','margarina','açúcar','acucar','canela','cravo','noz moscada','páprica','paprica','curry','açafrão','acafrao'];
 let ingredientesSelecionados = JSON.parse(localStorage.getItem('hk_ing_possuo')||'[]');
+
 function getTodosIngredientesUnicos(){
   const map = new Map();
   if(!RECEITAS) return [];
+  const PALAVRAS_LIXO = ['para','pincelar','em','tiras','fatiada','fatiado','fina','fino','cozida','cozido','pre-cozida','pré-cozida','integral','cozidas','cozidos','colheres','colher','lata','pacote','rolo','xico','xicara','xícara','maço','unidade','unidades','g','kg','ml','l','+','de','da','do'];
+  function limparNome(s){
+    let texto = s.toLowerCase();
+    texto = texto.replace(/\(.*?\)/g, '');
+    texto = texto.replace(/\d+/g, '');
+    texto = texto.replace(/\s+/g, ' ').trim();
+    let partes = texto.split(/\+|,|\//);
+    let resultado = [];
+    partes.forEach(p=>{
+      p.split(/ e /).forEach(sub=>{
+        let nome = sub.trim();
+        PALAVRAS_LIXO.forEach(lixo=>{
+          nome = nome.replace(new RegExp('\\b'+lixo+'\\b','g'),'');
+        });
+        nome = nome.replace(/\s+/g,' ').trim();
+        if(nome.includes('ovo') || nome.includes('gema')) nome = 'ovo';
+        if(nome.includes('cenoura')) nome = 'cenoura';
+        if(nome.includes('abobrinha')) nome = 'abobrinha';
+        if(nome.includes('leite condensado')) nome = 'leite condensado';
+        if(nome.includes('massa pastel')) nome = 'massa pastel';
+        if(nome.includes('massa lasanha')) nome = 'massa lasanha';
+        if(nome.includes('quinoa')) nome = 'quinoa';
+        if(nome.includes('couve')) nome = 'couve';
+        if(nome.includes('tortilha')) nome = 'tortilha';
+        if(nome.includes('arroz arboreo') || nome.includes('arroz arborio')) nome = 'arroz arbóreo';
+        if(nome.includes('queijo') || nome.includes('muçarela') || nome.includes('mucarela') || nome.includes('mussarela')) nome = 'queijo';
+        nome = nome.split(' ').filter(w=>w.length>2).slice(0,2).join(' ').trim();
+        if(nome.length>=3 && !TEMPEROS_EXCLUIR.some(t=>nome.includes(t))){
+          resultado.push(nome);
+        }
+      });
+    });
+    return resultado;
+  }
   RECEITAS.forEach(r=>{
     r.ingredientes.forEach(ing=>{
       const nomeOriginal = (ing.nome||ing.name||'').trim();
-      const nomeLower = nomeOriginal.toLowerCase();
-      if(!nomeLower) return;
-      if(TEMPEROS_EXCLUIR.some(t=> nomeLower.includes(t))) return;
-      if(nomeLower.length < 3) return;
-      if(!map.has(nomeLower)) map.set(nomeLower, nomeOriginal);
+      if(!nomeOriginal) return;
+      const bases = limparNome(nomeOriginal);
+      bases.forEach(base=>{
+        if(!map.has(base) && base.length>2) map.set(base, base);
+      });
     });
   });
   return Array.from(map.entries()).map(([k,v])=>({id:k, label:v})).sort((a,b)=>a.label.localeCompare(b.label));
@@ -261,21 +314,59 @@ function limparSelecaoIngredientes(){
 function salvarEFiltrar(){
   const contador = document.getElementById('contador-ingredientes-possuo');
   if(contador) contador.innerText = `${ingredientesSelecionados.length} selecionados`;
+  
   if(ingredientesSelecionados.length===0){
     const box = document.getElementById('receitas-filtradas-possuo');
     if(box) box.innerHTML='';
-    filtrar(); return;
+    const busca=(document.getElementById('busca')?.value||'').toLowerCase();
+    let lista=[...RECEITAS];
+    if(categoriaAtiva!=='tudo'){ 
+      if(categoriaAtiva==='airfryer') lista=lista.filter(r=>r.airfryer===true); 
+      else{ 
+        const nome=CATEGORIAS.find(c=>c.id===categoriaAtiva)?.nome.toLowerCase()||categoriaAtiva; 
+        lista=lista.filter(r=>(r.categoria_principal||'').toLowerCase()===nome||(r.categorias||[]).map(x=>x.toLowerCase()).includes(nome)); 
+      }
+    }
+    if(busca) lista=lista.filter(r=>r.titulo.toLowerCase().includes(busca));
+    renderReceitas(lista,'grid-receitas');
+    return;
   }
-  const filtradas = RECEITAS.filter(receita=>{
-    const nomesReceita = receita.ingredientes.map(i=>(i.nome||i.name||'').toLowerCase());
-    return ingredientesSelecionados.every(sel => nomesReceita.some(nr => nr.includes(sel)));
+
+  let filtradas = [...RECEITAS];
+  if(categoriaAtiva!=='tudo'){ 
+    if(categoriaAtiva==='airfryer') filtradas=filtradas.filter(r=>r.airfryer===true); 
+    else{ 
+      const nome=CATEGORIAS.find(c=>c.id===categoriaAtiva)?.nome.toLowerCase()||categoriaAtiva; 
+      filtradas=filtradas.filter(r=>(r.categoria_principal||'').toLowerCase()===nome||(r.categorias||[]).map(x=>x.toLowerCase()).includes(nome)); 
+    }
+  }
+
+  filtradas = filtradas.filter(receita=>{
+    const nomesReceita = receita.ingredientes.map(i=>{
+      let n = (i.nome||i.name||'').toLowerCase().replace(/\(.*?\)/g,'').replace(/\d+/g,'').trim();
+      if(n.includes('ovo') || n.includes('gema')) n='ovo';
+      if(n.includes('cenoura')) n='cenoura';
+      if(n.includes('abobrinha')) n='abobrinha';
+      if(n.includes('leite condensado')) n='leite condensado';
+      if(n.includes('massa pastel')) n='massa pastel';
+      if(n.includes('massa lasanha')) n='massa lasanha';
+      if(n.includes('quinoa')) n='quinoa';
+      if(n.includes('couve')) n='couve';
+      if(n.includes('tortilha')) n='tortilha';
+      if(n.includes('queijo') || n.includes('muçarela') || n.includes('mucarela') || n.includes('mussarela')) n='queijo';
+      return n;
+    });
+    return ingredientesSelecionados.every(sel => 
+      nomesReceita.some(nr => nr.includes(sel) || sel.includes(nr))
+    );
   });
+
   const box = document.getElementById('receitas-filtradas-possuo');
   if(box){
     if(filtradas.length===0){
-      box.innerHTML=`<div style="text-align:center;padding:16px;background:#FFF0E6;border-radius:12px;color:#9A8C83"><b>Nenhuma receita contém: ${ingredientesSelecionados.join(', ')}</b><br><small>Tente combinar diferente</small></div>`;
+      box.innerHTML=`<div style="text-align:center;padding:16px;background:#FFF0E6;border-radius:12px;color:#9A8C83"><b>Nenhuma receita em "${categoriaAtiva}" com: ${ingredientesSelecionados.join(', ')}</b><br><small>Tente outra categoria</small></div>`;
     } else {
-      box.innerHTML=`<div style="font-weight:800;margin-bottom:8px">✅ ${filtradas.length} receitas encontradas:</div>`;
+      box.innerHTML=`<div style="font-weight:800;margin-bottom:8px">✅ ${filtradas.length} receitas em "${categoriaAtiva}" com: ${ingredientesSelecionados.join(', ')}</div>`;
     }
   }
   renderReceitas(filtradas,'grid-receitas');
