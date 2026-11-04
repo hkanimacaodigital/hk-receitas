@@ -33,7 +33,7 @@ function mudarPage(nome){document.querySelectorAll('.page').forEach(p=>p.classLi
 
 // ===== GELADEIRA - FINAL LIMPO - ELIMINA TEMPEROS E AGRUPA GEMA/GUACAMOLE =====
 const CONDIMENTOS_TIRAR = [
-  'agua','água','acucar','açucar','açúcar','sal','pimenta','oleo','óleo','azeite','vinagre',
+  'agua','água','alho','caldo','acucar','açucar','açúcar','sal','pimenta','oleo','óleo','azeite','vinagre',
   'manteiga','margarina','cominho','oregano','orégano','salsinha','cebolinha','coentro','alecrim',
   'manjericão','canela','cravo','noz moscada','paprica','páprica','curry','açafrão','cheiro verde',
   'shoyu','molho shoyu','sal grosso','pimenta reino','limão','azeite de dendê','água com gás',
