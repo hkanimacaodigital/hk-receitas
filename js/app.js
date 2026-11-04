@@ -216,47 +216,58 @@ function mudarPage(nome){
   if(nome==='timer') atualizarPaginaTimers();
 }
 
-// ===== GELADEIRA INTELIGENTE - VERSÃO SIMPLES QUE ABRE =====
+// ===== GELADEIRA INTELIGENTE - AGRUPADO POR RAIZ =====
 const TEMPEROS_EXCLUIR = ['sal','pimenta','orégano','oregano','cominho','cheiro verde','salsinha','cebolinha','coentro','alecrim','manjericão','azeite','óleo','oleo','vinagre','alho','cebola','manteiga','margarina','açúcar','acucar','canela','cravo','noz moscada','páprica','paprica','curry','açafrão','acafrao'];
 let ingredientesSelecionados = JSON.parse(localStorage.getItem('hk_ing_possuo')||'[]');
 
 function getTodosIngredientesUnicos(){
   const map = new Map();
-  if(!RECEITAS || RECEITAS.length===0) return [];
+  if(!RECEITAS) return [];
+  const MAPA_RAIZ = {
+    'tomate': 'tomate',
+    'shoyu': 'shoyu',
+    'abacate': 'abacate',
+    'ovo': 'ovo', 'gema': 'ovo',
+    'queijo': 'queijo', 'muçarela': 'queijo', 'mucarela': 'queijo', 'mussarela': 'queijo', 'parmesão': 'queijo', 'parmesao': 'queijo',
+    'frango': 'frango',
+    'carne': 'carne', 'carne moida': 'carne',
+    'arroz': 'arroz',
+    'feijão': 'feijão', 'feijao': 'feijão',
+    'leite': 'leite', 'leite condensado': 'leite condensado',
+    'trigo': 'farinha', 'farinha': 'farinha', 'amido': 'farinha',
+    'tortilha': 'tortilha',
+    'abobrinha': 'abobrinha',
+    'cenoura': 'cenoura',
+    'batata': 'batata',
+    'couve': 'couve',
+    'quinoa': 'quinoa',
+    'brócolis': 'brócolis', 'brocolis': 'brócolis',
+    'espinafre': 'espinafre',
+    'chocolate': 'chocolate'
+  };
+  function paraRaiz(nome){
+    nome = nome.toLowerCase().trim();
+    for(let chave in MAPA_RAIZ){
+      if(nome.includes(chave)){
+        return MAPA_RAIZ[chave];
+      }
+    }
+    let palavras = nome.split(' ').filter(w=> w.length>2 && !['seco','picado','picada','rodelas','cubos','opcional','verde','em','fatiada','fina','cozida','para','com','sem','pincelar','tiras'].includes(w));
+    return palavras[0] || nome;
+  }
   RECEITAS.forEach(r=>{
     if(!r.ingredientes) return;
     r.ingredientes.forEach(ing=>{
-      let nomeOriginal = (ing.nome||ing.name||'').trim();
-      if(!nomeOriginal) return;
-      let base = nomeOriginal.toLowerCase();
-      base = base.replace(/\(.*?\)/g, '');
-      base = base.replace(/\d+/g, '').trim();
-      base = base.replace(/^\s*(de|da|do|com)\s+/g, '').trim();
-      let partes = base.split(/\s+e\s+/);
-      partes.forEach(p=>{
-        p = p.trim();
-        p = p.replace(/\s+(em tiras|fatiada fina|para pincelar|cozida|pre-cozida|integral|lata|pacote|rolo|maço)$/g, '').trim();
-        p = p.replace(/\s+/g, ' ').trim();
-        if(p.includes('ovo') || p.includes('gema')) p = 'ovo';
-        else if(p.includes('muçarela') || p.includes('mucarela') || p.includes('mussarela') || p.includes('queijo')) p = 'queijo';
-        else if(p.includes('leite condensado')) p = 'leite condensado';
-        else if(p.includes('abobrinha')) p = 'abobrinha';
-        else if(p.includes('cenoura')) p = 'cenoura';
-        else if(p.includes('couve')) p = 'couve';
-        else if(p.includes('quinoa')) p = 'quinoa';
-        else if(p.includes('tortilha')) p = 'tortilha';
-        else if(p.includes('arroz arboreo') || p.includes('arroz arborio')) p = 'arroz arbóreo';
-        else if(p.includes('massa pastel')) p = 'massa pastel';
-        else if(p.includes('massa lasanha')) p = 'massa lasanha';
-        else {
-          let palavras = p.split(' ').filter(w=> w.length>2 && !['para','com','sem'].includes(w));
-          if(palavras.length>2) palavras = palavras.slice(-2);
-          p = palavras.join(' ');
-        }
-        if(p.length<3) return;
-        if(TEMPEROS_EXCLUIR.some(t=> p === t)) return;
-        if(!map.has(p)) map.set(p, p);
-      });
+      let nome = (ing.nome||ing.name||'').toLowerCase();
+      nome = nome.replace(/\(.*?\)/g, '').replace(/\d+/g, '').trim();
+      nome = nome.replace(/^\s*(de|da|do)\s+/g, '').trim();
+      nome = nome.split(/\s+e\s+/)[0].trim();
+      if(nome.length<3) return;
+      if(TEMPEROS_EXCLUIR.some(t=> nome === t)) return;
+      let raiz = paraRaiz(nome);
+      if(raiz && raiz.length>=3){
+        map.set(raiz, raiz);
+      }
     });
   });
   return Array.from(map.keys()).map(k=>({id:k, label:k})).sort((a,b)=>a.label.localeCompare(b.label));
@@ -265,7 +276,7 @@ function getTodosIngredientesUnicos(){
 function abrirModalIngredientesPossuo(){
   const modal = document.getElementById('modal-ingredientes');
   const lista = document.getElementById('lista-todos-ingredientes');
-  if(!modal||!lista){ alert('Modal não encontrado! Use o index.html novo que te mandei'); return; }
+  if(!modal||!lista){ alert('Modal não encontrado! Use o index.html novo'); return; }
   const todos = getTodosIngredientesUnicos();
   if(todos.length===0){
     lista.innerHTML = `<div style="padding:20px;text-align:center">Nenhum ingrediente. RECEITAS: ${RECEITAS ? RECEITAS.length : '0'}</div>`;
@@ -310,24 +321,11 @@ function limparSelecaoIngredientes(){
 function salvarEFiltrar(){
   const contador = document.getElementById('contador-ingredientes-possuo');
   if(contador) contador.innerText = `${ingredientesSelecionados.length} selecionados`;
-  
   if(ingredientesSelecionados.length===0){
     const box = document.getElementById('receitas-filtradas-possuo');
     if(box) box.innerHTML='';
-    const busca=(document.getElementById('busca')?.value||'').toLowerCase();
-    let lista=[...RECEITAS];
-    if(categoriaAtiva!=='tudo'){ 
-      if(categoriaAtiva==='airfryer') lista=lista.filter(r=>r.airfryer===true); 
-      else{ 
-        const nome=CATEGORIAS.find(c=>c.id===categoriaAtiva)?.nome.toLowerCase()||categoriaAtiva; 
-        lista=lista.filter(r=>(r.categoria_principal||'').toLowerCase()===nome||(r.categorias||[]).map(x=>x.toLowerCase()).includes(nome)); 
-      }
-    }
-    if(busca) lista=lista.filter(r=>r.titulo.toLowerCase().includes(busca));
-    renderReceitas(lista,'grid-receitas');
-    return;
+    filtrar(); return;
   }
-
   let filtradas = [...RECEITAS];
   if(categoriaAtiva!=='tudo'){ 
     if(categoriaAtiva==='airfryer') filtradas=filtradas.filter(r=>r.airfryer===true); 
@@ -336,34 +334,17 @@ function salvarEFiltrar(){
       filtradas=filtradas.filter(r=>(r.categoria_principal||'').toLowerCase()===nome||(r.categorias||[]).map(x=>x.toLowerCase()).includes(nome)); 
     }
   }
-
   filtradas = filtradas.filter(receita=>{
-    const nomesReceita = receita.ingredientes.map(i=>{
-      let n = (i.nome||i.name||'').toLowerCase().replace(/\(.*?\)/g,'').replace(/\d+/g,'').trim();
-      if(n.includes('ovo') || n.includes('gema')) n='ovo';
-      if(n.includes('muçarela') || n.includes('mucarela') || n.includes('mussarela') || n.includes('queijo')) n='queijo';
-      if(n.includes('cenoura')) n='cenoura';
-      if(n.includes('abobrinha')) n='abobrinha';
-      if(n.includes('leite condensado')) n='leite condensado';
-      if(n.includes('massa pastel')) n='massa pastel';
-      if(n.includes('massa lasanha')) n='massa lasanha';
-      if(n.includes('quinoa')) n='quinoa';
-      if(n.includes('couve')) n='couve';
-      if(n.includes('tortilha')) n='tortilha';
-      return n;
-    });
+    const nomesReceita = receita.ingredientes.map(i=> (i.nome||i.name||'').toLowerCase());
     return ingredientesSelecionados.every(sel => 
-      nomesReceita.some(nr => nr.includes(sel) || sel.includes(nr))
+      nomesReceita.some(nr => nr.includes(sel))
     );
   });
-
   const box = document.getElementById('receitas-filtradas-possuo');
   if(box){
-    if(filtradas.length===0){
-      box.innerHTML=`<div style="text-align:center;padding:16px;background:#FFF0E6;border-radius:12px;color:#9A8C83"><b>Nenhuma receita em "${categoriaAtiva}" com: ${ingredientesSelecionados.join(', ')}</b><br><small>Tente outra categoria</small></div>`;
-    } else {
-      box.innerHTML=`<div style="font-weight:800;margin-bottom:8px">✅ ${filtradas.length} receitas em "${categoriaAtiva}" com: ${ingredientesSelecionados.join(', ')}</div>`;
-    }
+    box.innerHTML = filtradas.length===0 
+      ? `<div style="text-align:center;padding:16px;background:#FFF0E6;border-radius:12px">Nenhuma receita em "${categoriaAtiva}" com: ${ingredientesSelecionados.join(', ')}</div>`
+      : `<div style="font-weight:800;margin-bottom:8px">✅ ${filtradas.length} receitas em "${categoriaAtiva}" com: ${ingredientesSelecionados.join(', ')}</div>`;
   }
   renderReceitas(filtradas,'grid-receitas');
 }
