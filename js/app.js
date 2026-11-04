@@ -31,15 +31,25 @@ function cancelarTimerPorChave(key){delete timersAtivos[key];salvarTimers();envi
 function limparTodosTimers(){localStorage.removeItem('hk_timers');timersAtivos={};salvarTimers();enviarParaSW('CLEAR_ALL',{});atualizarPaginaTimers();alert('Timers zerados!');}
 function mudarPage(nome){document.querySelectorAll('.page').forEach(p=>p.classList.remove('ativa'));document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('ativo'));document.getElementById(`page-${nome}`)?.classList.add('ativa');document.getElementById(`nav-${nome}`)?.classList.add('ativo');if(nome==='favoritos')renderReceitas(RECEITAS.filter(r=>favoritos.includes(r.id)),'grid-favoritos');if(nome==='recentes')renderReceitas(recentes.map(id=>RECEITAS.find(r=>r.id===id)).filter(Boolean),'grid-recentes');if(nome==='timer')atualizarPaginaTimers();}
 
-// ===== GELADEIRA - FINAL CORRETO - AGRUPA TUDO + TOPO FIXO SEM DUPLICAR =====
-const CONDIMENTOS_TIRAR = ['agua','água','acucar','açucar','açúcar','sal','pimenta','oleo','óleo','azeite','vinagre','manteiga','margarina','cominho','oregano','orégano','salsinha','cebolinha','coentro','alecrim','manjericão','canela','cravo','noz moscada','paprica','páprica','curry','açafrão','cheiro verde','shoyu','molho shoyu','sal grosso','pimenta reino','limão','azeite de dendê','água com gás','amido','polvilho','fermento'];
+// ===== GELADEIRA - FINAL LIMPO - ELIMINA TEMPEROS E AGRUPA GEMA/GUACAMOLE =====
+const CONDIMENTOS_TIRAR = [
+  'agua','água','acucar','açucar','açúcar','sal','pimenta','oleo','óleo','azeite','vinagre',
+  'manteiga','margarina','cominho','oregano','orégano','salsinha','cebolinha','coentro','alecrim',
+  'manjericão','canela','cravo','noz moscada','paprica','páprica','curry','açafrão','cheiro verde',
+  'shoyu','molho shoyu','sal grosso','pimenta reino','limão','azeite de dendê','água com gás',
+  'amido','polvilho','fermento','louro','folha de louro','tempero verde','mix de folhas','mix folhas',
+  'folhas','folha','nori','cebolinha','salsinha','gengibre','alecrim'
+];
+
 let ingredientesSelecionados = JSON.parse(localStorage.getItem('hk_ing_possuo')||'[]');
 
 function paraRaiz(nome){
   nome = nome.toLowerCase().trim();
   let s = nome.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
   
-  // GRUPOS QUE VOCÊ PEDIU - TUDO VIRA UM SÓ
+  // MAPEAMENTOS ESPECIAIS QUE VOCÊ PEDIU
+  if(s.includes('guacamole')) return 'abacate';
+  if(s.includes('gema') || s.includes('clara')) return 'ovo';
   if(s.includes('ovo')) return 'ovo';
   if(s.includes('tomate')) return 'tomate';
   if(s.includes('pimentao')) return 'pimentão';
@@ -73,11 +83,11 @@ function paraRaiz(nome){
   if(s.includes('milho')) return 'milho';
   if(s.includes('morango')) return 'morango';
   if(s.includes('coco')) return 'coco';
-  if(s.includes('chocolate') || s.includes('cacau') || s.includes('pacoca') || s.includes('bolacha') || s.includes('acucar') || s.includes('doce de leite')) return 'doce';
-  if(s.includes('hortela') || s.includes('salsinha') || s.includes('coentro') || s.includes('manjericao') || s.includes('alecrim') || s.includes('cebolinha') || s.includes('cheiro verde')) return 'tempero verde';
+  if(s.includes('chocolate') || s.includes('cacau') || s.includes('pacoca') || s.includes('bolacha') || s.includes('doce de leite')) return 'doce';
   
   return nome;
 }
+
 function getIngredientesObrigatoriosDaReceita(receita){
   let obrigatorios = [];
   if(!receita.ingredientes) return [];
@@ -85,12 +95,12 @@ function getIngredientesObrigatoriosDaReceita(receita){
     let nome = (ing.nome||'').toLowerCase().trim();
     if(!nome) return;
     if(CONDIMENTOS_TIRAR.some(c=> nome.includes(c))) return;
-    if(nome.includes('tempero verde')) return;
     let raiz = paraRaiz(nome);
     if(raiz.length>=3 && !CONDIMENTOS_TIRAR.includes(raiz)) obrigatorios.push(raiz);
   });
   return [...new Set(obrigatorios)];
 }
+
 function getTodosIngredientesUnicos(){
   const map = new Map();
   if(!RECEITAS) return [];
@@ -101,15 +111,11 @@ function getTodosIngredientesUnicos(){
   });
   return Array.from(map.keys()).map(k=>({id:k, label:k})).sort((a,b)=>a.label.localeCompare(b.label));
 }
+
 function abrirModalIngredientesPossuo(){
   const modal = document.getElementById('modal-ingredientes');
   const lista = document.getElementById('lista-todos-ingredientes');
   if(!modal||!lista){ alert('Use o index.html novo'); return; }
-  
-  // REMOVE TOPO DUPLICADO SE EXISTIR E CRIA CSS FIXO SEM DUPLICAR
-  const duplicados = modal.querySelectorAll('.topo-fixo-geladeira');
-  if(duplicados.length>1){ for(let i=1;i<duplicados.length;i++) duplicados[i].remove(); }
-  
   if(!document.getElementById('style-topo-fixo-final')){
     const style = document.createElement('style');
     style.id = 'style-topo-fixo-final';
@@ -137,14 +143,12 @@ function abrirModalIngredientesPossuo(){
     `;
     document.head.appendChild(style);
   }
-
   const todos = getTodosIngredientesUnicos();
   lista.innerHTML = todos.map(item=>{
     const checked = ingredientesSelecionados.includes(item.id) ? 'checked' : '';
     const bg = checked ? '#FFF0E6' : '#FFFBF8';
     return `<label style="display:flex;align-items:center;gap:12px;background:${bg};border:1.5px solid #FFE9DC;padding:12px;border-radius:12px;cursor:pointer;margin-bottom:8px"><input type="checkbox" value="${item.id}" ${checked} onchange="toggleIngredientePossuo(this.value)" style="width:20px;height:20px"><span style="font-weight:600;text-transform:capitalize">${item.label}</span></label>`;
   }).join('');
-  
   modal.style.display='flex';
 }
 function fecharModalIngredientesPossuo(){ document.getElementById('modal-ingredientes').style.display='none'; salvarEFiltrar(); }
