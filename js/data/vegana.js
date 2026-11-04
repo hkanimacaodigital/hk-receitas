@@ -1,12 +1,12 @@
 window.RECEITAS_VEGANA = [
 {
-id:"curry-grao-bico", titulo:"Curry de Grão de Bico Cremoso", categoria_principal:"Vegana", categorias:["Vegana","Saudável"], tempo:"28 min", foto:"assets/curry-grao-bico.jpg",
+id:"curry-grao-bico", titulo:"Curry de Grão de Bico Cremoso", categoria_principal:"Vegana", categorias:["Vegana","Saudável"], tempo:"28 min", porcoes:"3 porções", nivel:"Fácil", foto:"assets/curry-grao-bico.jpg",
 ingredientes:[
-{nome:"Grão de bico", qtd:"250g", kcal:280},
-{nome:"Leite de coco", qtd:"200ml", kcal:300},
-{nome:"Curry", qtd:"1 colher chá", kcal:4},
-{nome:"Cúrcuma", qtd:"1 colher chá", kcal:4},
-{nome:"Tomate pelado", qtd:"200g", kcal:40}
+{nome:"Grão de bico", qtd:"250g"},
+{nome:"Leite de coco", qtd:"200ml"},
+{nome:"Curry", qtd:"1 colher chá"},
+{nome:"Cúrcuma", qtd:"1 colher chá"},
+{nome:"Tomate pelado", qtd:"200g"}
 ],
 passos:[
 {texto:"Refogue cebola, alho, curry e cúrcuma 2 min.", timer:2},
@@ -14,14 +14,14 @@ passos:[
 ]
 },
 {
-id:"hamburguer-lentilha", titulo:"Hambúrguer de Lentilha", categoria_principal:"Vegana", categorias:["Vegana","Lanche","Saudável"], tempo:"30 min", foto:"assets/hamburguer-lentilha.jpg", airfryer:true,
+id:"hamburguer-lentilha", titulo:"Hambúrguer de Lentilha", categoria_principal:"Vegana", categorias:["Vegana","Lanche","Saudável"], tempo:"30 min", porcoes:"4 unidades", nivel:"Fácil", foto:"assets/hamburguer-lentilha.jpg", airfryer:true,
 ingredientes:[
-{nome:"Lentilha", qtd:"200g", kcal:230},
-{nome:"Aveia", qtd:"40g", kcal:140},
-{nome:"Cebola roxa", qtd:"50g", kcal:15},
-{nome:"Alho", qtd:"1 dente", kcal:5},
-{nome:"Cominho", qtd:"1 colher chá", kcal:3},
-{nome:"Páprica", qtd:"1 colher chá", kcal:3}
+{nome:"Lentilha", qtd:"200g"},
+{nome:"Aveia", qtd:"40g"},
+{nome:"Cebola roxa", qtd:"50g"},
+{nome:"Alho", qtd:"1 dente"},
+{nome:"Cominho", qtd:"1 colher chá"},
+{nome:"Páprica", qtd:"1 colher chá"}
 ],
 passos:[
 {texto:"Processe lentilha, aveia, cebola, alho e temperos até massa moldável.", timer:0},
@@ -30,13 +30,13 @@ passos:[
 ]
 },
 {
-id:"brownie-vegano", titulo:"Brownie Vegano de Chocolate", categoria_principal:"Vegana", categorias:["Vegana","Doce"], tempo:"28 min", foto:"assets/brownie-vegano.jpg", airfryer:true,
+id:"brownie-vegano", titulo:"Brownie Vegano de Chocolate", categoria_principal:"Vegana", categorias:["Vegana","Doce"], tempo:"28 min", porcoes:"8 unidades", nivel:"Fácil", foto:"assets/brownie-vegano.jpg", airfryer:true,
 ingredientes:[
-{nome:"Farinha de trigo", qtd:"120g", kcal:430},
-{nome:"Cacau", qtd:"30g", kcal:100},
-{nome:"Açúcar", qtd:"120g", kcal:480},
-{nome:"Óleo", qtd:"60ml", kcal:360},
-{nome:"Chocolate vegano", qtd:"80g", kcal:400}
+{nome:"Farinha de trigo", qtd:"120g"},
+{nome:"Cacau", qtd:"30g"},
+{nome:"Açúcar", qtd:"120g"},
+{nome:"Óleo", qtd:"60ml"},
+{nome:"Chocolate vegano", qtd:"80g"}
 ],
 passos:[
 {texto:"Misture secos, junte óleo e água até massa grossa.", timer:0},

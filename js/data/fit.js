@@ -1,12 +1,12 @@
 window.RECEITAS_FIT = [
 {
-id:"frango-grelhado-fit", titulo:"Frango Grelhado Fit com Legumes", categoria_principal:"Fit", categorias:["Fit","Saudável","Brasileira"], tempo:"20 min", foto:"assets/frango-grelhado-fit.jpg", airfryer:true,
+id:"frango-grelhado-fit", titulo:"Frango Grelhado Fit com Legumes", categoria_principal:"Fit", categorias:["Fit","Saudável","Brasileira"], tempo:"20 min", porcoes:"2 porções", nivel:"Fácil", foto:"assets/frango-grelhado-fit.jpg", airfryer:true,
 ingredientes:[
-{nome:"Peito de frango", qtd:"300g", kcal:495},
-{nome:"Abobrinha", qtd:"100g", kcal:25},
-{nome:"Cenoura", qtd:"100g", kcal:30},
-{nome:"Azeite", qtd:"15ml", kcal:135},
-{nome:"Limão", qtd:"1 unidade", kcal:5}
+{nome:"Peito de frango", qtd:"300g"},
+{nome:"Abobrinha", qtd:"100g"},
+{nome:"Cenoura", qtd:"100g"},
+{nome:"Azeite", qtd:"15ml"},
+{nome:"Limão", qtd:"1 unidade"}
 ],
 passos:[
 {texto:"Tempere frango com limão, alho, sal e pimenta 10 min.", timer:10},
@@ -15,14 +15,14 @@ passos:[
 ]
 },
 {
-id:"salada-proteica-tunada", titulo:"Salada Proteica Tunada", categoria_principal:"Fit", categorias:["Fit","Saudável","Rápida"], tempo:"15 min", foto:"assets/salada-proteica.jpg",
+id:"salada-proteica-tunada", titulo:"Salada Proteica Tunada", categoria_principal:"Fit", categorias:["Fit","Saudável"], tempo:"15 min", porcoes:"1 porção", nivel:"Fácil", foto:"assets/salada-proteica.jpg",
 ingredientes:[
-{nome:"Frango desfiado", qtd:"150g", kcal:220},
-{nome:"Mix de folhas", qtd:"60g", kcal:15},
-{nome:"Abacate", qtd:"80g", kcal:128},
-{nome:"Ovo", qtd:"1 unidade", kcal:70},
-{nome:"Tomate", qtd:"50g", kcal:8},
-{nome:"Quinoa", qtd:"60g", kcal:70}
+{nome:"Frango desfiado", qtd:"150g"},
+{nome:"Mix de folhas", qtd:"60g"},
+{nome:"Abacate", qtd:"80g"},
+{nome:"Ovo", qtd:"1 unidade"},
+{nome:"Tomate", qtd:"50g"},
+{nome:"Quinoa", qtd:"60g"}
 ],
 passos:[
 {texto:"Misture folhas, tomate, quinoa, frango e abacate.", timer:0},
@@ -30,14 +30,14 @@ passos:[
 ]
 },
 {
-id:"wrap-fit-frango", titulo:"Wrap Fit de Frango", categoria_principal:"Fit", categorias:["Fit","Lanche","Saudável"], tempo:"12 min", foto:"assets/wrap-fit.jpg",
+id:"wrap-fit-frango", titulo:"Wrap Fit de Frango", categoria_principal:"Fit", categorias:["Fit","Lanche","Saudável"], tempo:"12 min", porcoes:"1 porção", nivel:"Fácil", foto:"assets/wrap-fit.jpg",
 ingredientes:[
-{nome:"Tortilha integral", qtd:"40g", kcal:110},
-{nome:"Frango grelhado", qtd:"100g", kcal:165},
-{nome:"Guacamole", qtd:"40g", kcal:55},
-{nome:"Alface", qtd:"20g", kcal:3},
-{nome:"Tomate", qtd:"20g", kcal:4},
-{nome:"Cenoura", qtd:"20g", kcal:8}
+{nome:"Tortilha integral", qtd:"40g"},
+{nome:"Frango grelhado", qtd:"100g"},
+{nome:"Guacamole", qtd:"40g"},
+{nome:"Alface", qtd:"20g"},
+{nome:"Tomate", qtd:"20g"},
+{nome:"Cenoura", qtd:"20g"}
 ],
 passos:[
 {texto:"Aqueça tortilha 1 min.", timer:1},

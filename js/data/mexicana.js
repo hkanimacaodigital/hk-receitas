@@ -1,13 +1,13 @@
 window.RECEITAS_MEXICANA = [
 {
-id:"tacos-carne-mexicana", titulo:"Tacos de Carne Mexicana", categoria_principal:"Mexicana", categorias:["Mexicana","Rápida"], tempo:"20 min", foto:"assets/tacos-carne-mexicana.jpg",
+id:"tacos-carne-mexicana", titulo:"Tacos de Carne Mexicana", categoria_principal:"Mexicana", categorias:["Mexicana"], tempo:"20 min", porcoes:"6 unidades", nivel:"Fácil", foto:"assets/tacos-carne-mexicana.jpg",
 ingredientes:[
-{nome:"Carne moída", qtd:"300g", kcal:450},
-{nome:"Tortilha de milho", qtd:"120g", kcal:240},
-{nome:"Alface", qtd:"50g", kcal:8},
-{nome:"Tomate", qtd:"50g", kcal:8},
-{nome:"Cebola roxa", qtd:"50g", kcal:15},
-{nome:"Queijo cheddar", qtd:"50g", kcal:200}
+{nome:"Carne moída", qtd:"300g"},
+{nome:"Tortilha de milho", qtd:"120g"},
+{nome:"Alface", qtd:"50g"},
+{nome:"Tomate", qtd:"50g"},
+{nome:"Cebola roxa", qtd:"50g"},
+{nome:"Queijo cheddar", qtd:"50g"}
 ],
 passos:[
 {texto:"Refogue carne com páprica, cominho, sal e pimenta até dourar e secar.", timer:8},
@@ -16,14 +16,14 @@ passos:[
 ]
 },
 {
-id:"burrito-frango", titulo:"Burrito de Frango Cremoso", categoria_principal:"Mexicana", categorias:["Mexicana","Lanche"], tempo:"25 min", foto:"assets/burrito-frango.jpg", airfryer:true,
+id:"burrito-frango", titulo:"Burrito de Frango Cremoso", categoria_principal:"Mexicana", categorias:["Mexicana","Lanche"], tempo:"25 min", porcoes:"2 porções", nivel:"Fácil", foto:"assets/burrito-frango.jpg", airfryer:true,
 ingredientes:[
-{nome:"Peito de frango", qtd:"300g", kcal:330},
-{nome:"Tortilha", qtd:"140g", kcal:320},
-{nome:"Feijão", qtd:"100g", kcal:90},
-{nome:"Requeijão", qtd:"40g", kcal:80},
-{nome:"Milho", qtd:"40g", kcal:30},
-{nome:"Pimentão", qtd:"40g", kcal:10}
+{nome:"Peito de frango", qtd:"300g"},
+{nome:"Tortilha", qtd:"140g"},
+{nome:"Feijão", qtd:"100g"},
+{nome:"Requeijão", qtd:"40g"},
+{nome:"Milho", qtd:"40g"},
+{nome:"Pimentão", qtd:"40g"}
 ],
 passos:[
 {texto:"Grelhe frango temperado 8 min até dourar.", timer:8},
@@ -32,13 +32,13 @@ passos:[
 ]
 },
 {
-id:"quesadilla-queijo", titulo:"Quesadilla de Queijo com Salsa", categoria_principal:"Mexicana", categorias:["Mexicana","Rápida","Lanche"], tempo:"12 min", foto:"assets/quesadilla-queijo.jpg",
+id:"quesadilla-queijo", titulo:"Quesadilla de Queijo com Salsa", categoria_principal:"Mexicana", categorias:["Mexicana","Lanche"], tempo:"12 min", porcoes:"2 porções", nivel:"Fácil", foto:"assets/quesadilla-queijo.jpg",
 ingredientes:[
-{nome:"Tortilha", qtd:"2 unidades", kcal:320},
-{nome:"Muçarela", qtd:"120g", kcal:360},
-{nome:"Tomate", qtd:"80g", kcal:15},
-{nome:"Coentro", qtd:"a gosto", kcal:3},
-{nome:"Limão", qtd:"1 unidade", kcal:5}
+{nome:"Tortilha", qtd:"2 unidades"},
+{nome:"Muçarela", qtd:"120g"},
+{nome:"Tomate", qtd:"80g"},
+{nome:"Coentro", qtd:"a gosto"},
+{nome:"Limão", qtd:"1 unidade"}
 ],
 passos:[
 {texto:"Recheie uma tortilha com muçarela e tomate, cubra com a outra.", timer:0},

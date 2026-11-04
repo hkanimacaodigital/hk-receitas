@@ -1,11 +1,11 @@
 window.RECEITAS_LANCHE = [
 {
-id:"pao-queijo", titulo:"Pão de Queijo Mineiro", categoria_principal:"Lanche", categorias:["Lanche"], tempo:"15 min", foto:"assets/pao-queijo.jpg",
+id:"pao-queijo", titulo:"Pão de Queijo Mineiro", categoria_principal:"Lanche", categorias:["Lanche"], tempo:"15 min", porcoes:"12 unidades", nivel:"Fácil", foto:"assets/pao-queijo.jpg", airfryer:true,
 ingredientes:[
-{nome:"Polvilho azedo", qtd:"200g", kcal:700},
-{nome:"Queijo meia cura", qtd:"150g", kcal:450},
-{nome:"Leite", qtd:"100ml", kcal:60},
-{nome:"Ovo", qtd:"1 unidade", kcal:70}
+{nome:"Polvilho azedo", qtd:"200g"},
+{nome:"Queijo meia cura", qtd:"150g"},
+{nome:"Leite", qtd:"100ml"},
+{nome:"Ovo", qtd:"1 unidade"}
 ],
 passos:[
 {texto:"Escalde polvilho com leite quente, junte queijo e ovo até massa lisa.", timer:0},
@@ -14,12 +14,12 @@ passos:[
 ]
 },
 {
-id:"misto-quente-airfryer", titulo:"Misto Quente de Airfryer", categoria_principal:"Lanche", categorias:["Lanche","Rápida","Airfryer"], tempo:"8 min", foto:"assets/misto-quente-airfryer.jpg", airfryer:true,
+id:"misto-quente-airfryer", titulo:"Misto Quente de Airfryer", categoria_principal:"Lanche", categorias:["Lanche","Airfryer"], tempo:"8 min", porcoes:"1 porção", nivel:"Fácil", foto:"assets/misto-quente-airfryer.jpg", airfryer:true,
 ingredientes:[
-{nome:"Pão de forma", qtd:"60g", kcal:150},
-{nome:"Muçarela", qtd:"40g", kcal:120},
-{nome:"Presunto", qtd:"40g", kcal:60},
-{nome:"Manteiga", qtd:"10g", kcal:73}
+{nome:"Pão de forma", qtd:"60g"},
+{nome:"Muçarela", qtd:"40g"},
+{nome:"Presunto", qtd:"40g"},
+{nome:"Manteiga", qtd:"10g"}
 ],
 passos:[
 {texto:"Monte misto, pincele manteiga fora.", timer:0},
@@ -27,12 +27,12 @@ passos:[
 ]
 },
 {
-id:"pastel-forno-queijo", titulo:"Pastel de Forno de Queijo", categoria_principal:"Lanche", categorias:["Lanche","Airfryer","Brasileira"], tempo:"30 min", foto:"assets/pastel-forno.jpg", airfryer:true,
+id:"pastel-forno-queijo", titulo:"Pastel de Forno de Queijo", categoria_principal:"Lanche", categorias:["Lanche","Airfryer","Brasileira"], tempo:"30 min", porcoes:"6 unidades", nivel:"Fácil", foto:"assets/pastel-forno.jpg", airfryer:true,
 ingredientes:[
-{nome:"Massa de pastel", qtd:"300g", kcal:750},
-{nome:"Muçarela", qtd:"200g", kcal:600},
-{nome:"Gema", qtd:"20g", kcal:55},
-{nome:"Orégano", qtd:"5g", kcal:2}
+{nome:"Massa de pastel", qtd:"300g"},
+{nome:"Muçarela", qtd:"200g"},
+{nome:"Gema", qtd:"20g"},
+{nome:"Orégano", qtd:"5g"}
 ],
 passos:[
 {texto:"Corte discos, recheie com queijo, feche apertando com garfo.", timer:0},
@@ -41,13 +41,13 @@ passos:[
 ]
 },
 {
-id:"coxinha-creme-frango", titulo:"Coxinha com Catupiry Cremosa", categoria_principal:"Lanche", categorias:["Lanche","Brasileira","Airfryer"], tempo:"50 min", foto:"assets/coxinha-creme.jpg", airfryer:true,
+id:"coxinha-creme-frango", titulo:"Coxinha com Catupiry Cremosa", categoria_principal:"Lanche", categorias:["Lanche","Brasileira","Airfryer"], tempo:"50 min", porcoes:"8 unidades", nivel:"Médio", foto:"assets/coxinha-creme.jpg", airfryer:true,
 ingredientes:[
-{nome:"Frango desfiado", qtd:"300g", kcal:330},
-{nome:"Farinha de trigo", qtd:"240g", kcal:800},
-{nome:"Leite", qtd:"400ml", kcal:240},
-{nome:"Catupiry", qtd:"100g", kcal:250},
-{nome:"Farinha panko", qtd:"100g", kcal:350}
+{nome:"Frango desfiado", qtd:"300g"},
+{nome:"Farinha de trigo", qtd:"240g"},
+{nome:"Leite", qtd:"400ml"},
+{nome:"Catupiry", qtd:"100g"},
+{nome:"Farinha panko", qtd:"100g"}
 ],
 passos:[
 {texto:"Leite, caldo, manteiga ferver, jogue farinha de uma vez mexendo até desgrudar.", timer:5},

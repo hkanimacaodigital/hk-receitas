@@ -1,14 +1,14 @@
 window.RECEITAS_ARABE = [
 {
-id:"esfiha-aberta", titulo:"Esfiha Aberta de Carne", categoria_principal:"Árabe", categorias:["Árabe","Lanche"], tempo:"50 min", foto:"assets/esfiha-aberta.jpg", airfryer:true,
+id:"esfiha-aberta", titulo:"Esfiha Aberta de Carne", categoria_principal:"Árabe", categorias:["Árabe","Lanche"], tempo:"50 min", porcoes:"10 unidades", nivel:"Médio", foto:"assets/esfiha-aberta.jpg", airfryer:true,
 ingredientes:[
-{nome:"Farinha de trigo", qtd:"500g", kcal:1800},
-{nome:"Fermento biológico", qtd:"10g", kcal:30},
-{nome:"Carne moída", qtd:"300g", kcal:630},
-{nome:"Cebola", qtd:"1 unidade", kcal:35},
-{nome:"Tomate", qtd:"1 unidade", kcal:15},
-{nome:"Hortelã", qtd:"10 folhas", kcal:2},
-{nome:"Pimenta síria", qtd:"1 colher chá", kcal:8}
+{nome:"Farinha de trigo", qtd:"500g"},
+{nome:"Fermento biológico", qtd:"10g"},
+{nome:"Carne moída", qtd:"300g"},
+{nome:"Cebola", qtd:"1 unidade"},
+{nome:"Tomate", qtd:"1 unidade"},
+{nome:"Hortelã", qtd:"10 folhas"},
+{nome:"Pimenta síria", qtd:"1 colher chá"}
 ],
 passos:[
 {texto:"Misture farinha, fermento, açúcar, sal, água e azeite até massa lisa. Descanse 30 min.", timer:30},
@@ -18,14 +18,14 @@ passos:[
 ]
 },
 {
-id:"kafta-kebab", titulo:"Kafta Kebab na Brasa", categoria_principal:"Árabe", categorias:["Árabe","Brasileira"], tempo:"25 min", foto:"assets/kafta-kebab.jpg", airfryer:true,
+id:"kafta-kebab", titulo:"Kafta Kebab na Brasa", categoria_principal:"Árabe", categorias:["Árabe","Brasileira"], tempo:"25 min", porcoes:"6 espetos", nivel:"Fácil", foto:"assets/kafta-kebab.jpg", airfryer:true,
 ingredientes:[
-{nome:"Carne moída", qtd:"500g", kcal:750},
-{nome:"Cebola", qtd:"1 grande", kcal:40},
-{nome:"Hortelã", qtd:"2 colheres", kcal:3},
-{nome:"Salsinha", qtd:"2 colheres", kcal:2},
-{nome:"Pimenta síria", qtd:"1 colher chá", kcal:4},
-{nome:"Cominho", qtd:"1 colher chá", kcal:4}
+{nome:"Carne moída", qtd:"500g"},
+{nome:"Cebola", qtd:"1 grande"},
+{nome:"Hortelã", qtd:"2 colheres"},
+{nome:"Salsinha", qtd:"2 colheres"},
+{nome:"Pimenta síria", qtd:"1 colher chá"},
+{nome:"Cominho", qtd:"1 colher chá"}
 ],
 passos:[
 {texto:"Misture carne, cebola espremida, ervas e temperos.", timer:0},

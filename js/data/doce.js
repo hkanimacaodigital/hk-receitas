@@ -1,11 +1,11 @@
 window.RECEITAS_DOCE = [
 {
-id:"churros", titulo:"Churros com Doce de Leite", categoria_principal:"Doce", categorias:["Doce"], tempo:"18 min", foto:"assets/churros.jpg",
+id:"churros", titulo:"Churros com Doce de Leite", categoria_principal:"Doce", categorias:["Doce","Rápida"], tempo:"18 min", porcoes:"4 porções", nivel:"Fácil", foto:"assets/churros.jpg",
 ingredientes:[
-{nome:"Farinha de trigo", qtd:"120g", kcal:430},
-{nome:"Açúcar", qtd:"100g", kcal:400},
-{nome:"Canela", qtd:"1 colher chá", kcal:5},
-{nome:"Doce de leite", qtd:"200g", kcal:600}
+{nome:"Farinha de trigo", qtd:"120g"},
+{nome:"Açúcar", qtd:"100g"},
+{nome:"Canela", qtd:"1 colher chá"},
+{nome:"Doce de leite", qtd:"200g"}
 ],
 passos:[
 {texto:"Ferva água com manteiga, jogue farinha e mexa até desgrudar.", timer:0},
@@ -14,12 +14,12 @@ passos:[
 ]
 },
 {
-id:"pudim-leite-condensado", titulo:"Pudim de Leite Condensado", categoria_principal:"Doce", categorias:["Doce","Brasileira"], tempo:"90 min", foto:"assets/pudim-leite.jpg", airfryer:true,
+id:"pudim-leite-condensado", titulo:"Pudim de Leite Condensado", categoria_principal:"Doce", categorias:["Doce","Brasileira"], tempo:"90 min", porcoes:"8 porções", nivel:"Médio", foto:"assets/pudim-leite.jpg", airfryer:true,
 ingredientes:[
-{nome:"Leite condensado", qtd:"395g", kcal:1264},
-{nome:"Leite integral", qtd:"600ml", kcal:360},
-{nome:"Ovos", qtd:"3 un", kcal:210},
-{nome:"Açúcar", qtd:"200g", kcal:780}
+{nome:"Leite condensado", qtd:"395g"},
+{nome:"Leite integral", qtd:"600ml"},
+{nome:"Ovos", qtd:"3 un"},
+{nome:"Açúcar", qtd:"200g"}
 ],
 passos:[
 {texto:"Derreta açúcar até caramelo âmbar, espalhe na forma e deixe esfriar.", timer:8},
@@ -29,18 +29,31 @@ passos:[
 ]
 },
 {
-id:"pave-pacoca-cremoso", titulo:"Pavê de Paçoca Cremoso", categoria_principal:"Doce", categorias:["Doce","Brasileira"], tempo:"30 min", foto:"assets/pave-pacoca.jpg",
+id:"pave-pacoca-cremoso", titulo:"Pavê de Paçoca Cremoso", categoria_principal:"Doce", categorias:["Doce","Brasileira"], tempo:"30 min", porcoes:"6 porções", nivel:"Fácil", foto:"assets/pave-pacoca.jpg",
 ingredientes:[
-{nome:"Leite condensado", qtd:"395g", kcal:1264},
-{nome:"Leite", qtd:"500ml", kcal:300},
-{nome:"Amido", qtd:"40g", kcal:20},
-{nome:"Paçoca", qtd:"120g", kcal:540},
-{nome:"Bolacha maisena", qtd:"200g", kcal:860}
+{nome:"Leite condensado", qtd:"395g"},
+{nome:"Leite", qtd:"500ml"},
+{nome:"Amido", qtd:"40g"},
+{nome:"Paçoca", qtd:"120g"},
+{nome:"Bolacha maisena", qtd:"200g"}
 ],
 passos:[
 {texto:"Leite condensado, leite e amido fogo médio mexendo até creme grosso. Misture 4 paçocas.", timer:10},
 {texto:"Travessa: creme, bolacha, creme, bolacha até acabar.", timer:0},
 {texto:"Finalize com creme e 2 paçocas esfareladas por cima. Geladeira 3h.", timer:180}
+]
+},
+{
+id:"tapioca-doce-rapida", titulo:"Tapioca Doce Rápida", categoria_principal:"Doce", categorias:["Doce","Rápida","Café da Manhã"], tempo:"8 min", porcoes:"1 porção", nivel:"Fácil", foto:"assets/tapioca-doce-rapida.jpg",
+ingredientes:[
+{nome:"Goma de tapioca", qtd:"80g"},
+{nome:"Leite condensado", qtd:"40g"},
+{nome:"Coco ralado", qtd:"20g"},
+{nome:"Manteiga", qtd:"5g"}
+],
+passos:[
+{texto:"Peneire a goma na frigideira quente 2 min cada lado.", timer:4},
+{texto:"Recheie com leite condensado e coco, dobre e sirva.", timer:0}
 ]
 }
 ];
