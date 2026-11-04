@@ -46,6 +46,16 @@
     </div>
     <div id="categorias"></div>
   </div>
+
+  <!-- GELADEIRA INTELIGENTE - NOVO -->
+  <div id="box-ingredientes-possuo" style="margin:12px 16px;background:white;border:1.5px solid #FFE9DC;border-radius:16px;padding:14px">
+    <button onclick="abrirModalIngredientesPossuo()" style="width:100%;background:#1A1A1A;color:white;border:none;padding:14px;border-radius:12px;font-weight:900;display:flex;justify-content:space-between;align-items:center;cursor:pointer">
+      <span>🥚 Ingredientes que você possui</span>
+      <span id="contador-ingredientes-possuo" style="background:#FF6B35;padding:4px 10px;border-radius:20px;font-size:12px">0 selecionados</span>
+    </button>
+    <div id="receitas-filtradas-possuo" style="margin-top:12px"></div>
+  </div>
+
   <div id="grid-receitas"></div>
 </div>
 
@@ -59,6 +69,23 @@
     <button id="btn-fav-modal" onclick="toggleFavModal()" style="padding:8px 16px;border-radius:20px;background:#FF6B35;color:white;border:none;font-weight:800">♡ Favoritar</button>
   </div>
   <div id="modal-corpo"></div>
+</div>
+
+<!-- MODAL GAVETA INGREDIENTES - NOVO -->
+<div id="modal-ingredientes" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;align-items:flex-end">
+  <div style="background:white;width:100%;max-height:85vh;border-radius:24px 24px 0 0;overflow:auto;padding:20px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <h2 style="font-weight:900;font-size:18px">Selecione o que tem na geladeira</h2>
+      <button onclick="fecharModalIngredientesPossuo()" style="background:#F5F5F5;border:none;width:36px;height:36px;border-radius:50%;font-weight:900;cursor:pointer">✕</button>
+    </div>
+    <input type="text" id="busca-ingrediente" placeholder="🔍 Buscar ingrediente..." oninput="filtrarListaIngredientes()" style="width:100%;padding:12px;border-radius:12px;border:1.5px solid #FFE9DC;margin-bottom:12px;outline:none">
+    <div style="display:flex;gap:8px;margin-bottom:16px">
+      <button onclick="limparSelecaoIngredientes()" style="flex:1;background:white;border:1.5px solid #E8DDD6;padding:12px;border-radius:10px;font-weight:700;cursor:pointer">Limpar tudo</button>
+      <button onclick="fecharModalIngredientesPossuo()" style="flex:1;background:#FF6B35;color:white;border:none;padding:12px;border-radius:10px;font-weight:800;cursor:pointer">Ver Receitas (filtrar)</button>
+    </div>
+    <div id="lista-todos-ingredientes" style="display:flex;flex-direction:column;gap:8px"></div>
+    <div style="height:30px"></div>
+  </div>
 </div>
 
 <nav class="bottom-nav">
