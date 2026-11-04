@@ -25,79 +25,44 @@ function enviarParaSW(type, payload){
 }
 if('serviceWorker' in navigator){ navigator.serviceWorker.register('./sw.js').then(()=>console.log('SW ok')); }
 
-// GARANTE TODAS_RECEITAS - junta tudo
-function getReceitasBase(){
-  if(window.TODAS_RECEITAS) return window.TODAS_RECEITAS;
-  if(window.RECEITAS) return window.RECEITAS;
-  if(typeof RECEITAS !== 'undefined') return RECEITAS;
-  return [];
-}
-
 function init(){ renderCategorias(); filtrar(); restaurarTimersGlobais(); if(Notification.permission!=='granted') Notification.requestPermission(); }
-
 function renderCategorias(){
-  const c=document.getElementById('categorias'); if(!c||!CATEGORIAS) return;
-  const RECEITAS = getReceitasBase();
+  const c=document.getElementById('categorias'); if(!c||!CATEGORIAS||!RECEITAS) return;
   const ord=[...CATEGORIAS].sort((a,b)=>a.nome.localeCompare(b.nome));
-  const contar=(id)=>{
-    if(id==='tudo') return RECEITAS.length;
-    if(id==='airfryer') return RECEITAS.filter(r=>r.airfryer===true).length;
-    if(id==='rapida') return RECEITAS.filter(r=>getTempo(r)<=12).length;
-    const nome=CATEGORIAS.find(x=>x.id===id)?.nome.toLowerCase()||id;
-    return RECEITAS.filter(r=>(r.categoria_principal||'').toLowerCase()===nome||(r.categorias||[]).map(x=>x.toLowerCase()).includes(nome)).length;
-  };
+  // ALTERADO: adicionado filtro rapida <=12
+  const contar=(id)=>{ if(id==='tudo') return RECEITAS.length; if(id==='airfryer') return RECEITAS.filter(r=>r.airfryer===true).length; if(id==='rapida') return RECEITAS.filter(r=>getTempo(r)<=12).length; const nome=CATEGORIAS.find(x=>x.id===id)?.nome.toLowerCase()||id; return RECEITAS.filter(r=>(r.categoria_principal||'').toLowerCase()===nome||(r.categorias||[]).map(x=>x.toLowerCase()).includes(nome)).length; };
   const todas=[{id:'tudo',nome:'Tudo',icone:'✨'},...ord];
   c.innerHTML=todas.map(cat=>`<button class="cat-btn ${categoriaAtiva===cat.id?'ativo':''}" onclick="setCategoria('${cat.id}')">${cat.icone}<br>${cat.nome}<br>(${contar(cat.id)})</button>`).join('');
 }
 function setCategoria(id){ categoriaAtiva=id; renderCategorias(); filtrar(); }
+function getKcal(r){ return r.ingredientes?r.ingredientes.reduce((a,b)=>a+(b.kcal||b.calorias||0),0):0; }
 function getTempo(r){ const m=(r.tempo||'').match(/(\d+)/); return m?parseInt(m[1]):999; }
-
 function filtrar(){
-  let RECEITAS = getReceitasBase();
-  if(!RECEITAS) return;
-  const busca=(document.getElementById('busca')?.value||'').toLowerCase();
-  const ordem=document.getElementById('ordem')?.value||'padrao';
+  if(!RECEITAS) return; const busca=(document.getElementById('busca')?.value||'').toLowerCase(); const ordem=document.getElementById('ordem')?.value||'padrao';
   let lista=[...RECEITAS];
-
-  if(categoriaAtiva!=='tudo'){
-    if(categoriaAtiva==='airfryer') lista=lista.filter(r=>r.airfryer===true);
-    else if(categoriaAtiva==='rapida') lista=lista.filter(r=>getTempo(r)<=12);
-    else{
-      const nome=CATEGORIAS.find(c=>c.id===categoriaAtiva)?.nome.toLowerCase()||categoriaAtiva;
-      lista=lista.filter(r=>(r.categoria_principal||'').toLowerCase()===nome||(r.categorias||[]).map(x=>x.toLowerCase()).includes(nome));
-    }
-  }
+  // ALTERADO: rapida agora filtra tempo <=12
+  if(categoriaAtiva!=='tudo'){ if(categoriaAtiva==='airfryer') lista=lista.filter(r=>r.airfryer===true); else if(categoriaAtiva==='rapida') lista=lista.filter(r=>getTempo(r)<=12); else{ const nome=CATEGORIAS.find(c=>c.id===categoriaAtiva)?.nome.toLowerCase()||categoriaAtiva; lista=lista.filter(r=>(r.categoria_principal||'').toLowerCase()===nome||(r.categorias||[]).map(x=>x.toLowerCase()).includes(nome)); }}
   if(busca) lista=lista.filter(r=>r.titulo.toLowerCase().includes(busca));
-  if(ordem==='az') lista.sort((a,b)=>a.titulo.localeCompare(b.titulo));
-  else if(ordem==='tempo') lista.sort((a,b)=>getTempo(a)-getTempo(b));
-
-  window.RECEITAS = RECEITAS;
+  if(ordem==='az') lista.sort((a,b)=>a.titulo.localeCompare(b.titulo)); else if(ordem==='tempo') lista.sort((a,b)=>getTempo(a)-getTempo(b)); else if(ordem==='kcal') lista.sort((a,b)=>getKcal(a)-getKcal(b));
   renderReceitas(lista,'grid-receitas');
 }
-
 function renderReceitas(lista, alvoId){
   const cont=document.getElementById(alvoId); if(!cont) return;
   if(lista.length===0){ cont.innerHTML=`<div style="grid-column:1/3;text-align:center;padding:30px">Nenhuma receita</div>`; return; }
-  cont.innerHTML=lista.map(r=>{
-    const isFav=favoritos.includes(r.id);
-    const porcoes = r.porcoes||'';
-    const nivel = r.nivel||'';
-    const air = r.airfryer ? ' • 🍟' : '';
-    return `<div class="card" onclick="abrirReceita('${r.id}')"><button class="fav-btn" onclick="event.stopPropagation();toggleFav('${r.id}')">${isFav?'❤️':'🤍'}</button><img src="${r.foto}" loading="lazy"><div class="card-body"><span class="badge">${r.categoria_principal}${air}</span><h3 style="margin:8px 0 4px;font-weight:800">${r.titulo}</h3><div class="card-info"><span>⏰ ${r.tempo}</span><span>🍽️ ${porcoes}</span><span>📊 ${nivel}</span></div></div></div>`;
-  }).join('');
+  // ALTERADO: trocou kcal por porcoes + nivel
+  cont.innerHTML=lista.map(r=>{ const isFav=favoritos.includes(r.id); return `<div class="card" onclick="abrirReceita('${r.id}')"><button class="fav-btn" onclick="event.stopPropagation();toggleFav('${r.id}')">${isFav?'❤️':'🤍'}</button><img src="${r.foto}" loading="lazy"><div class="card-body"><span class="badge">${r.categoria_principal}</span><h3 style="margin:8px 0 4px;font-weight:800">${r.titulo}</h3><div class="card-info"><span>⏰ ${r.tempo}</span><span>🍽️ ${r.porcoes||'1 porção'}</span><span>📊 ${r.nivel||'Fácil'}</span></div></div></div>`}).join('');
 }
-
 function normalizarPasso(p){ if(typeof p==='string') return {texto:p, tempoMin: extrairMin(p)}; return {texto:p.texto||p.passo||'', tempoMin: p.timer||p.tempoMin||extrairMin(p.texto||''), label:p.label||''}; }
 function extrairMin(t){ const m=(t||'').match(/(\d+)\s*min/); return m?parseInt(m[1]):0; }
 function detalharPasso(p, idx, total){
   let base = p.texto;
-  let dica = idx===0 ? "<br><small style='color:#9A8C83'>💡 Dica: Separe todos os ingredientes antes de começar.</small>" : idx===total-1 ? "<br><small style='color:#FF6B35;font-weight:700'>🔥 Finalização: Sirva imediatamente!</small>" : "<br><small style='color:#9A8C83'>👉 Capriche nesse passo.</small>";
-  let tempo = p.tempoMin > 0 ? p.tempoMin : 0;
+  let dica = idx===0 ? "<br><small style='color:#9A8C83'>💡 Dica: Separe todos os ingredientes antes de começar.</small>" : idx===total-1 ? "<br><small style='color:#FF6B35;font-weight:700'>🔥 Finalização: Sirva imediatamente para manter a textura!</small>" : "<br><small style='color:#9A8C83'>👉 Capriche nesse passo para garantir o sabor.</small>";
+  let tempo = p.tempoMin > 0 ? p.tempoMin : 2;
   return {texto: base + dica, tempoMin: tempo, label: p.label || `Passo ${idx+1}`};
 }
-
 function compartilharWhatsApp(){
   if(!receitaAtual) return;
+  // ALTERADO: remove kcal
   const ingList = receitaAtual.ingredientes.map(i=>`• ${i.nome||i.name} - ${i.qtd||''}`).join('\n');
   const passosList = receitaAtual.passos.map((p,i)=>`${i+1}. ${p.texto||p}`).join('\n');
   const texto = `*${receitaAtual.titulo}* - ${receitaAtual.tempo} - ${receitaAtual.porcoes||''} - ${receitaAtual.nivel||''}\n\n*🛒 INGREDIENTES:*\n${ingList}\n\n*👨‍🍳 MODO DE PREPARO:*\n${passosList}\n\nVeja mais em: hk-receitas.vercel.app`;
@@ -105,7 +70,6 @@ function compartilharWhatsApp(){
 }
 
 function abrirReceita(id){
-  const RECEITAS = getReceitasBase();
   const r=RECEITAS.find(x=>x.id===id); if(!r) return; receitaAtual=r;
   if(!recentes.includes(id)){ recentes.unshift(id); recentes=recentes.slice(0,12); localStorage.setItem('hk_rec',JSON.stringify(recentes)); }
   const modal=document.getElementById('modal'); const corpo=document.getElementById('modal-corpo'); 
@@ -123,56 +87,50 @@ function abrirReceita(id){
     .btn-modo{ width:100%; background:#FF6B35; color:white; border:none; padding:18px; border-radius:16px; font-weight:900; font-size:18px; margin-top:12px; cursor:pointer; box-shadow:0 4px 12px rgba(255,107,53,0.3); }
     .btn-voltar{ width:100%; background:#1A1A1A; color:white; border:none; padding:18px; border-radius:16px; font-weight:900; font-size:18px; margin-top:24px; cursor:pointer; }
     .passo-detalhado{ background:white; border:1.5px solid #FFE9DC; border-radius:16px; padding:16px; margin-bottom:14px; display:flex; gap:12px; align-items:flex-start; }
-    .ing-check{ width:22px; height:22px; accent-color:#FF6B35; }
-    .ing-item{ transition: all 0.2s; }
-    .ing-item.checked{ opacity:0.5; text-decoration: line-through; }
   </style>
   <img class="capa" src="${r.foto}">
   <div class="flip-wrapper">
     <div class="flip-inner" id="flip-inner">
+      
       <div class="view" id="view-ingredientes">
         <div class="modal-conteudo">
           <h1 style="font-size:24px;font-weight:900;line-height:1.2">${r.titulo}</h1>
-          <div style="display:flex;gap:8px;margin:12px 0;flex-wrap:wrap">
-            <span style="background:#FFF0E6;padding:6px 12px;border-radius:20px;font-size:13px;font-weight:700">⏰ ${r.tempo}</span>
-            <span style="background:#FFF0E6;padding:6px 12px;border-radius:20px;font-size:13px;font-weight:700">🍽️ ${r.porcoes||''}</span>
-            <span style="background:#FFF0E6;padding:6px 12px;border-radius:20px;font-size:13px;font-weight:700">📊 ${r.nivel||'Fácil'}</span>
-            <span style="background:#FFF0E6;padding:6px 12px;border-radius:20px;font-size:13px;font-weight:700">${r.categoria_principal}</span>
-            ${r.airfryer ? `<span style="background:#FFE9DC;padding:6px 12px;border-radius:20px;font-size:13px;font-weight:700">🍟 Airfryer</span>` : ``}
-          </div>
+          <div style="display:flex;gap:8px;margin:12px 0;flex-wrap:wrap"><span style="background:#FFF0E6;padding:6px 12px;border-radius:20px;font-size:13px;font-weight:700">⏰ ${r.tempo}</span><span style="background:#FFF0E6;padding:6px 12px;border-radius:20px;font-size:13px;font-weight:700">🍽️ ${r.porcoes||''}</span><span style="background:#FFF0E6;padding:6px 12px;border-radius:20px;font-size:13px;font-weight:700">📊 ${r.nivel||'Fácil'}</span><span style="background:#FFF0E6;padding:6px 12px;border-radius:20px;font-size:13px;font-weight:700">${r.categoria_principal}</span></div>
+          
           <h3 style="margin:20px 0 12px;font-size:18px">🛒 Ingredientes (${r.ingredientes.length} itens)</h3>
           <ul style="list-style:none;display:flex;flex-direction:column;gap:10px;padding:0">
-            ${r.ingredientes.map((i,idx)=>`<li class="ing-item" id="ing-${idx}" style="background:#FFFBF8;border:1px solid #FFE9DC;padding:14px;border-radius:14px;display:flex;gap:12px;align-items:center">
-              <input type="checkbox" class="ing-check" onchange="toggleIngrediente(${idx})">
-              <span style="flex:1"><b style="font-size:15px">${i.nome||i.name}</b><br><small style="color:#6B5E57">${i.qtd||''}</small></span>
-            </li>`).join('')}
+            ${r.ingredientes.map((i,idx)=>`<li id="ing-${idx}" style="background:#FFFBF8;border:1px solid #FFE9DC;padding:14px;border-radius:14px;display:flex;gap:12px;align-items:center;transition:0.2s"><input type="checkbox" style="width:22px;height:22px;accent-color:#FF6B35;flex-shrink:0" onchange="this.closest('li').style.opacity=this.checked?0.5:1;this.closest('li').style.textDecoration=this.checked?'line-through':''"><span style="flex:1"><b style="font-size:15px">${i.nome||i.name}</b><br><small style="color:#6B5E57">${i.qtd||''}</small><br><small style="color:#FF6B35;font-weight:700">${i.beneficio||''}</small></span></li>`).join('')}
           </ul>
+
           <button class="btn-whatsapp" onclick="compartilharWhatsApp()">📲 Exportar para WhatsApp</button>
           <button class="btn-modo" onclick="irParaModoPreparo()">👨‍🍳 MODO DE PREPARO →</button>
           <div style="height:30px"></div>
         </div>
       </div>
+
       <div class="view" id="view-preparo">
         <div class="modal-conteudo">
           <h1 style="font-size:22px;font-weight:900">${r.titulo}</h1>
           <p style="color:#9A8C83;margin:6px 0 16px">Modo de preparo detalhado • ${passosDetalhados.length} passos • ${r.porcoes||''} • ${r.nivel||''}</p>
+          
           ${passosDetalhados.map((p,i)=>{
             const key=`${r.id}-${i}`; const ativo=timersAtivos[key]; const rest=ativo?Math.max(0, Math.floor((ativo.fim - Date.now())/1000)):0;
-            const txt=ativo?`⏳ ${Math.floor(rest/60)}:${(rest%60).toString().padStart(2,'0')} rodando`:(p.tempoMin>0?`⏱ Timer ${p.tempoMin} min`:`✅ Passo`);
-            const showBtn = p.tempoMin>0 ? `<button class="timer-btn" id="btn-timer-${i}" onclick="iniciarTimer(${p.tempoMin},${i})" style="margin-top:10px;background:#1A1A1A;color:white;border:none;padding:10px 16px;border-radius:20px;font-weight:800;cursor:pointer">${txt}</button>` : ``;
+            const txt=ativo?`⏳ ${Math.floor(rest/60)}:${(rest%60).toString().padStart(2,'0')} rodando`:`⏱ Timer ${p.tempoMin} min`;
             return `<div class="passo-detalhado">
               <input type="checkbox" onchange="this.parentElement.style.opacity=this.checked?0.6:1">
               <div style="flex:1">
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><b style="color:#FF6B35;font-size:13px;text-transform:uppercase">${p.label}</b><span style="font-size:12px;background:#FFF0E6;padding:4px 8px;border-radius:8px">Passo ${i+1}/${passosDetalhados.length}</span></div>
                 <div style="font-weight:600;line-height:1.4;font-size:15px">${p.texto}</div>
-                ${showBtn}
+                <button class="timer-btn" id="btn-timer-${i}" onclick="iniciarTimer(${p.tempoMin},${i})" style="margin-top:10px;background:#1A1A1A;color:white;border:none;padding:10px 16px;border-radius:20px;font-weight:800;cursor:pointer">${txt}</button>
               </div>
             </div>`;
           }).join('')}
+
           <button class="btn-voltar" onclick="voltarIngredientes()">← INGREDIENTES</button>
           <div style="height:30px"></div>
         </div>
       </div>
+
     </div>
   </div>
   `;
@@ -181,11 +139,6 @@ function abrirReceita(id){
   document.getElementById('view-ingredientes').style.display='block';
   document.getElementById('view-preparo').style.display='none';
   setTimeout(()=>atualizarBtnFav(), 80);
-}
-
-function toggleIngrediente(idx){
-  const el=document.getElementById(`ing-${idx}`);
-  if(el) el.classList.toggle('checked');
 }
 
 function irParaModoPreparo(){
@@ -214,13 +167,13 @@ function voltarIngredientes(){
 }
 function fecharModal(){ document.getElementById('modal').classList.remove('mostrar'); }
 
+// FAVORITOS CORRIGIDO - USA O BOTÃO DE CIMA
 function toggleFav(id){ 
   if(favoritos.includes(id)) favoritos=favoritos.filter(x=>x!==id); 
   else favoritos.push(id); 
   localStorage.setItem('hk_fav',JSON.stringify(favoritos)); 
   filtrar(); 
   if(document.getElementById('page-favoritos')?.classList.contains('ativa')){
-    const RECEITAS=getReceitasBase();
     renderReceitas(RECEITAS.filter(r=>favoritos.includes(r.id)),'grid-favoritos');
   }
   if(receitaAtual && receitaAtual.id===id) atualizarBtnFav();
@@ -245,7 +198,6 @@ function atualizarBtnFav(){
 
 function iniciarTimer(min, idx){
   if(!receitaAtual) return;
-  if(min<=0) return;
   const key=`${receitaAtual.id}-${idx}`;
   const fim=Date.now()+min*60*1000;
   timersAtivos[key]={fim, titulo:receitaAtual.titulo, passo:idx+1, min, idReceita:receitaAtual.id};
@@ -294,7 +246,6 @@ function limparTodosTimers(){ localStorage.removeItem('hk_timers'); timersAtivos
 function mudarPage(nome){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('ativa')); document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('ativo'));
   document.getElementById(`page-${nome}`)?.classList.add('ativa'); document.getElementById(`nav-${nome}`)?.classList.add('ativo');
-  const RECEITAS=getReceitasBase();
   if(nome==='favoritos') renderReceitas(RECEITAS.filter(r=>favoritos.includes(r.id)),'grid-favoritos');
   if(nome==='recentes') renderReceitas(recentes.map(id=>RECEITAS.find(r=>r.id===id)).filter(Boolean),'grid-recentes');
   if(nome==='timer') atualizarPaginaTimers();
