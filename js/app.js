@@ -32,7 +32,7 @@ function limparTodosTimers(){localStorage.removeItem('hk_timers');timersAtivos={
 function mudarPage(nome){document.querySelectorAll('.page').forEach(p=>p.classList.remove('ativa'));document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('ativo'));document.getElementById(`page-${nome}`)?.classList.add('ativa');document.getElementById(`nav-${nome}`)?.classList.add('ativo');if(nome==='favoritos')renderReceitas(RECEITAS.filter(r=>favoritos.includes(r.id)),'grid-favoritos');if(nome==='recentes')renderReceitas(recentes.map(id=>RECEITAS.find(r=>r.id===id)).filter(Boolean),'grid-recentes');if(nome==='timer')atualizarPaginaTimers();}
 
 // ===== GELADEIRA - AGRUPAMENTO INTELIGENTE FINAL =====
-const CONDIMENTOS_TIRAR = ['alho','agua','água','acucar','açucar','açúcar','sal','pimenta','oleo','óleo','azeite','vinagre','manteiga','margarina','cominho','oregano','orégano','salsinha','cebolinha','coentro','alecrim','manjericão','canela','cravo','noz moscada','paprica','páprica','curry','açafrão','cheiro verde','shoyu','molho shoyu','sal grosso','pimenta reino','limão','azeite de dendê','água com gás'];
+const CONDIMENTOS_TIRAR = ['caldo','alho','agua','água','acucar','açucar','açúcar','sal','pimenta','oleo','óleo','azeite','vinagre','manteiga','margarina','cominho','oregano','orégano','salsinha','cebolinha','coentro','alecrim','manjericão','canela','cravo','noz moscada','paprica','páprica','curry','açafrão','cheiro verde','shoyu','molho shoyu','sal grosso','pimenta reino','limão','azeite de dendê','água com gás'];
 
 let ingredientesSelecionados = JSON.parse(localStorage.getItem('hk_ing_possuo')||'[]');
 
