@@ -216,73 +216,69 @@ function mudarPage(nome){
   if(nome==='timer') atualizarPaginaTimers();
 }
 
-// ===== GELADEIRA INTELIGENTE - CORRIGIDA E LIMPA =====
+// ===== GELADEIRA INTELIGENTE - VERSÃO SIMPLES QUE ABRE =====
 const TEMPEROS_EXCLUIR = ['sal','pimenta','orégano','oregano','cominho','cheiro verde','salsinha','cebolinha','coentro','alecrim','manjericão','azeite','óleo','oleo','vinagre','alho','cebola','manteiga','margarina','açúcar','acucar','canela','cravo','noz moscada','páprica','paprica','curry','açafrão','acafrao'];
 let ingredientesSelecionados = JSON.parse(localStorage.getItem('hk_ing_possuo')||'[]');
 
 function getTodosIngredientesUnicos(){
   const map = new Map();
-  if(!RECEITAS) return [];
-  const PALAVRAS_LIXO = ['para','pincelar','em','tiras','fatiada','fatiado','fina','fino','cozida','cozido','pre-cozida','pré-cozida','integral','cozidas','cozidos','colheres','colher','lata','pacote','rolo','xico','xicara','xícara','maço','unidade','unidades','g','kg','ml','l','+','de','da','do'];
-  function limparNome(s){
-    let texto = s.toLowerCase();
-    texto = texto.replace(/\(.*?\)/g, '');
-    texto = texto.replace(/\d+/g, '');
-    texto = texto.replace(/\s+/g, ' ').trim();
-    let partes = texto.split(/\+|,|\//);
-    let resultado = [];
-    partes.forEach(p=>{
-      p.split(/ e /).forEach(sub=>{
-        let nome = sub.trim();
-        PALAVRAS_LIXO.forEach(lixo=>{
-          nome = nome.replace(new RegExp('\\b'+lixo+'\\b','g'),'');
-        });
-        nome = nome.replace(/\s+/g,' ').trim();
-        if(nome.includes('ovo') || nome.includes('gema')) nome = 'ovo';
-        if(nome.includes('cenoura')) nome = 'cenoura';
-        if(nome.includes('abobrinha')) nome = 'abobrinha';
-        if(nome.includes('leite condensado')) nome = 'leite condensado';
-        if(nome.includes('massa pastel')) nome = 'massa pastel';
-        if(nome.includes('massa lasanha')) nome = 'massa lasanha';
-        if(nome.includes('quinoa')) nome = 'quinoa';
-        if(nome.includes('couve')) nome = 'couve';
-        if(nome.includes('tortilha')) nome = 'tortilha';
-        if(nome.includes('arroz arboreo') || nome.includes('arroz arborio')) nome = 'arroz arbóreo';
-        if(nome.includes('queijo') || nome.includes('muçarela') || nome.includes('mucarela') || nome.includes('mussarela')) nome = 'queijo';
-        nome = nome.split(' ').filter(w=>w.length>2).slice(0,2).join(' ').trim();
-        if(nome.length>=3 && !TEMPEROS_EXCLUIR.some(t=>nome.includes(t))){
-          resultado.push(nome);
-        }
-      });
-    });
-    return resultado;
-  }
+  if(!RECEITAS || RECEITAS.length===0) return [];
   RECEITAS.forEach(r=>{
+    if(!r.ingredientes) return;
     r.ingredientes.forEach(ing=>{
-      const nomeOriginal = (ing.nome||ing.name||'').trim();
+      let nomeOriginal = (ing.nome||ing.name||'').trim();
       if(!nomeOriginal) return;
-      const bases = limparNome(nomeOriginal);
-      bases.forEach(base=>{
-        if(!map.has(base) && base.length>2) map.set(base, base);
+      let base = nomeOriginal.toLowerCase();
+      base = base.replace(/\(.*?\)/g, '');
+      base = base.replace(/\d+/g, '').trim();
+      base = base.replace(/^\s*(de|da|do|com)\s+/g, '').trim();
+      let partes = base.split(/\s+e\s+/);
+      partes.forEach(p=>{
+        p = p.trim();
+        p = p.replace(/\s+(em tiras|fatiada fina|para pincelar|cozida|pre-cozida|integral|lata|pacote|rolo|maço)$/g, '').trim();
+        p = p.replace(/\s+/g, ' ').trim();
+        if(p.includes('ovo') || p.includes('gema')) p = 'ovo';
+        else if(p.includes('muçarela') || p.includes('mucarela') || p.includes('mussarela') || p.includes('queijo')) p = 'queijo';
+        else if(p.includes('leite condensado')) p = 'leite condensado';
+        else if(p.includes('abobrinha')) p = 'abobrinha';
+        else if(p.includes('cenoura')) p = 'cenoura';
+        else if(p.includes('couve')) p = 'couve';
+        else if(p.includes('quinoa')) p = 'quinoa';
+        else if(p.includes('tortilha')) p = 'tortilha';
+        else if(p.includes('arroz arboreo') || p.includes('arroz arborio')) p = 'arroz arbóreo';
+        else if(p.includes('massa pastel')) p = 'massa pastel';
+        else if(p.includes('massa lasanha')) p = 'massa lasanha';
+        else {
+          let palavras = p.split(' ').filter(w=> w.length>2 && !['para','com','sem'].includes(w));
+          if(palavras.length>2) palavras = palavras.slice(-2);
+          p = palavras.join(' ');
+        }
+        if(p.length<3) return;
+        if(TEMPEROS_EXCLUIR.some(t=> p === t)) return;
+        if(!map.has(p)) map.set(p, p);
       });
     });
   });
-  return Array.from(map.entries()).map(([k,v])=>({id:k, label:v})).sort((a,b)=>a.label.localeCompare(b.label));
+  return Array.from(map.keys()).map(k=>({id:k, label:k})).sort((a,b)=>a.label.localeCompare(b.label));
 }
+
 function abrirModalIngredientesPossuo(){
   const modal = document.getElementById('modal-ingredientes');
   const lista = document.getElementById('lista-todos-ingredientes');
-  if(!modal||!lista) return;
+  if(!modal||!lista){ alert('Modal não encontrado! Use o index.html novo que te mandei'); return; }
   const todos = getTodosIngredientesUnicos();
-  lista.innerHTML = todos.map(item=>{
-    const checked = ingredientesSelecionados.includes(item.id) ? 'checked' : '';
-    const bg = checked ? '#FFF0E6' : '#FFFBF8';
-    const border = checked ? '#FF6B35' : '#FFE9DC';
-    return `<label style="display:flex;align-items:center;gap:12px;background:${bg};border:1.5px solid ${border};padding:12px;border-radius:12px;cursor:pointer">
-      <input type="checkbox" value="${item.id}" ${checked} onchange="toggleIngredientePossuo('${item.id}')" style="width:20px;height:20px">
-      <span style="font-weight:600;text-transform:capitalize">${item.label}</span>
-    </label>`;
-  }).join('');
+  if(todos.length===0){
+    lista.innerHTML = `<div style="padding:20px;text-align:center">Nenhum ingrediente. RECEITAS: ${RECEITAS ? RECEITAS.length : '0'}</div>`;
+  } else {
+    lista.innerHTML = todos.map(item=>{
+      const checked = ingredientesSelecionados.includes(item.id) ? 'checked' : '';
+      const bg = checked ? '#FFF0E6' : '#FFFBF8';
+      return `<label style="display:flex;align-items:center;gap:12px;background:${bg};border:1.5px solid #FFE9DC;padding:12px;border-radius:12px;cursor:pointer">
+        <input type="checkbox" value="${item.id}" ${checked} onchange="toggleIngredientePossuo(this.value)" style="width:20px;height:20px">
+        <span style="font-weight:600;text-transform:capitalize">${item.label}</span>
+      </label>`;
+    }).join('');
+  }
   modal.style.display='flex';
 }
 function fecharModalIngredientesPossuo(){
@@ -345,6 +341,7 @@ function salvarEFiltrar(){
     const nomesReceita = receita.ingredientes.map(i=>{
       let n = (i.nome||i.name||'').toLowerCase().replace(/\(.*?\)/g,'').replace(/\d+/g,'').trim();
       if(n.includes('ovo') || n.includes('gema')) n='ovo';
+      if(n.includes('muçarela') || n.includes('mucarela') || n.includes('mussarela') || n.includes('queijo')) n='queijo';
       if(n.includes('cenoura')) n='cenoura';
       if(n.includes('abobrinha')) n='abobrinha';
       if(n.includes('leite condensado')) n='leite condensado';
@@ -353,7 +350,6 @@ function salvarEFiltrar(){
       if(n.includes('quinoa')) n='quinoa';
       if(n.includes('couve')) n='couve';
       if(n.includes('tortilha')) n='tortilha';
-      if(n.includes('queijo') || n.includes('muçarela') || n.includes('mucarela') || n.includes('mussarela')) n='queijo';
       return n;
     });
     return ingredientesSelecionados.every(sel => 
