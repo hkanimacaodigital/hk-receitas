@@ -25,6 +25,8 @@ function renderCategorias(){
 }
 function setCategoria(id){ categoriaAtiva=id; renderCategorias(); filtrar(); }
 function getTempo(r){ const m=(r.tempo||'').match(/(\d+)/); return m?parseInt(m[1]):999; }
+
+// FILTRO PREMIUM ATUALIZADO - MAIS FÁCIL NO LUGAR DE MENOS KCAL
 function filtrar(){
   let RECEITAS=getReceitasBase(); if(!RECEITAS) return;
   const busca=(document.getElementById('busca')?.value||'').toLowerCase();
@@ -32,7 +34,17 @@ function filtrar(){
   let lista=[...RECEITAS];
   if(categoriaAtiva!=='tudo'){ if(categoriaAtiva==='airfryer') lista=lista.filter(r=>r.airfryer===true); else if(categoriaAtiva==='rapida') lista=lista.filter(r=>getTempo(r)<=12); else{ const nome=CATEGORIAS.find(c=>c.id===categoriaAtiva)?.nome.toLowerCase()||categoriaAtiva; lista=lista.filter(r=>(r.categoria_principal||'').toLowerCase()===nome||(r.categorias||[]).map(x=>x.toLowerCase()).includes(nome)); }}
   if(busca) lista=lista.filter(r=>r.titulo.toLowerCase().includes(busca));
-  if(ordem==='az') lista.sort((a,b)=>a.titulo.localeCompare(b.titulo)); else if(ordem==='tempo') lista.sort((a,b)=>getTempo(a)-getTempo(b));
+  
+  if(ordem==='az') lista.sort((a,b)=>a.titulo.localeCompare(b.titulo)); 
+  else if(ordem==='tempo') lista.sort((a,b)=>getTempo(a)-getTempo(b));
+  else if(ordem==='facil' || ordem==='kcal'){ // kcal mantido por compatibilidade, mas agora é Mais fácil
+    const peso = { 'fácil':1, 'facil':1, 'médio':2, 'medio':2, 'difícil':3, 'dificil':3 };
+    lista.sort((a,b)=>{
+      const pa = peso[(a.nivel||'').toLowerCase()] || 2;
+      const pb = peso[(b.nivel||'').toLowerCase()] || 2;
+      return pa - pb;
+    });
+  }
   window.RECEITAS=RECEITAS; renderReceitas(lista,'grid-receitas');
 }
 function renderReceitas(lista, alvoId){
@@ -85,7 +97,7 @@ function abrirReceita(id){
       </div>
       <h3 style="margin:20px 0 12px">🛒 Ingredientes (${r.ingredientes.length})</h3>
       <ul style="list-style:none;display:flex;flex-direction:column;gap:10px;padding:0">
-        ${r.ingredientes.map((i,idx)=>`<li style="background:#FFFBF8;border:1px solid #FFE9DC;padding:14px;border-radius:14px;display:flex;gap:12px"><input type="checkbox" style="width:22px;height:22px;accent-color:#FF6B35" onchange="this.closest('li').style.opacity=this.checked?0.5:1"><span><b>${i.nome||i.name}</b><br><small>${i.qtd||''}</small></span></li>`).join('')}
+        ${r.ingredientes.map((i,idx)=>`<li style="background:#FFFBF8;border:1px solid #FFE9DC;padding:14px;border-radius:14px;display:flex;gap:12px"><input type="checkbox" style="width:22px;height:22px;accent-color:#FF6B35"><span><b>${i.nome||i.name}</b><br><small>${i.qtd||''}</small></span></li>`).join('')}
       </ul>
       <button class="btn-whatsapp" onclick="compartilharWhatsApp()">📲 Exportar WhatsApp</button>
       <button class="btn-modo" onclick="irParaModoPreparo()">👨‍🍳 MODO DE PREPARO →</button><div style="height:30px"></div>
@@ -112,24 +124,17 @@ function irParaModoPreparo(){ const flip=document.getElementById('flip-inner'); 
 function voltarIngredientes(){ const flip=document.getElementById('flip-inner'); const v1=document.getElementById('view-ingredientes'); const v2=document.getElementById('view-preparo'); flip.classList.remove('virando'); setTimeout(()=>{ v2.style.display='none'; v1.style.display='block'; },350); }
 function fecharModal(){ document.getElementById('modal').classList.remove('mostrar'); }
 function toggleFav(id){ if(favoritos.includes(id)) favoritos=favoritos.filter(x=>x!==id); else favoritos.push(id); localStorage.setItem('hk_fav',JSON.stringify(favoritos)); filtrar(); }
-function toggleFavModal(){ if(!receitaAtual) return; toggleFav(receitaAtual.id); }
 
-// TIMER PREMIUM COM CONFIRMAÇÃO
+// TIMER COM CONFIRMAÇÃO
 function iniciarTimer(min, idx){ if(!receitaAtual||min<=0) return; const key=`${receitaAtual.id}-${idx}`; const fim=Date.now()+min*60*1000; timersAtivos[key]={fim, titulo:receitaAtual.titulo, passo:idx+1, min, idReceita:receitaAtual.id, pausado:false}; salvarTimers(); renderControlesTimer(key, idx, min); atualizarPaginaTimers(); }
 function pausarTimer(key, idx){ const t=timersAtivos[key]; if(!t||t.pausado) return; const restante=Math.max(0, Math.floor((t.fim-Date.now())/1000)); t.restante=restante; t.pausado=true; delete t.fim; salvarTimers(); renderControlesTimer(key, idx, t.min); atualizarPaginaTimers(); }
 function continuarTimer(key, idx){ const t=timersAtivos[key]; if(!t||!t.pausado) return; t.fim=Date.now()+t.restante*1000; t.pausado=false; delete t.restante; salvarTimers(); renderControlesTimer(key, idx, t.min); atualizarPaginaTimers(); }
-
-// COM CONFIRMAÇÃO - ZERAR
 function zerarTimer(key, idx, minOriginal){ 
   const t = timersAtivos[key];
   const nome = t ? `${t.titulo} - Passo ${t.passo}` : 'esse timer';
   if(!confirm(`Tem certeza que quer zerar?\n\n${nome}\n\nO tempo será perdido.`)) return;
-  delete timersAtivos[key]; 
-  salvarTimers(); 
-  renderControlesTimer(key, idx, minOriginal, true); 
-  atualizarPaginaTimers(); 
+  delete timersAtivos[key]; salvarTimers(); renderControlesTimer(key, idx, minOriginal, true); atualizarPaginaTimers(); 
 }
-
 function renderControlesTimer(key, idx, minOriginal, zerado=false){
   const cont=document.getElementById(`controls-${idx}`); if(!cont) return;
   if(zerado){ cont.innerHTML=`<button class="timer-btn-main" id="btn-main-${idx}" onclick="iniciarTimer(${minOriginal},${idx})">⏱ Timer ${minOriginal} min</button>`; return; }
@@ -155,26 +160,13 @@ function atualizarPaginaTimers(){
     return `<div style="background:white;border:1.5px solid #FFE9DC;border-radius:16px;padding:14px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center"><div style="flex:1"><b>${t.titulo} - Passo ${t.passo}</b><div style="font-size:28px;font-weight:900;margin-top:4px">${tempoStr}</div><div style="margin-top:8px">${botoesPausa}<button onclick="zerarTimer('${key}',${t.passo-1},${t.min})" style="padding:8px 12px;border-radius:20px;border:1px solid #E8DDD6;background:white">🔄 Zerar</button></div></div><button onclick="voltarParaModoPreparo('${t.idReceita}','${key}')" style="background:#1A1A1A;color:white;border:none;width:48px;height:48px;border-radius:50%;font-size:20px;cursor:pointer;margin-left:10px">📖</button></div>`;
   }).join('')+`<div style="text-align:center;margin-top:20px"><button onclick="limparTodosTimers()" style="background:#FF6B35;color:white;padding:12px 20px;border-radius:20px;border:none;font-weight:800">🧹 LIMPAR TODOS</button></div>`;
 }
-function voltarParaModoPreparo(idReceita, key){ 
-  if(!idReceita){ const t=timersAtivos[key]; if(t) idReceita=t.idReceita; } 
-  if(!idReceita) return; 
-  mudarPage('home'); 
-  setTimeout(()=>{
-    abrirReceita(idReceita); 
-    setTimeout(()=>{ irParaModoPreparo(); }, 600);
-  },200); 
-}
+function voltarParaModoPreparo(idReceita, key){ if(!idReceita){ const t=timersAtivos[key]; if(t) idReceita=t.idReceita; } if(!idReceita) return; mudarPage('home'); setTimeout(()=>{ abrirReceita(idReceita); setTimeout(()=>{ irParaModoPreparo(); }, 600); },200); }
 function voltarParaReceita(idReceita, key){ voltarParaModoPreparo(idReceita, key); }
-
-// COM CONFIRMAÇÃO - LIMPAR TODOS
 function limparTodosTimers(){ 
   const qtd = Object.keys(timersAtivos).length;
   if(qtd === 0) return;
   if(!confirm(`Tem certeza que quer apagar TODOS os ${qtd} timers?\n\nEssa ação não pode ser desfeita.`)) return;
-  localStorage.removeItem('hk_timers'); 
-  timersAtivos={}; 
-  salvarTimers(); 
-  atualizarPaginaTimers(); 
+  localStorage.removeItem('hk_timers'); timersAtivos={}; salvarTimers(); atualizarPaginaTimers(); 
 }
 function mudarPage(nome){ document.querySelectorAll('.page').forEach(p=>p.classList.remove('ativa')); document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('ativo')); document.getElementById(`page-${nome}`)?.classList.add('ativa'); document.getElementById(`nav-${nome}`)?.classList.add('ativo'); const RECEITAS=getReceitasBase(); if(nome==='favoritos') renderReceitas(RECEITAS.filter(r=>favoritos.includes(r.id)),'grid-favoritos'); if(nome==='recentes') renderReceitas(recentes.map(id=>RECEITAS.find(r=>r.id===id)).filter(Boolean),'grid-recentes'); if(nome==='timer') atualizarPaginaTimers(); }
 document.addEventListener('DOMContentLoaded',init);
