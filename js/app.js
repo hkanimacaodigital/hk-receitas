@@ -29,8 +29,7 @@ function init(){ renderCategorias(); filtrar(); restaurarTimersGlobais(); if(Not
 function renderCategorias(){
   const c=document.getElementById('categorias'); if(!c||!CATEGORIAS||!RECEITAS) return;
   const ord=[...CATEGORIAS].sort((a,b)=>a.nome.localeCompare(b.nome));
-  // ALTERADO: adicionado filtro rapida <=12
-  const contar=(id)=>{ if(id==='tudo') return RECEITAS.length; if(id==='airfryer') return RECEITAS.filter(r=>r.airfryer===true).length; if(id==='rapida') return RECEITAS.filter(r=>getTempo(r)<=12).length; const nome=CATEGORIAS.find(x=>x.id===id)?.nome.toLowerCase()||id; return RECEITAS.filter(r=>(r.categoria_principal||'').toLowerCase()===nome||(r.categorias||[]).map(x=>x.toLowerCase()).includes(nome)).length; };
+  const contar=(id)=>{ if(id==='tudo') return RECEITAS.length; if(id==='airfryer') return RECEITAS.filter(r=>r.airfryer===true).length; const nome=CATEGORIAS.find(x=>x.id===id)?.nome.toLowerCase()||id; return RECEITAS.filter(r=>(r.categoria_principal||'').toLowerCase()===nome||(r.categorias||[]).map(x=>x.toLowerCase()).includes(nome)).length; };
   const todas=[{id:'tudo',nome:'Tudo',icone:'✨'},...ord];
   c.innerHTML=todas.map(cat=>`<button class="cat-btn ${categoriaAtiva===cat.id?'ativo':''}" onclick="setCategoria('${cat.id}')">${cat.icone}<br>${cat.nome}<br>(${contar(cat.id)})</button>`).join('');
 }
@@ -40,8 +39,7 @@ function getTempo(r){ const m=(r.tempo||'').match(/(\d+)/); return m?parseInt(m[
 function filtrar(){
   if(!RECEITAS) return; const busca=(document.getElementById('busca')?.value||'').toLowerCase(); const ordem=document.getElementById('ordem')?.value||'padrao';
   let lista=[...RECEITAS];
-  // ALTERADO: rapida agora filtra tempo <=12
-  if(categoriaAtiva!=='tudo'){ if(categoriaAtiva==='airfryer') lista=lista.filter(r=>r.airfryer===true); else if(categoriaAtiva==='rapida') lista=lista.filter(r=>getTempo(r)<=12); else{ const nome=CATEGORIAS.find(c=>c.id===categoriaAtiva)?.nome.toLowerCase()||categoriaAtiva; lista=lista.filter(r=>(r.categoria_principal||'').toLowerCase()===nome||(r.categorias||[]).map(x=>x.toLowerCase()).includes(nome)); }}
+  if(categoriaAtiva!=='tudo'){ if(categoriaAtiva==='airfryer') lista=lista.filter(r=>r.airfryer===true); else{ const nome=CATEGORIAS.find(c=>c.id===categoriaAtiva)?.nome.toLowerCase()||categoriaAtiva; lista=lista.filter(r=>(r.categoria_principal||'').toLowerCase()===nome||(r.categorias||[]).map(x=>x.toLowerCase()).includes(nome)); }}
   if(busca) lista=lista.filter(r=>r.titulo.toLowerCase().includes(busca));
   if(ordem==='az') lista.sort((a,b)=>a.titulo.localeCompare(b.titulo)); else if(ordem==='tempo') lista.sort((a,b)=>getTempo(a)-getTempo(b)); else if(ordem==='kcal') lista.sort((a,b)=>getKcal(a)-getKcal(b));
   renderReceitas(lista,'grid-receitas');
@@ -49,8 +47,7 @@ function filtrar(){
 function renderReceitas(lista, alvoId){
   const cont=document.getElementById(alvoId); if(!cont) return;
   if(lista.length===0){ cont.innerHTML=`<div style="grid-column:1/3;text-align:center;padding:30px">Nenhuma receita</div>`; return; }
-  // ALTERADO: trocou kcal por porcoes + nivel
-  cont.innerHTML=lista.map(r=>{ const isFav=favoritos.includes(r.id); return `<div class="card" onclick="abrirReceita('${r.id}')"><button class="fav-btn" onclick="event.stopPropagation();toggleFav('${r.id}')">${isFav?'❤️':'🤍'}</button><img src="${r.foto}" loading="lazy"><div class="card-body"><span class="badge">${r.categoria_principal}</span><h3 style="margin:8px 0 4px;font-weight:800">${r.titulo}</h3><div class="card-info"><span>⏰ ${r.tempo}</span><span>🍽️ ${r.porcoes||'1 porção'}</span><span>📊 ${r.nivel||'Fácil'}</span></div></div></div>`}).join('');
+  cont.innerHTML=lista.map(r=>{ const isFav=favoritos.includes(r.id); return `<div class="card" onclick="abrirReceita('${r.id}')"><button class="fav-btn" onclick="event.stopPropagation();toggleFav('${r.id}')">${isFav?'❤️':'🤍'}</button><img src="${r.foto}" loading="lazy"><div class="card-body"><span class="badge">${r.categoria_principal}</span><h3 style="margin:8px 0 4px;font-weight:800">${r.titulo}</h3><div class="card-info"><span>⏰ ${r.tempo}</span><span>🔥 ${getKcal(r)} kcal</span></div></div></div>`}).join('');
 }
 function normalizarPasso(p){ if(typeof p==='string') return {texto:p, tempoMin: extrairMin(p)}; return {texto:p.texto||p.passo||'', tempoMin: p.timer||p.tempoMin||extrairMin(p.texto||''), label:p.label||''}; }
 function extrairMin(t){ const m=(t||'').match(/(\d+)\s*min/); return m?parseInt(m[1]):0; }
@@ -62,10 +59,9 @@ function detalharPasso(p, idx, total){
 }
 function compartilharWhatsApp(){
   if(!receitaAtual) return;
-  // ALTERADO: remove kcal
-  const ingList = receitaAtual.ingredientes.map(i=>`• ${i.nome||i.name} - ${i.qtd||''}`).join('\n');
+  const ingList = receitaAtual.ingredientes.map(i=>`• ${i.nome||i.name} - ${i.qtd||''} (${i.kcal||0} kcal)`).join('\n');
   const passosList = receitaAtual.passos.map((p,i)=>`${i+1}. ${p.texto||p}`).join('\n');
-  const texto = `*${receitaAtual.titulo}* - ${receitaAtual.tempo} - ${receitaAtual.porcoes||''} - ${receitaAtual.nivel||''}\n\n*🛒 INGREDIENTES:*\n${ingList}\n\n*👨‍🍳 MODO DE PREPARO:*\n${passosList}\n\nVeja mais em: hk-receitas.vercel.app`;
+  const texto = `*${receitaAtual.titulo}* - ${receitaAtual.tempo}\n\n*🛒 INGREDIENTES:*\n${ingList}\n\n*👨‍🍳 MODO DE PREPARO:*\n${passosList}\n\n*Total: ${getKcal(receitaAtual)} kcal*\n\nVeja mais em: hk-receitas.vercel.app`;
   window.open(`https://wa.me/?text=${encodeURIComponent(texto)}`, '_blank');
 }
 
@@ -95,11 +91,11 @@ function abrirReceita(id){
       <div class="view" id="view-ingredientes">
         <div class="modal-conteudo">
           <h1 style="font-size:24px;font-weight:900;line-height:1.2">${r.titulo}</h1>
-          <div style="display:flex;gap:8px;margin:12px 0;flex-wrap:wrap"><span style="background:#FFF0E6;padding:6px 12px;border-radius:20px;font-size:13px;font-weight:700">⏰ ${r.tempo}</span><span style="background:#FFF0E6;padding:6px 12px;border-radius:20px;font-size:13px;font-weight:700">🍽️ ${r.porcoes||''}</span><span style="background:#FFF0E6;padding:6px 12px;border-radius:20px;font-size:13px;font-weight:700">📊 ${r.nivel||'Fácil'}</span><span style="background:#FFF0E6;padding:6px 12px;border-radius:20px;font-size:13px;font-weight:700">${r.categoria_principal}</span></div>
+          <div style="display:flex;gap:8px;margin:12px 0"><span style="background:#FFF0E6;padding:6px 12px;border-radius:20px;font-size:13px;font-weight:700">⏰ ${r.tempo}</span><span style="background:#FFF0E6;padding:6px 12px;border-radius:20px;font-size:13px;font-weight:700">🔥 ${getKcal(r)} kcal</span><span style="background:#FFF0E6;padding:6px 12px;border-radius:20px;font-size:13px;font-weight:700">${r.categoria_principal}</span></div>
           
           <h3 style="margin:20px 0 12px;font-size:18px">🛒 Ingredientes (${r.ingredientes.length} itens)</h3>
           <ul style="list-style:none;display:flex;flex-direction:column;gap:10px;padding:0">
-            ${r.ingredientes.map((i,idx)=>`<li id="ing-${idx}" style="background:#FFFBF8;border:1px solid #FFE9DC;padding:14px;border-radius:14px;display:flex;gap:12px;align-items:center;transition:0.2s"><input type="checkbox" style="width:22px;height:22px;accent-color:#FF6B35;flex-shrink:0" onchange="this.closest('li').style.opacity=this.checked?0.5:1;this.closest('li').style.textDecoration=this.checked?'line-through':''"><span style="flex:1"><b style="font-size:15px">${i.nome||i.name}</b><br><small style="color:#6B5E57">${i.qtd||''}</small><br><small style="color:#FF6B35;font-weight:700">${i.beneficio||''}</small></span></li>`).join('')}
+            ${r.ingredientes.map(i=>`<li style="background:#FFFBF8;border:1px solid #FFE9DC;padding:14px;border-radius:14px;display:flex;justify-content:space-between;align-items:center"><span><b style="font-size:15px">${i.nome||i.name}</b><br><small style="color:#6B5E57">${i.qtd||''}</small><br><small style="color:#FF6B35;font-weight:700">${i.beneficio||''}</small></span><b style="background:#FFE9DC;padding:6px 10px;border-radius:10px">${i.kcal||0} kcal</b></li>`).join('')}
           </ul>
 
           <button class="btn-whatsapp" onclick="compartilharWhatsApp()">📲 Exportar para WhatsApp</button>
@@ -111,7 +107,7 @@ function abrirReceita(id){
       <div class="view" id="view-preparo">
         <div class="modal-conteudo">
           <h1 style="font-size:22px;font-weight:900">${r.titulo}</h1>
-          <p style="color:#9A8C83;margin:6px 0 16px">Modo de preparo detalhado • ${passosDetalhados.length} passos • ${r.porcoes||''} • ${r.nivel||''}</p>
+          <p style="color:#9A8C83;margin:6px 0 16px">Modo de preparo detalhado • ${passosDetalhados.length} passos</p>
           
           ${passosDetalhados.map((p,i)=>{
             const key=`${r.id}-${i}`; const ativo=timersAtivos[key]; const rest=ativo?Math.max(0, Math.floor((ativo.fim - Date.now())/1000)):0;
@@ -180,8 +176,10 @@ function toggleFav(id){
 }
 function toggleFavModal(){ if(!receitaAtual) return; toggleFav(receitaAtual.id); }
 function atualizarBtnFav(){
+  // Pega o botão que já existe no topo (do seu index.html)
   let btn = document.getElementById('btn-fav-modal');
   if(!btn){
+    // Se não achar por ID, procura pelo botão de favoritar do header
     const headerBtns = document.querySelectorAll('#modal button');
     for(let b of headerBtns){
       if(b.innerText.includes('Favoritar') || b.innerText.includes('Favorito')){
