@@ -30,8 +30,8 @@
   .passo.feito{opacity:0.5;text-decoration:line-through} .passo input{width:22px;height:22px;flex-shrink:0}
   .timer-btn{background:#1A1A1A;color:white;border:none;padding:7px 12px;border-radius:20px;font-size:11px;font-weight:800;margin-top:6px}
   .bottom-nav{position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid #FFE9DC;display:flex;justify-content:space-around;padding:8px 0 12px 0;z-index:200}
-  .nav-item{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11px;font-weight:700;color:#9A8C83;background:none;border:none}
-  .nav-item.ativo{color:#FF6B35} .nav-item span.icone{font-size:20px}
+  .nav-item{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:10px;font-weight:700;color:#9A8C83;background:none;border:none;flex:1;padding:0 2px}
+  .nav-item.ativo{color:#FF6B35} .nav-item span.icone{font-size:18px}
   .page{display:none} .page.ativa{display:block}
 </style>
 </head>
@@ -62,6 +62,7 @@
 <div id="page-favoritos" class="page"><div style="padding:16px"><h2>❤️ Favoritos</h2><div id="grid-favoritos" style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:14px"></div></div></div>
 <div id="page-timer" class="page"><div style="padding:16px"><h2>⏱ Timers Ativos</h2><div id="timer-global" style="margin-top:20px"></div></div></div>
 <div id="page-recentes" class="page"><div style="padding:16px"><h2>👀 Vistos Recentemente</h2><div id="grid-recentes" style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:14px"></div></div></div>
+<div id="page-finalizadas" class="page"><div style="padding:16px"><h2>✅ Finalizadas</h2><div id="resumo-finalizadas" style="margin-top:12px"></div><div id="grid-finalizadas" style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:14px"></div></div></div>
 
 <div id="modal">
   <div style="position:sticky;top:0;z-index:10;background:white;padding:12px;display:flex;justify-content:space-between;border-bottom:1px solid #FFE9DC">
@@ -93,6 +94,7 @@
   <button class="nav-item" id="nav-favoritos" onclick="mudarPage('favoritos')"><span class="icone">❤️</span>Favoritos</button>
   <button class="nav-item" id="nav-timer" onclick="mudarPage('timer')"><span class="icone">⏱️</span>Timer</button>
   <button class="nav-item" id="nav-recentes" onclick="mudarPage('recentes')"><span class="icone">👁️</span>Recentes</button>
+  <button class="nav-item" id="nav-finalizadas" onclick="mudarPage('finalizadas')"><span class="icone">✅</span>Finalizadas</button>
 </nav>
 
 <script src="js/data/categorias.js"></script>
