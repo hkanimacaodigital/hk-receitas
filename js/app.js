@@ -89,11 +89,36 @@ function htmlHistoricoFinalizadas(id){
   const hist = finalizadas[id]||[];
   if(hist.length===0) return '';
   const ordenado=[...hist].sort((a,b)=>new Date(b)-new Date(a));
+  // Se só fez 1x, não precisa de seta para expandir
+  if(ordenado.length===1){
+    return `<div style="background:#E8F5E9;border:1.5px solid #C8E6C9;border-radius:14px;padding:12px;margin:12px 0">
+      <div style="display:flex;justify-content:space-between;align-items:center"><b>✅ Feita 1x</b><button onclick="event.stopPropagation();limparHistoricoReceita('${id}')" style="background:white;border:1px solid #E8DDD6;padding:6px 10px;border-radius:20px;font-size:11px;font-weight:700">🗑️ Limpar histórico</button></div>
+      <div style="font-size:12px;color:#2E7D32;margin-top:4px">Última vez: ${formatarData(ordenado[0])}</div>
+    </div>`;
+  }
   return `<div style="background:#E8F5E9;border:1.5px solid #C8E6C9;border-radius:14px;padding:12px;margin:12px 0">
     <div style="display:flex;justify-content:space-between;align-items:center"><b>✅ Feita ${hist.length}x</b><button onclick="event.stopPropagation();limparHistoricoReceita('${id}')" style="background:white;border:1px solid #E8DDD6;padding:6px 10px;border-radius:20px;font-size:11px;font-weight:700">🗑️ Limpar histórico</button></div>
-    <div style="font-size:12px;color:#2E7D32;margin-top:4px">Última vez: ${formatarData(ordenado[0])}</div>
-    <div style="margin-top:8px;display:flex;flex-direction:column;gap:4px">${ordenado.map((d,i)=>`<div style="font-size:12px;background:white;padding:6px 10px;border-radius:8px;display:flex;justify-content:space-between"><span>${ordenado.length-i}ª vez: ${formatarData(d)}</span><button onclick="event.stopPropagation();removerUmaDataFinalizada('${id}','${d}')" style="border:none;background:none;font-size:14px">✕</button></div>`).join('')}</div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px">
+      <span style="font-size:12px;color:#2E7D32">Última vez: ${formatarData(ordenado[0])}</span>
+      <button id="btn-hist-${id}" onclick="event.stopPropagation();toggleHistorico('${id}')" style="background:white;border:1px solid #C8E6C9;padding:5px 10px;border-radius:20px;font-size:11px;font-weight:800;color:#2E7D32">▼ Ver todas</button>
+    </div>
+    <div id="lista-hist-${id}" style="display:none;margin-top:8px;flex-direction:column;gap:4px">
+      ${ordenado.map((d,i)=>`<div style="font-size:12px;background:white;padding:6px 10px;border-radius:8px">${ordenado.length-i}ª vez: ${formatarData(d)}</div>`).join('')}
+    </div>
   </div>`;
+}
+function toggleHistorico(id){
+  const lista=document.getElementById(`lista-hist-${id}`);
+  const btn=document.getElementById(`btn-hist-${id}`);
+  if(!lista || !btn) return;
+  const aberto=lista.style.display!=='none' && lista.style.display!=='';
+  if(aberto){
+    lista.style.display='none';
+    btn.innerHTML='▼ Ver todas';
+  } else {
+    lista.style.display='flex';
+    btn.innerHTML='▲ Ocultar';
+  }
 }
 function toggleCheckIng(idx, el){
   if(!receitaAtual) return;
@@ -145,14 +170,6 @@ function finalizarReceita(){
   // Volta para ingredientes e reabre para mostrar zerado + histórico atualizado
   const id=receitaAtual.id;
   abrirReceita(id);
-}
-function removerUmaDataFinalizada(id, iso){
-  if(!finalizadas[id]) return;
-  finalizadas[id]=finalizadas[id].filter(d=>d!==iso);
-  if(finalizadas[id].length===0) delete finalizadas[id];
-  salvarFinalizadas();
-  renderFinalizadas();
-  if(receitaAtual && receitaAtual.id===id) abrirReceita(id);
 }
 function limparHistoricoReceita(id){
   if(!confirm('Apagar todo o histórico dessa receita na aba Finalizadas?')) return;
