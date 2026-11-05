@@ -1,6 +1,8 @@
 let categoriaAtiva='tudo', receitaAtual=null;
 let favoritos=JSON.parse(localStorage.getItem('hk_fav')||'[]');
 let recentes=JSON.parse(localStorage.getItem('hk_rec')||'[]');
+let checks=JSON.parse(localStorage.getItem('hk_checks')||'{}');
+let finalizadas=JSON.parse(localStorage.getItem('hk_finalizadas')||'{}');
 let timersAtivos={};
 try{
   const raw=JSON.parse(localStorage.getItem('hk_timers')||'{}');
@@ -14,6 +16,8 @@ try{
 }catch(e){ localStorage.removeItem('hk_timers'); }
 
 function salvarTimers(){ localStorage.setItem('hk_timers', JSON.stringify(timersAtivos)); }
+function salvarChecks(){ localStorage.setItem('hk_checks', JSON.stringify(checks)); }
+function salvarFinalizadas(){ localStorage.setItem('hk_finalizadas', JSON.stringify(finalizadas)); }
 function getReceitasBase(){ if(window.TODAS_RECEITAS) return window.TODAS_RECEITAS; if(window.RECEITAS) return window.RECEITAS; return []; }
 function init(){ renderCategorias(); filtrar(); restaurarTimersGlobais(); if(Notification.permission!=='granted') Notification.requestPermission(); }
 function renderCategorias(){
@@ -66,6 +70,122 @@ function compartilharWhatsApp(){
   const texto = `*${receitaAtual.titulo}* - ${receitaAtual.tempo}\n\n*🛒 INGREDIENTES:*\n${ingList}\n\n*👨‍🍳 MODO:*\n${passosList}\n\n hk-receitas.vercel.app`;
   window.open(`https://wa.me/?text=${encodeURIComponent(texto)}`, '_blank');
 }
+
+// ===== CHECKS + FINALIZADAS =====
+function getCheckReceita(id){
+  if(!checks[id]) checks[id]={ing:[],passos:[]};
+  return checks[id];
+}
+function formatarData(iso){
+  try{
+    const d=new Date(iso);
+    return d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric'})+' às '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+  }catch(e){ return iso; }
+}
+function formatarDataCurta(iso){
+  try{ return new Date(iso).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric'}); }catch(e){ return iso; }
+}
+function htmlHistoricoFinalizadas(id){
+  const hist = finalizadas[id]||[];
+  if(hist.length===0) return '';
+  const ordenado=[...hist].sort((a,b)=>new Date(b)-new Date(a));
+  return `<div style="background:#E8F5E9;border:1.5px solid #C8E6C9;border-radius:14px;padding:12px;margin:12px 0">
+    <div style="display:flex;justify-content:space-between;align-items:center"><b>✅ Feita ${hist.length}x</b><button onclick="event.stopPropagation();limparHistoricoReceita('${id}')" style="background:white;border:1px solid #E8DDD6;padding:6px 10px;border-radius:20px;font-size:11px;font-weight:700">🗑️ Limpar histórico</button></div>
+    <div style="font-size:12px;color:#2E7D32;margin-top:4px">Última vez: ${formatarData(ordenado[0])}</div>
+    <div style="margin-top:8px;display:flex;flex-direction:column;gap:4px">${ordenado.map((d,i)=>`<div style="font-size:12px;background:white;padding:6px 10px;border-radius:8px;display:flex;justify-content:space-between"><span>${ordenado.length-i}ª vez: ${formatarData(d)}</span><button onclick="event.stopPropagation();removerUmaDataFinalizada('${id}','${d}')" style="border:none;background:none;font-size:14px">✕</button></div>`).join('')}</div>
+  </div>`;
+}
+function toggleCheckIng(idx, el){
+  if(!receitaAtual) return;
+  const c=getCheckReceita(receitaAtual.id);
+  c.ing[idx]=!!el.checked;
+  salvarChecks();
+  const li=el.closest('li'); if(li) li.style.opacity=el.checked?'0.5':'1';
+}
+function toggleCheckPasso(idx, el){
+  if(!receitaAtual) return;
+  const c=getCheckReceita(receitaAtual.id);
+  c.passos[idx]=!!el.checked;
+  salvarChecks();
+  const div=el.closest('.passo-detalhado'); if(div) div.classList.toggle('feito', !!el.checked);
+  atualizarBotaoFinalizar();
+}
+function atualizarBotaoFinalizar(){
+  const btn=document.getElementById('btn-finalizar');
+  if(!btn || !receitaAtual) return;
+  const c=getCheckReceita(receitaAtual.id);
+  const total=receitaAtual.passos.length;
+  const marcados=(c.passos||[]).filter(Boolean).length;
+  const todos=total>0 && marcados===total;
+  btn.disabled=!todos;
+  btn.style.opacity=todos?'1':'0.4';
+  btn.style.background=todos?'#22C55E':'#9A8C83';
+  btn.style.cursor=todos?'pointer':'not-allowed';
+  btn.innerHTML=todos?'✅ RECEITA FINALIZADA':'✅ RECEITA FINALIZADA';
+  const info=document.getElementById('info-finalizar');
+  if(info) info.innerHTML=todos?'Todos os passos concluídos! Pode finalizar 🎉':`Faltam ${total-marcados} passo(s) para finalizar (${marcados}/${total})`;
+}
+function finalizarReceita(){
+  if(!receitaAtual) return;
+  const c=getCheckReceita(receitaAtual.id);
+  const total=receitaAtual.passos.length;
+  if((c.passos||[]).filter(Boolean).length!==total){
+    alert('Tique todos os passos do modo de preparo para finalizar!');
+    return;
+  }
+  if(!finalizadas[receitaAtual.id]) finalizadas[receitaAtual.id]=[];
+  finalizadas[receitaAtual.id].push(new Date().toISOString());
+  salvarFinalizadas();
+  // Zera só as caixas dessa receita
+  delete checks[receitaAtual.id];
+  salvarChecks();
+  const totalVezes=finalizadas[receitaAtual.id].length;
+  alert(`🎉 Parabéns! Receita finalizada!\n\nVocê já fez "${receitaAtual.titulo}" ${totalVezes}x`);
+  renderFinalizadas();
+  // Volta para ingredientes e reabre para mostrar zerado + histórico atualizado
+  const id=receitaAtual.id;
+  abrirReceita(id);
+}
+function removerUmaDataFinalizada(id, iso){
+  if(!finalizadas[id]) return;
+  finalizadas[id]=finalizadas[id].filter(d=>d!==iso);
+  if(finalizadas[id].length===0) delete finalizadas[id];
+  salvarFinalizadas();
+  renderFinalizadas();
+  if(receitaAtual && receitaAtual.id===id) abrirReceita(id);
+}
+function limparHistoricoReceita(id){
+  if(!confirm('Apagar todo o histórico dessa receita na aba Finalizadas?')) return;
+  delete finalizadas[id];
+  salvarFinalizadas();
+  renderFinalizadas();
+  if(receitaAtual && receitaAtual.id===id) abrirReceita(id);
+}
+function renderFinalizadas(){
+  const cont=document.getElementById('grid-finalizadas');
+  const resumo=document.getElementById('resumo-finalizadas');
+  if(!cont) return;
+  const RECEITAS=getReceitasBase();
+  const ids=Object.keys(finalizadas).filter(id=>(finalizadas[id]||[]).length>0);
+  const totalVezes=ids.reduce((s,id)=>s+(finalizadas[id].length||0),0);
+  if(resumo){
+    if(ids.length===0) resumo.innerHTML='';
+    else resumo.innerHTML=`<div style="background:#FFF0E6;border-radius:14px;padding:12px;font-weight:800">🏆 Você já finalizou <b>${totalVezes} receitas</b> • ${ids.length} receita(s) diferente(s)</div>`;
+  }
+  if(ids.length===0){
+    cont.innerHTML=`<div style="grid-column:1/3;text-align:center;padding:30px;color:#9A8C83">Nenhuma receita finalizada ainda.<br>Finalize uma receita no modo de preparo para aparecer aqui! ✅</div>`;
+    return;
+  }
+  // Ordena pela mais recente
+  ids.sort((a,b)=>new Date(finalizadas[b][finalizadas[b].length-1])-new Date(finalizadas[a][finalizadas[a].length-1]));
+  cont.innerHTML=ids.map(id=>{
+    const r=RECEITAS.find(x=>x.id===id); if(!r) return '';
+    const hist=[...finalizadas[id]].sort((a,b)=>new Date(b)-new Date(a));
+    const isFav=favoritos.includes(r.id);
+    return `<div class="card" onclick="abrirReceita('${r.id}')"><button class="fav-btn" onclick="event.stopPropagation();toggleFav('${r.id}')">${isFav?'❤️':'🤍'}</button><img src="${r.foto}" loading="lazy"><div style="position:absolute;top:8px;left:8px;background:#22C55E;color:white;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:800">✅ Feita ${hist.length}x</div><div class="card-body"><span class="badge">${r.categoria_principal}</span><h3 style="margin:8px 0 4px;font-weight:800">${r.titulo}</h3><div class="card-info"><span>🕒 Última: ${formatarDataCurta(hist[0])}</span></div><div style="font-size:11px;color:#9A8C83;margin-top:4px">Primeira: ${formatarDataCurta(hist[hist.length-1])}</div></div></div>`;
+  }).join('');
+}
+
 function abrirReceita(id){
   const RECEITAS=getReceitasBase();
   const r=RECEITAS.find(x=>x.id===id); if(!r) return; receitaAtual=r;
@@ -73,6 +193,7 @@ function abrirReceita(id){
   const modal=document.getElementById('modal'); const corpo=document.getElementById('modal-corpo'); 
   const passosNorm=r.passos.map(normalizarPasso);
   const passosDetalhados=passosNorm.map((p,i)=>detalharPasso(p,i,passosNorm.length));
+  const chk=getCheckReceita(r.id);
   corpo.innerHTML=`
   <style>
     .flip-wrapper{ perspective:1200px; } .flip-inner{ position:relative; width:100%; transition: transform 0.7s; transform-style: preserve-3d; }
@@ -81,7 +202,9 @@ function abrirReceita(id){
     .btn-whatsapp{ width:100%; background:#25D366; color:white; border:none; padding:14px; border-radius:14px; font-weight:900; font-size:15px; margin-top:16px; cursor:pointer; }
     .btn-modo{ width:100%; background:#FF6B35; color:white; border:none; padding:18px; border-radius:16px; font-weight:900; font-size:18px; margin-top:12px; cursor:pointer; }
     .btn-voltar{ width:100%; background:#1A1A1A; color:white; border:none; padding:18px; border-radius:16px; font-weight:900; font-size:18px; margin-top:24px; cursor:pointer; }
+    .btn-finalizar{ width:100%; background:#9A8C83; color:white; border:none; padding:18px; border-radius:16px; font-weight:900; font-size:16px; margin-top:12px; cursor:pointer; }
     .passo-detalhado{ background:white; border:1.5px solid #FFE9DC; border-radius:16px; padding:16px; margin-bottom:14px; display:flex; gap:12px; }
+    .passo-detalhado.feito{ opacity:0.55; }
     .timer-controls{ display:flex; gap:8px; margin-top:10px; flex-wrap:wrap; align-items:center; }
     .timer-btn-main{ background:#1A1A1A; color:white; border:none; padding:10px 18px; border-radius:20px; font-weight:800; cursor:pointer; }
     .timer-btn-sec{ background:white; color:#1A1A1A; border:1.5px solid #E8DDD6; padding:8px 14px; border-radius:20px; font-weight:700; cursor:pointer; font-size:12px; }
@@ -95,9 +218,13 @@ function abrirReceita(id){
         <span style="background:#FFF0E6;padding:6px 12px;border-radius:20px;font-size:13px;font-weight:700">🍽️ ${r.porcoes||''}</span>
         <span style="background:#FFF0E6;padding:6px 12px;border-radius:20px;font-size:13px;font-weight:700">📊 ${r.nivel||''}</span>
       </div>
+      ${htmlHistoricoFinalizadas(r.id)}
       <h3 style="margin:20px 0 12px">🛒 Ingredientes (${r.ingredientes.length})</h3>
       <ul style="list-style:none;display:flex;flex-direction:column;gap:10px;padding:0">
-        ${r.ingredientes.map((i,idx)=>`<li style="background:#FFFBF8;border:1px solid #FFE9DC;padding:14px;border-radius:14px;display:flex;gap:12px"><input type="checkbox" style="width:22px;height:22px;accent-color:#FF6B35"><span><b>${i.nome||i.name}</b><br><small>${i.qtd||''}</small></span></li>`).join('')}
+        ${r.ingredientes.map((i,idx)=>{
+          const marcado=!!(chk.ing||[])[idx];
+          return `<li style="background:#FFFBF8;border:1px solid #FFE9DC;padding:14px;border-radius:14px;display:flex;gap:12px;opacity:${marcado?'0.5':'1'}"><input type="checkbox" ${marcado?'checked':''} onchange="toggleCheckIng(${idx},this)" style="width:22px;height:22px;accent-color:#FF6B35;flex-shrink:0"><span style="${marcado?'text-decoration:line-through':''}"><b>${i.nome||i.name}</b><br><small>${i.qtd||''}</small></span></li>`;
+        }).join('')}
       </ul>
       <button class="btn-whatsapp" onclick="compartilharWhatsApp()">📲 Exportar WhatsApp</button>
       <button class="btn-modo" onclick="irParaModoPreparo()">👨‍🍳 MODO DE PREPARO →</button><div style="height:30px"></div>
@@ -110,9 +237,13 @@ function abrirReceita(id){
         if(!t){ if(p.tempoMin>0) htmlBtns=`<button class="timer-btn-main" id="btn-main-${i}" onclick="iniciarTimer(${p.tempoMin},${i})">⏱ Timer ${p.tempoMin} min</button>`; else htmlBtns=`<span style="font-size:12px;color:#9A8C83">Sem timer</span>`; }
         else if(t.pausado){ const m=Math.floor(t.restante/60); const s=t.restante%60; htmlBtns=`<button class="timer-btn-main" id="btn-main-${i}">⏸️ ${m}:${(s+'').padStart(2,'0')} pausado</button><button class="timer-btn-sec" onclick="continuarTimer('${key}',${i})">▶️ Continuar</button><button class="timer-btn-sec" onclick="zerarTimer('${key}',${i},${t.min})">🔄 Zerar</button>`; }
         else{ const rest=Math.max(0, Math.floor((t.fim-Date.now())/1000)); const m=Math.floor(rest/60); const s=rest%60; htmlBtns=`<button class="timer-btn-main" id="btn-main-${i}">⏳ ${m}:${(s+'').padStart(2,'0')} rodando</button><button class="timer-btn-sec" onclick="pausarTimer('${key}',${i})">⏸️ Pausar</button><button class="timer-btn-sec" onclick="zerarTimer('${key}',${i},${t.min})">🔄 Zerar</button>`; }
-        return `<div class="passo-detalhado"><input type="checkbox"><div style="flex:1"><b style="color:#FF6B35;font-size:13px">${p.label}</b> <span style="font-size:12px;background:#FFF0E6;padding:4px 8px;border-radius:8px">Passo ${i+1}/${passosDetalhados.length}</span><div style="font-weight:600;margin-top:6px">${p.texto}</div><div class="timer-controls" id="controls-${i}">${htmlBtns}</div></div></div>`;
+        const marcadoPasso=!!(chk.passos||[])[i];
+        return `<div class="passo-detalhado ${marcadoPasso?'feito':''}"><input type="checkbox" ${marcadoPasso?'checked':''} onchange="toggleCheckPasso(${i},this)" style="width:22px;height:22px;accent-color:#FF6B35;flex-shrink:0"><div style="flex:1"><b style="color:#FF6B35;font-size:13px">${p.label}</b> <span style="font-size:12px;background:#FFF0E6;padding:4px 8px;border-radius:8px">Passo ${i+1}/${passosDetalhados.length}</span><div style="font-weight:600;margin-top:6px;${marcadoPasso?'text-decoration:line-through':''}">${p.texto}</div><div class="timer-controls" id="controls-${i}">${htmlBtns}</div></div></div>`;
       }).join('')}
-      <button class="btn-voltar" onclick="voltarIngredientes()">← INGREDIENTES</button><div style="height:30px"></div>
+      <button class="btn-voltar" onclick="voltarIngredientes()">← INGREDIENTES</button>
+      <button id="btn-finalizar" class="btn-finalizar" onclick="finalizarReceita()" disabled>✅ RECEITA FINALIZADA</button>
+      <div id="info-finalizar" style="text-align:center;font-size:12px;color:#9A8C83;margin-top:8px"></div>
+      <div style="height:30px"></div>
     </div></div>
   </div></div>`;
   modal.classList.add('mostrar');
@@ -121,6 +252,7 @@ function abrirReceita(id){
   document.getElementById('view-preparo').style.display='none';
   rolarTopoModal();
   atualizarBotaoFavCima();
+  atualizarBotaoFinalizar();
 }
 function rolarTopoModal(){
   const modal = document.getElementById('modal');
@@ -133,7 +265,7 @@ function irParaModoPreparo(){
   const flip=document.getElementById('flip-inner'); const v1=document.getElementById('view-ingredientes'); const v2=document.getElementById('view-preparo'); 
   flip.classList.add('virando'); 
   rolarTopoModal();
-  setTimeout(()=>{ v1.style.display='none'; v2.style.display='block'; v2.style.position='relative'; v2.style.transform='rotateY(180deg)'; rolarTopoModal(); },350); 
+  setTimeout(()=>{ v1.style.display='none'; v2.style.display='block'; v2.style.position='relative'; v2.style.transform='rotateY(180deg)'; rolarTopoModal(); atualizarBotaoFinalizar(); },350); 
 }
 function voltarIngredientes(){ 
   const flip=document.getElementById('flip-inner'); const v1=document.getElementById('view-ingredientes'); const v2=document.getElementById('view-preparo'); 
@@ -157,7 +289,6 @@ function atualizarBotaoFavCima(){
   const isFav = favoritos.includes(receitaAtual.id);
   btn.innerHTML = isFav ? '❤️ Favoritada' : '♡ Favoritar';
   btn.style.background = isFav ? '#FF6B35' : '';
-  // Garante que o botão de cima sempre chame a função certa
   btn.onclick = function(e){ e.stopPropagation(); toggleFavAtual(); };
 }
 function atualizarBotaoFavDentro(){ atualizarBotaoFavCima(); }
@@ -226,7 +357,7 @@ function limparTodosTimers(){
   if(!confirm(`Tem certeza que quer apagar TODOS os ${qtd} timers?\n\nEssa ação não pode ser desfeita.`)) return;
   localStorage.removeItem('hk_timers'); timersAtivos={}; salvarTimers(); atualizarPaginaTimers(); 
 }
-function mudarPage(nome){ document.querySelectorAll('.page').forEach(p=>p.classList.remove('ativa')); document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('ativo')); document.getElementById(`page-${nome}`)?.classList.add('ativa'); document.getElementById(`nav-${nome}`)?.classList.add('ativo'); const RECEITAS=getReceitasBase(); if(nome==='favoritos') renderReceitas(RECEITAS.filter(r=>favoritos.includes(r.id)),'grid-favoritos'); if(nome==='recentes') renderReceitas(recentes.map(id=>RECEITAS.find(r=>r.id===id)).filter(Boolean),'grid-recentes'); if(nome==='timer') atualizarPaginaTimers(); }
+function mudarPage(nome){ document.querySelectorAll('.page').forEach(p=>p.classList.remove('ativa')); document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('ativo')); document.getElementById(`page-${nome}`)?.classList.add('ativa'); document.getElementById(`nav-${nome}`)?.classList.add('ativo'); const RECEITAS=getReceitasBase(); if(nome==='favoritos') renderReceitas(RECEITAS.filter(r=>favoritos.includes(r.id)),'grid-favoritos'); if(nome==='recentes') renderReceitas(recentes.map(id=>RECEITAS.find(r=>r.id===id)).filter(Boolean),'grid-recentes'); if(nome==='timer') atualizarPaginaTimers(); if(nome==='finalizadas') renderFinalizadas(); }
 document.addEventListener('DOMContentLoaded',init);
 
 // ===== GELADEIRA - FINAL LIMPO =====
