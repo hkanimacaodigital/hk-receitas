@@ -87,6 +87,17 @@ if('serviceWorker' in navigator){
   navigator.serviceWorker.register('sw.js').catch(()=>{});
 }
 
+// ===== COMUNICAÇÃO COM O SW.JS QUE VOCÊ JÁ TEM =====
+function enviarParaSW(msg){
+  if('serviceWorker' in navigator && navigator.serviceWorker.controller){
+    navigator.serviceWorker.controller.postMessage(msg);
+  } else if('serviceWorker' in navigator){
+    navigator.serviceWorker.ready.then(reg => {
+      if(reg.active) reg.active.postMessage(msg);
+    }).catch(()=>{});
+  }
+}
+
 function renderCategorias(){
   const c=document.getElementById('categorias'); if(!c||!CATEGORIAS) return;
   const RECEITAS=getReceitasBase();
@@ -400,21 +411,21 @@ function toggleFavAtual(){
   atualizarGridFavoritos();
 }
 
-// TIMER COM CONFIRMAÇÃO + SOM
+// TIMER COM CONFIRMAÇÃO + SOM + SW
 function iniciarTimer(min, idx){
   if(!receitaAtual||min<=0) return;
   desbloquearAudio();
   travarTelaAcesa();
   if(Notification.permission !== 'granted') Notification.requestPermission();
-  const key=`${receitaAtual.id}-${idx}`; const fim=Date.now()+min*60*1000; timersAtivos[key]={fim, titulo:receitaAtual.titulo, passo:idx+1, min, idReceita:receitaAtual.id, pausado:false}; salvarTimers(); renderControlesTimer(key, idx, min); atualizarPaginaTimers();
+  const key=`${receitaAtual.id}-${idx}`; const fim=Date.now()+min*60*1000; timersAtivos[key]={fim, titulo:receitaAtual.titulo, passo:idx+1, min, idReceita:receitaAtual.id, pausado:false}; salvarTimers(); enviarParaSW({type:'SCHEDULE_TIMER', key, titulo:receitaAtual.titulo, passo:idx+1, min, fim}); renderControlesTimer(key, idx, min); atualizarPaginaTimers();
 }
-function pausarTimer(key, idx){ const t=timersAtivos[key]; if(!t||t.pausado) return; const restante=Math.max(0, Math.floor((t.fim-Date.now())/1000)); t.restante=restante; t.pausado=true; delete t.fim; salvarTimers(); renderControlesTimer(key, idx, t.min); atualizarPaginaTimers(); }
-function continuarTimer(key, idx){ const t=timersAtivos[key]; if(!t||!t.pausado) return; t.fim=Date.now()+t.restante*1000; t.pausado=false; delete t.restante; salvarTimers(); renderControlesTimer(key, idx, t.min); atualizarPaginaTimers(); }
+function pausarTimer(key, idx){ const t=timersAtivos[key]; if(!t||t.pausado) return; const restante=Math.max(0, Math.floor((t.fim-Date.now())/1000)); t.restante=restante; t.pausado=true; delete t.fim; salvarTimers(); enviarParaSW({type:'CANCEL_TIMER', key}); renderControlesTimer(key, idx, t.min); atualizarPaginaTimers(); }
+function continuarTimer(key, idx){ const t=timersAtivos[key]; if(!t||!t.pausado) return; t.fim=Date.now()+t.restante*1000; t.pausado=false; delete t.restante; salvarTimers(); enviarParaSW({type:'SCHEDULE_TIMER', key, titulo:t.titulo, passo:t.passo, min:t.min, fim:t.fim}); renderControlesTimer(key, idx, t.min); atualizarPaginaTimers(); }
 function zerarTimer(key, idx, minOriginal){ 
   const t = timersAtivos[key];
   const nome = t ? `${t.titulo} - Passo ${t.passo}` : 'esse timer';
   if(!confirm(`Tem certeza que quer zerar?\n\n${nome}\n\nO tempo será perdido.`)) return;
-  delete timersAtivos[key]; salvarTimers(); renderControlesTimer(key, idx, minOriginal, true); atualizarPaginaTimers(); 
+  delete timersAtivos[key]; salvarTimers(); enviarParaSW({type:'CANCEL_TIMER', key}); renderControlesTimer(key, idx, minOriginal, true); atualizarPaginaTimers(); 
 }
 function renderControlesTimer(key, idx, minOriginal, zerado=false){
   const cont=document.getElementById(`controls-${idx}`); if(!cont) return;
@@ -426,7 +437,7 @@ function renderControlesTimer(key, idx, minOriginal, zerado=false){
 function restaurarTimersGlobais(){
   setInterval(()=>{
     let mudou=false;
-    Object.keys(timersAtivos).forEach(k=>{ const t=timersAtivos[k]; if(!t) { delete timersAtivos[k]; mudou=true; return; } if(t.pausado) return; if(!t.fim) return; const rest=Math.floor((t.fim-Date.now())/1000); if(receitaAtual && k.startsWith(receitaAtual.id+'-')){ const idx=k.split('-').pop(); const btn=document.getElementById(`btn-main-${idx}`); if(btn){ if(rest>0) btn.innerText=`⏳ ${Math.floor(rest/60)}:${(rest%60).toString().padStart(2,'0')} rodando`; else btn.innerText=`✅ Finalizado!`; } } if(rest<=0){ delete timersAtivos[k]; mudou=true; notificarFim(t); } });
+    Object.keys(timersAtivos).forEach(k=>{ const t=timersAtivos[k]; if(!t) { delete timersAtivos[k]; mudou=true; return; } if(t.pausado) return; if(!t.fim) return; const rest=Math.floor((t.fim-Date.now())/1000); if(receitaAtual && k.startsWith(receitaAtual.id+'-')){ const idx=k.split('-').pop(); const btn=document.getElementById(`btn-main-${idx}`); if(btn){ if(rest>0) btn.innerText=`⏳ ${Math.floor(rest/60)}:${(rest%60).toString().padStart(2,'0')} rodando`; else btn.innerText=`✅ Finalizado!`; } } if(rest<=0){ delete timersAtivos[k]; mudou=true; enviarParaSW({type:'CANCEL_TIMER', key:k}); notificarFim(t); } });
     if(mudou) salvarTimers(); if(document.getElementById('page-timer')?.classList.contains('ativa')) atualizarPaginaTimers();
   },1000);
 }
@@ -447,7 +458,7 @@ function limparTodosTimers(){
   const qtd = Object.keys(timersAtivos).length;
   if(qtd === 0) return;
   if(!confirm(`Tem certeza que quer apagar TODOS os ${qtd} timers?\n\nEssa ação não pode ser desfeita.`)) return;
-  localStorage.removeItem('hk_timers'); timersAtivos={}; salvarTimers(); atualizarPaginaTimers(); 
+  localStorage.removeItem('hk_timers'); timersAtivos={}; salvarTimers(); enviarParaSW({type:'CLEAR_ALL'}); atualizarPaginaTimers(); 
 }
 function mudarPage(nome){ document.querySelectorAll('.page').forEach(p=>p.classList.remove('ativa')); document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('ativo')); document.getElementById(`page-${nome}`)?.classList.add('ativa'); document.getElementById(`nav-${nome}`)?.classList.add('ativo'); const RECEITAS=getReceitasBase(); if(nome==='favoritos') renderReceitas(RECEITAS.filter(r=>favoritos.includes(r.id)),'grid-favoritos'); if(nome==='recentes') renderReceitas(recentes.map(id=>RECEITAS.find(r=>r.id===id)).filter(Boolean),'grid-recentes'); if(nome==='timer') atualizarPaginaTimers(); if(nome==='finalizadas') renderFinalizadas(); }
 document.addEventListener('DOMContentLoaded',init);
