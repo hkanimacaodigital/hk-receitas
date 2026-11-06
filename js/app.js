@@ -126,12 +126,33 @@ function notificarFim(t, key){
     n.onclick = () => { window.focus(); n.close(); if(t.idReceita) voltarParaModoPreparo(t.idReceita, key); };
   }
 }
+function testarNotificacao(){
+  if(Notification.permission !== 'granted'){
+    Notification.requestPermission().then(p=>{
+      if(p !== 'granted') alert('Você bloqueou a notificação! Vai em 3 pontinhos > Configurações do site > Notificações > Permitir');
+      else alert('Permissão liberada! Clica de novo em testar.');
+    });
+    return;
+  }
+  navigator.serviceWorker.ready.then(reg=>{
+    reg.showNotification('⏰ TESTE', {
+      body: 'Se você viu isso, a notificação está funcionando! Toque para abrir',
+      icon: './assets/icon-192.png',
+      badge: './assets/icon-192.png',
+      vibrate: [1000,300,1000,300,1000],
+      requireInteraction: true,
+      tag: 'teste-hk',
+      data: {key:'teste', idReceita:''}
+    });
+    alert('Notificação de teste enviada! Olha a barra de notificação do celular.');
+  });
+}
 async function travarTelaAcesa(){
   try{ if('wakeLock' in navigator && !wakeLock){ wakeLock = await navigator.wakeLock.request('screen'); wakeLock.addEventListener('release', ()=> wakeLock = null); } }catch(e){}
 }
 document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) travarTelaAcesa(); });
 if('serviceWorker' in navigator){
-  navigator.serviceWorker.register('sw.js?v=4').then(reg=>{
+  navigator.serviceWorker.register('sw.js?v=5').then(reg=>{
     reg.update();
     if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});
   }).catch(()=>{});
@@ -141,11 +162,11 @@ if('serviceWorker' in navigator){
   });
 }
 function enviarParaSW(msg){
-  if('serviceWorker' in navigator && navigator.serviceWorker.controller){
-    navigator.serviceWorker.controller.postMessage(msg);
-  } else if('serviceWorker' in navigator){
-    navigator.serviceWorker.ready.then(reg => { if(reg.active) reg.active.postMessage(msg); }).catch(()=>{});
-  }
+  if(!('serviceWorker' in navigator)) return;
+  navigator.serviceWorker.ready.then(reg => {
+    if(reg.active) reg.active.postMessage(msg);
+    else if(navigator.serviceWorker.controller) navigator.serviceWorker.controller.postMessage(msg);
+  }).catch(()=>{});
 }
 function renderCategorias(){
   const c=document.getElementById('categorias'); if(!c||!CATEGORIAS) return;
