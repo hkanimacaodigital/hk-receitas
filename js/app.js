@@ -15,6 +15,53 @@ try{
   });
 }catch(e){ localStorage.removeItem('hk_timers'); }
 
+// ===== PUSH - FUNCIONA COM APP FECHADO =====
+const VAPID_PUBLIC = 'COLA_AQUI_SUA_PUBLIC_KEY';
+function urlBase64ToUint8Array(base64String){
+  const padding = '='.repeat((4 - base64String.length % 4) % 4);
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const rawData = window.atob(base64);
+  const outputArray = new Uint8Array(rawData.length);
+  for(let i=0; i<rawData.length; ++i) outputArray[i] = rawData.charCodeAt(i);
+  return outputArray;
+}
+async function getPushSubscription(){
+  if(!('serviceWorker' in navigator) || !('PushManager' in window)) return null;
+  try{
+    const reg = await navigator.serviceWorker.ready;
+    let sub = await reg.pushManager.getSubscription();
+    if(!sub){
+      sub = await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC)
+      });
+    }
+    return sub;
+  }catch(e){ console.log('Push falhou', e); return null; }
+}
+async function agendarPushServidor(t, key){
+  try{
+    const sub = await getPushSubscription();
+    if(!sub) return;
+    await fetch('/api/agendar', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ subscription: sub, titulo: t.titulo, passo: t.passo, key, idReceita: t.idReceita, fim: t.fim })
+    });
+  }catch(e){ console.log('Push não agendado', e); }
+}
+async function cancelarPushServidor(key){
+  try{
+    const sub = await getPushSubscription();
+    if(!sub) return;
+    await fetch('/api/cancelar', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ subscription: sub, key })
+    }).catch(()=>{});
+  }catch(e){}
+}
+
 // ===== TIMER FINALIZADO TRAVADO =====
 let timersFinalizados = JSON.parse(localStorage.getItem('hk_timers_finalizados')||'{}');
 let alarmesTocando = {};
@@ -63,6 +110,7 @@ function pararAlarme(key, idx){
   delete timersAtivos[key];
   salvarFinalizados(); salvarTimers();
   enviarParaSW({type:'CANCEL_TIMER', key});
+  cancelarPushServidor(key);
   if(typeof idx !== 'undefined' && receitaAtual){ renderControlesTimer(key, idx, minOriginal, true); }
   atualizarPaginaTimers();
 }
@@ -79,11 +127,8 @@ function salvarFinalizadas(){ localStorage.setItem('hk_finalizadas', JSON.string
 function getReceitasBase(){ if(window.TODAS_RECEITAS) return window.TODAS_RECEITAS; if(window.RECEITAS) return window.RECEITAS; return []; }
 function init(){
   renderCategorias(); filtrar(); restaurarTimersGlobais();
-  Object.keys(timersAtivos).forEach(k=>{
-    const t = timersAtivos[k];
-    if(t && !t.pausado && t.fim) enviarParaSW({type:'SCHEDULE_TIMER', key:k, titulo:t.titulo, passo:t.passo, min:t.min, fim:t.fim, idReceita:t.idReceita});
-  });
   if(Notification.permission!=='granted') Notification.requestPermission();
+  getPushSubscription().catch(()=>{});
 }
 let audioCtx = null;
 let wakeLock = null;
@@ -154,12 +199,25 @@ function testarNotificacao(){
     alert('Notificação de teste enviada! Olha a barra de notificação do celular.');
   });
 }
+async function testarPush(){
+  try{
+    const sub = await getPushSubscription();
+    if(!sub){ alert('Push não ativado'); return; }
+    const res = await fetch('/api/agendar', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ subscription: sub, titulo: 'TESTE PUSH', passo: 1, key: 'teste-push-'+Date.now(), idReceita: '', fim: Date.now()+10000 })
+    });
+    const j = await res.json();
+    alert('Push de teste agendado! Fecha o app agora e espera 10 segundos. Tem que vibrar mesmo com app fechado. ' + JSON.stringify(j));
+  }catch(e){ alert('Erro push: '+e.message); }
+}
 async function travarTelaAcesa(){
   try{ if('wakeLock' in navigator && !wakeLock){ wakeLock = await navigator.wakeLock.request('screen'); wakeLock.addEventListener('release', ()=> wakeLock = null); } }catch(e){}
 }
 document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) travarTelaAcesa(); });
 if('serviceWorker' in navigator){
-  navigator.serviceWorker.register('sw.js?v=6').then(reg=>{
+  navigator.serviceWorker.register('sw.js?v=7').then(reg=>{
     reg.update();
     if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});
   }).catch(()=>{});
@@ -483,16 +541,16 @@ function iniciarTimer(min, idx){
   desbloquearAudio();
   travarTelaAcesa();
   if(Notification.permission !== 'granted') Notification.requestPermission();
-  const fim=Date.now()+min*60*1000; timersAtivos[key]={fim, titulo:receitaAtual.titulo, passo:idx+1, min, idReceita:receitaAtual.id, pausado:false}; salvarTimers(); enviarParaSW({type:'SCHEDULE_TIMER', key, titulo:receitaAtual.titulo, passo:idx+1, min, fim, idReceita:receitaAtual.id}); renderControlesTimer(key, idx, min); atualizarPaginaTimers();
+  const fim=Date.now()+min*60*1000; timersAtivos[key]={fim, titulo:receitaAtual.titulo, passo:idx+1, min, idReceita:receitaAtual.id, pausado:false}; salvarTimers(); agendarPushServidor(timersAtivos[key], key); renderControlesTimer(key, idx, min); atualizarPaginaTimers();
 }
-function pausarTimer(key, idx){ const t=timersAtivos[key]; if(!t||t.pausado) return; const restante=Math.max(0, Math.floor((t.fim-Date.now())/1000)); t.restante=restante; t.pausado=true; delete t.fim; salvarTimers(); enviarParaSW({type:'CANCEL_TIMER', key}); renderControlesTimer(key, idx, t.min); atualizarPaginaTimers(); }
-function continuarTimer(key, idx){ const t=timersAtivos[key]; if(!t||!t.pausado) return; t.fim=Date.now()+t.restante*1000; t.pausado=false; delete t.restante; salvarTimers(); enviarParaSW({type:'SCHEDULE_TIMER', key, titulo:t.titulo, passo:t.passo, min:t.min, fim:t.fim, idReceita:t.idReceita}); renderControlesTimer(key, idx, t.min); atualizarPaginaTimers(); }
+function pausarTimer(key, idx){ const t=timersAtivos[key]; if(!t||t.pausado) return; const restante=Math.max(0, Math.floor((t.fim-Date.now())/1000)); t.restante=restante; t.pausado=true; delete t.fim; salvarTimers(); enviarParaSW({type:'CANCEL_TIMER', key}); cancelarPushServidor(key); renderControlesTimer(key, idx, t.min); atualizarPaginaTimers(); }
+function continuarTimer(key, idx){ const t=timersAtivos[key]; if(!t||!t.pausado) return; t.fim=Date.now()+t.restante*1000; t.pausado=false; delete t.restante; salvarTimers(); agendarPushServidor(t, key); renderControlesTimer(key, idx, t.min); atualizarPaginaTimers(); }
 function zerarTimer(key, idx, minOriginal){ 
   const t = timersAtivos[key] || timersFinalizados[key];
   const nome = t ? `${t.titulo} - Passo ${t.passo}` : 'esse timer';
   if(!confirm(`Tem certeza que quer zerar?\n\n${nome}\n\nO tempo será perdido.`)) return;
   if(alarmesTocando[key]){ clearInterval(alarmesTocando[key]); delete alarmesTocando[key]; }
-  delete timersAtivos[key]; delete timersFinalizados[key]; salvarTimers(); salvarFinalizados(); enviarParaSW({type:'CANCEL_TIMER', key}); renderControlesTimer(key, idx, minOriginal, true); atualizarPaginaTimers(); 
+  delete timersAtivos[key]; delete timersFinalizados[key]; salvarTimers(); salvarFinalizados(); enviarParaSW({type:'CANCEL_TIMER', key}); cancelarPushServidor(key); renderControlesTimer(key, idx, minOriginal, true); atualizarPaginaTimers(); 
 }
 function renderControlesTimer(key, idx, minOriginal, zerado=false){
   const cont=document.getElementById(`controls-${idx}`); if(!cont) return;
