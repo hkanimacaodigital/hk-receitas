@@ -1,6 +1,6 @@
 window.RECEITAS_CALDO = [
 {
-id:"caldo-verde-tradicional", titulo:"Caldo Verde Tradicional", categoria_principal:"Caldo", categorias:["Caldo","Brasileira"], tempo:"40 min", porcoes:"4 porções", nivel:"Fácil", foto:"assets/caldo-verde.jpg",
+id:"caldo-verde-tradicional", titulo:"Caldo Verde Tradicional", categoria_principal:"Caldo", categorias:["Caldo","Brasileira"], tempo:"40 min", porcoes:"4 porções", foto:"assets/caldo-verde.jpg",
 ingredientes:[
 {nome:"Batata asterix", qtd:"500g descascada em pedaços"},
 {nome:"Linguiça calabresa", qtd:"200g em rodelas finas"},
@@ -14,16 +14,16 @@ ingredientes:[
 {nome:"Cheiro-verde", qtd:"para finalizar - opcional"}
 ],
 passos:[
-{texto:"Descasque as 500g de batata asterix, corte em pedaços médios e coloque em uma panela com 1L de água e sal a gosto. Leve ao fogo alto e cozinhe por 20 minutos, até as batatas ficarem bem macias e quase desmanchando.", timer:20},
-{texto:"Retire metade das batatas com uma escumadeira, coloque no liquidificador com um pouco da água do cozimento e bata até virar um creme liso. Reserve a outra metade das batatas em pedaços dentro da panela com a água.", timer:0},
-{texto:"Em outra panela, aqueça a colher de azeite em fogo médio e refogue os 200g de linguiça calabresa em rodelas finas por 5 minutos, mexendo de vez em quando, até dourar bem e soltar a gordurinha.", timer:5},
-{texto:"Junte a cebola picada e os 3 dentes de alho amassados na panela da calabresa e refogue por mais 2 minutos, até a cebola ficar transparente e perfumar. Tempere com sal e pimenta-do-reino a gosto.", timer:2},
-{texto:"Despeje o creme de batata batido e a calabresa refogada na panela com as batatas em pedaços. Misture bem, prove o sal e deixe ferver em fogo baixo.", timer:0},
-{texto:"Junte os 100g de couve fatiada bem fininha, misture e ferva por mais 5 minutos, até a couve murchar mas continuar bem verdinha. Desligue, finalize com cheiro-verde se quiser e sirva imediatamente com torrada.", timer:5}
+{texto:"Cozinhe a batata na água com sal em fogo alto por 20 minutos, até ficar bem macia e quase desmanchando.", timer:20},
+{texto:"Retire metade das batatas, bata no liquidificador com um pouco da água do cozimento até virar um creme liso. Reserve a outra metade em pedaços na panela.", timer:0},
+{texto:"Em outra panela, aqueça o azeite em fogo médio e refogue a calabresa por 5 minutos, até dourar e soltar a gordurinha.", timer:5},
+{texto:"Junte a cebola e o alho e refogue por mais 2 minutos, até a cebola ficar transparente. Tempere com sal e pimenta.", timer:2},
+{texto:"Despeje o creme de batata e a calabresa refogada na panela com as batatas em pedaços. Misture, prove o sal e deixe ferver em fogo baixo.", timer:0},
+{texto:"Junte a couve, misture e ferva por mais 5 minutos, até murchar mas continuar bem verdinha. Desligue e finalize com cheiro-verde, se quiser.", timer:5}
 ]
 },
 {
-id:"caldo-abobora-frango", titulo:"Caldo de Abóbora com Frango", categoria_principal:"Caldo", categorias:["Caldo","Fit","Saudável"], tempo:"35 min", porcoes:"4 porções", nivel:"Fácil", foto:"assets/caldo-abobora-frango.jpg",
+id:"caldo-abobora-frango", titulo:"Caldo de Abóbora com Frango", categoria_principal:"Caldo", categorias:["Caldo","Fit","Saudável"], tempo:"35 min", porcoes:"4 porções", foto:"assets/caldo-abobora-frango.jpg",
 ingredientes:[
 {nome:"Abóbora cabotiá", qtd:"500g descascada em cubos"},
 {nome:"Frango desfiado já temperado e cozido", qtd:"200g"},
@@ -38,15 +38,15 @@ ingredientes:[
 {nome:"Cheiro-verde", qtd:"para finalizar"}
 ],
 passos:[
-{texto:"Descasque os 500g de abóbora cabotiá, retire as sementes e corte em cubos médios. Em uma panela, aqueça a colher de azeite em fogo médio e refogue a cebola picada por 2 minutos, até ficar transparente.", timer:2},
-{texto:"Junte o dente de alho amassado e os 10g de gengibre ralado e refogue por mais 1 minuto, até perfumar. Adicione os cubos de abóbora, tempere com sal a gosto e cubra com os 800ml de água.", timer:1},
-{texto:"Leve ao fogo alto e cozinhe por 18 minutos, até a abóbora ficar bem macia e quase desmanchando ao apertar com o garfo. Desligue e deixe amornar por 5 minutos antes de bater para não espirrar.", timer:18},
-{texto:"Transfira a abóbora cozida com a água do cozimento para o liquidificador, junte os 100ml de leite de coco e bata por 2 minutos, até virar um creme bem liso e aveludado. Se ficar muito grosso, adicione um pouquinho de água quente.", timer:0},
-{texto:"Volte o creme para a panela, junte os 200g de frango desfiado, acerte o sal e a pimenta-do-reino e ferva em fogo baixo por 5 minutos, mexendo de vez em quando, até o caldo ficar bem quente e encorpado. Finalize com cheiro-verde e sirva imediatamente.", timer:5}
+{texto:"Aqueça o azeite em fogo médio e refogue a cebola por 2 minutos, até ficar transparente.", timer:2},
+{texto:"Junte o alho e o gengibre e refogue por mais 1 minuto, até perfumar. Adicione a abóbora, tempere com sal e cubra com a água.", timer:1},
+{texto:"Cozinhe em fogo alto por 18 minutos, até a abóbora ficar bem macia e quase desmanchando. Desligue e deixe amornar por 5 minutos antes de bater.", timer:18},
+{texto:"Bata a abóbora com a água do cozimento e o leite de coco por 2 minutos, até virar um creme bem liso. Se ficar muito grosso, adicione um pouco de água quente.", timer:0},
+{texto:"Volte para a panela, junte o frango, acerte o sal e a pimenta e ferva em fogo baixo por 5 minutos, até ficar bem quente e encorpado. Finalize com cheiro-verde.", timer:5}
 ]
 },
 {
-id:"caldo-feijao-bacon", titulo:"Caldo de Feijão com Bacon", categoria_principal:"Caldo", categorias:["Caldo","Brasileira"], tempo:"45 min", porcoes:"4 porções", nivel:"Fácil", foto:"assets/caldo-feijao-bacon.jpg",
+id:"caldo-feijao-bacon", titulo:"Caldo de Feijão com Bacon", categoria_principal:"Caldo", categorias:["Caldo","Brasileira"], tempo:"45 min", porcoes:"4 porções", foto:"assets/caldo-feijao-bacon.jpg",
 ingredientes:[
 {nome:"Feijão carioca cozido com o caldo", qtd:"400g - já cozido"},
 {nome:"Bacon", qtd:"100g em cubinhos"},
@@ -59,11 +59,11 @@ ingredientes:[
 {nome:"Cheiro-verde", qtd:"para finalizar"}
 ],
 passos:[
-{texto:"Em uma panela grande em fogo médio, coloque os 100g de bacon em cubinhos, sem óleo, e frite por 6 minutos, mexendo de vez em quando, até ficar bem dourado, crocante e soltar toda a gordura. Retire metade do bacon com uma escumadeira e reserve para finalizar.", timer:6},
-{texto:"Na mesma gordura do bacon, ainda em fogo médio, refogue a cebola picada por 2 minutos, até ficar transparente, e junte os 3 dentes de alho amassados, refogando por mais 1 minuto até perfumar.", timer:3},
-{texto:"Junte os 400g de feijão carioca já cozido com o caldo na panela, tempere com sal, pimenta-do-reino e a páprica defumada se quiser, e misture bem. Com um mixer direto na panela ou com uma concha, bata cerca da metade do feijão até virar um creme, deixando a outra metade em grãos para o caldo ficar com textura.", timer:0},
-{texto:"Deixe o caldo ferver em fogo baixo por 10 minutos, mexendo de vez em quando, até engrossar e ficar bem cremoso. Se ficar grosso demais, adicione um pouquinho de água quente.", timer:10},
-{texto:"Junte os 50g de couve fatiada bem fininha, misture e ferva por mais 2 minutos, só até a couve murchar e continuar verdinha. Desligue, finalize com o bacon crocante reservado e o cheiro-verde e sirva imediatamente.", timer:2}
+{texto:"Frite o bacon em panela grande em fogo médio, sem óleo, por 6 minutos, até ficar dourado e crocante. Retire metade e reserve para finalizar.", timer:6},
+{texto:"Na mesma gordura, refogue a cebola por 2 minutos, até ficar transparente, e junte o alho, refogando por mais 1 minuto até perfumar.", timer:3},
+{texto:"Junte o feijão com o caldo, tempere com sal, pimenta e páprica, se quiser, e misture. Bata cerca da metade com mixer ou concha até virar um creme, deixando a outra metade em grãos para dar textura.", dica:"Bater só metade deixa o caldo cremoso sem ficar papado.", timer:0},
+{texto:"Ferva em fogo baixo por 10 minutos, mexendo de vez em quando, até engrossar. Se ficar grosso demais, adicione um pouco de água quente.", timer:10},
+{texto:"Junte a couve, misture e ferva por mais 2 minutos, só até murchar e continuar verdinha. Desligue e finalize com o bacon crocante e o cheiro-verde.", timer:2}
 ]
 }
 ];
