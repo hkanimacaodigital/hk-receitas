@@ -17,12 +17,12 @@ ingredientes:[
 {nome:"Cheiro-verde", qtd:"para finalizar"}
 ],
 passos:[
-{texto:"Na noite anterior, coloque o feijão preto em uma tigela grande, cubra com o dobro de água e deixe de molho por 12 horas. No dia seguinte, descarte essa água e lave bem o feijão em água corrente.", timer:0},
-{texto:"Coloque o feijão lavado na panela de pressão, cubra com água até 2 dedos acima do feijão, adicione as 2 folhas de louro e leve ao fogo alto. Quando pegar pressão, abaixe o fogo e cozinhe por 40 minutos. Desligue e espere a pressão sair sozinha.", timer:40},
-{texto:"Enquanto isso, em uma frigideira grande, aqueça as 2 colheres de óleo em fogo médio e doure o bacon até ficar crocante. Adicione a linguiça calabresa, o paio e a costela defumada e doure por mais 8 minutos, mexendo de vez em quando.", timer:8},
-{texto:"Na mesma frigideira, refogue a cebola picada até ficar transparente, junte o alho amassado e refogue por mais 1 minuto, até perfumar. Tempere com sal e pimenta-do-reino a gosto.", timer:2},
-{texto:"Junte as carnes douradas e o refogado de cebola e alho na panela com o feijão já cozido. Misture delicadamente, prove o sal e cozinhe em fogo baixo, sem tampa, por mais 60 minutos, mexendo de vez em quando, até o caldo ficar grosso e cremoso.", timer:60},
-{texto:"Desligue o fogo, retire as folhas de louro, finalize com o cheiro-verde picado e sirva imediatamente com arroz branco, farofa, couve refogada e laranja em rodelas.", timer:0}
+{texto:"Na noite anterior, deixe o feijão de molho em água por 12 horas. No dia seguinte, descarte a água e lave bem.", timer:0},
+{texto:"Coloque o feijão na panela de pressão, cubra com água até 2 dedos acima, junte o louro e cozinhe por 40 minutos após pegar pressão. Espere a pressão sair sozinha.", timer:40},
+{texto:"Enquanto isso, doure o bacon, a calabresa, o paio e a costela em fogo médio por 8 minutos.", timer:8},
+{texto:"Na mesma frigideira, refogue a cebola até ficar transparente, junte o alho e refogue por mais 1 minuto. Tempere com o sal e a pimenta.", timer:2},
+{texto:"Junte as carnes e o refogado ao feijão e cozinhe em fogo baixo, sem tampa, por 60 minutos, até o caldo engrossar.", timer:60, dica:"Só acerte o sal no final, as carnes defumadas já são salgadas."},
+{texto:"Retire o louro, finalize com o cheiro-verde e sirva com arroz, farofa, couve e laranja.", timer:0}
 ]
 },
 {
@@ -44,11 +44,11 @@ ingredientes:[
 {nome:"Azeite de oliva", qtd:"1 colher (sopa)"}
 ],
 passos:[
-{texto:"Lave as postas de robalo, seque com papel-toalha e tempere com o suco de limão, o alho amassado, o sal e a pimenta-do-reino. Deixe marinando por 15 minutos para o peixe pegar o tempero.", timer:15},
-{texto:"Em uma panela de barro ou panela funda, regue o fundo com 1 colher de azeite de oliva e faça uma primeira camada com metade da cebola roxa, metade dos pimentões e metade dos tomates, todos em rodelas.", timer:0},
-{texto:"Coloque as postas de peixe por cima dessa camada, sem sobrepor muito, e cubra com o restante da cebola, dos pimentões e dos tomates. Polvilhe metade do coentro picado por cima.", timer:0},
-{texto:"Regue tudo com o leite de coco e o azeite de dendê, tampe a panela e leve ao fogo médio. Cozinhe por 20 minutos, sem mexer para não desmanchar o peixe, até o caldo ficar levemente cremoso e o peixe estar macio.", timer:20},
-{texto:"Desligue o fogo, finalize com o restante do coentro e a cebolinha picada e sirva imediatamente com arroz branco e farofa.", timer:0}
+{texto:"Tempere o peixe com o limão, o alho, o sal e a pimenta. Deixe marinando por 15 minutos.", timer:15},
+{texto:"Regue o fundo da panela com o azeite e faça uma camada com metade da cebola, dos pimentões e dos tomates.", timer:0},
+{texto:"Coloque o peixe por cima, sem sobrepor muito, e cubra com o restante dos legumes e metade do coentro.", timer:0},
+{texto:"Regue com o leite de coco e o dendê, tampe e cozinhe em fogo médio por 20 minutos, sem mexer.", timer:20, dica:"Não mexa depois que tampar, para o peixe não desmanchar."},
+{texto:"Finalize com o restante do coentro e a cebolinha e sirva com arroz e farofa.", timer:0}
 ]
 },
 {
@@ -70,12 +70,12 @@ ingredientes:[
 {nome:"Água", qtd:"o quanto baste para cozinhar a mandioca"}
 ],
 passos:[
-{texto:"Lave a mandioca, coloque em uma panela, cubra com água e cozinhe em fogo médio por cerca de 25 minutos, até ficar bem macia e quase desmanchando. Escorra, retire os fiapos do centro e reserve um pouco da água do cozimento.", timer:25},
-{texto:"No liquidificador, bata a mandioca cozida com o leite de coco e um pouco da água do cozimento até virar um purê liso e cremoso. Se ficar muito grosso, adicione mais um pouco de água. Reserve.", timer:0},
-{texto:"Tempere o camarão com o suco de limão, o sal e a pimenta-do-reino e deixe descansar por 10 minutos. Em uma panela grande, aqueça as 2 colheres de azeite de oliva em fogo médio e refogue a cebola até ficar transparente.", timer:10},
-{texto:"Junte o alho amassado, o pimentão amarelo picado e o tomate picado. Refogue por 5 minutos, mexendo de vez em quando, até os legumes murcharem e formarem um molho encorpado.", timer:5},
-{texto:"Adicione o camarão temperado e cozinhe por 5 minutos, mexendo delicadamente, até ele ficar rosado e enroladinho. Não passe desse tempo para o camarão não ficar borrachudo.", timer:5},
-{texto:"Junte o purê de mandioca ao refogado, misture bem em fogo baixo, regue com o azeite de dendê e o coentro picado, acerte o sal e a pimenta e ferva por mais 5 minutos até ficar bem cremoso. Sirva imediatamente com arroz branco.", timer:5}
+{texto:"Cozinhe a mandioca em água por 25 minutos, até ficar bem macia. Escorra, retire os fiapos e reserve um pouco da água do cozimento.", timer:25},
+{texto:"Bata a mandioca com o leite de coco e um pouco da água reservada, até virar um purê liso. Reserve.", timer:0},
+{texto:"Tempere o camarão com o limão, o sal e a pimenta e deixe descansar por 10 minutos. Refogue a cebola no azeite até ficar transparente.", timer:10},
+{texto:"Junte o alho, o pimentão e o tomate e refogue por 5 minutos, até murchar.", timer:5},
+{texto:"Junte o camarão e cozinhe por 5 minutos, até ficar rosado.", timer:5, dica:"Não passe de 5 minutos, senão o camarão fica borrachudo."},
+{texto:"Junte o purê, misture em fogo baixo, regue com o dendê, junte o coentro, acerte o sal e ferva por mais 5 minutos. Sirva com arroz.", timer:5}
 ]
 }
 ];
