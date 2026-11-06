@@ -15,6 +15,75 @@ try{
   });
 }catch(e){ localStorage.removeItem('hk_timers'); }
 
+// ===== TIMER FINALIZADO TRAVADO - NOVO COMPORTAMENTO =====
+let timersFinalizados = JSON.parse(localStorage.getItem('hk_timers_finalizados')||'{}');
+let alarmesTocando = {};
+// Se o timer acabou com o app fechado, ele já entra como finalizado travado (não some)
+try{
+  const raw2=JSON.parse(localStorage.getItem('hk_timers')||'{}');
+  Object.keys(raw2).forEach(k=>{
+    const t=raw2[k];
+    if(t && t.titulo && !t.pausado && t.fim && t.fim <= Date.now() && !timersFinalizados[k]){
+      timersFinalizados[k] = {...t, finalizadoEm: t.fim};
+    }
+  });
+  if(Object.keys(timersFinalizados).length>0) localStorage.setItem('hk_timers_finalizados', JSON.stringify(timersFinalizados));
+}catch(e){}
+
+function salvarFinalizados(){ localStorage.setItem('hk_timers_finalizados', JSON.stringify(timersFinalizados)); }
+
+function tocarAlarme20s(key){
+  if(alarmesTocando[key]) return;
+  desbloquearAudio();
+  if(navigator.vibrate) navigator.vibrate([1000,300,1000,300,1000,300,1000,300,1000,300,1000,300,1000]);
+  let vezes = 0;
+  const beepUmaVez = ()=>{
+    if(!audioCtx) return;
+    const t = audioCtx.currentTime;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.frequency.value = 880; osc.type = 'sine';
+    gain.gain.setValueAtTime(0, t);
+    gain.gain.linearRampToValueAtTime(0.5, t+0.05);
+    gain.gain.exponentialRampToValueAtTime(0.01, t+0.7);
+    osc.start(t); osc.stop(t+0.7);
+  };
+  beepUmaVez();
+  alarmesTocando[key] = setInterval(()=>{
+    vezes++;
+    beepUmaVez();
+    if(navigator.vibrate) navigator.vibrate([500,200,500]);
+    if(vezes >= 20){
+      clearInterval(alarmesTocando[key]);
+      delete alarmesTocando[key];
+    }
+  }, 1000);
+}
+
+function pararAlarme(key, idx){
+  if(alarmesTocando[key]){ clearInterval(alarmesTocando[key]); delete alarmesTocando[key]; }
+  if(navigator.vibrate) navigator.vibrate(0);
+  const t = timersFinalizados[key] || timersAtivos[key];
+  const minOriginal = t ? t.min : 0;
+  delete timersFinalizados[key];
+  delete timersAtivos[key];
+  salvarFinalizados(); salvarTimers();
+  enviarParaSW({type:'CANCEL_TIMER', key});
+  if(typeof idx !== 'undefined' && receitaAtual){
+    renderControlesTimer(key, idx, minOriginal, true);
+  }
+  atualizarPaginaTimers();
+}
+
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.addEventListener('message', (e)=>{
+    if(e.data && e.data.type === 'ABRIR_TIMER_FINALIZADO' && e.data.idReceita){
+      voltarParaModoPreparo(e.data.idReceita, e.data.key);
+    }
+  });
+}
+
 function salvarTimers(){ localStorage.setItem('hk_timers', JSON.stringify(timersAtivos)); }
 function salvarChecks(){ localStorage.setItem('hk_checks', JSON.stringify(checks)); }
 function salvarFinalizadas(){ localStorage.setItem('hk_finalizadas', JSON.stringify(finalizadas)); }
@@ -57,16 +126,16 @@ function tocarAlarme(){
   }catch(e){}
 }
 
-function notificarFim(t){
-  tocarAlarme();
+function notificarFim(t, key){
+  tocarAlarme20s(key);
   if(Notification.permission === 'granted'){
     const n = new Notification(`⏰ Timer finalizado!`, {
-      body: `${t.titulo} - Passo ${t.passo}`,
-      tag: 'hk-timer',
+      body: `${t.titulo} - Passo ${t.passo} - Toque para parar`,
+      tag: key,
       requireInteraction: true,
-      vibrate: [500,200,500]
+      vibrate: [1000,300,1000,300,1000]
     });
-    n.onclick = () => { window.focus(); n.close(); };
+    n.onclick = () => { window.focus(); n.close(); if(t.idReceita) voltarParaModoPreparo(t.idReceita, key); };
   } else {
     alert(`⏰ Timer finalizado!\n${t.titulo} - Passo ${t.passo}`);
   }
@@ -333,7 +402,8 @@ function abrirReceita(id){
       ${passosDetalhados.map((p,i)=>{
         const key=`${r.id}-${i}`; const t=timersAtivos[key];
         let htmlBtns='';
-        if(!t){ if(p.tempoMin>0) htmlBtns=`<button class="timer-btn-main" id="btn-main-${i}" onclick="iniciarTimer(${p.tempoMin},${i})">⏱ Timer ${p.tempoMin} min</button>`; else htmlBtns=`<span style="font-size:12px;color:#9A8C83">Sem timer</span>`; }
+        if(timersFinalizados[key]){ htmlBtns=`<button class="timer-btn-main" style="background:#22C55E" id="btn-main-${i}">✅ FINALIZADO - APERTE PARAR</button><button class="timer-btn-sec" style="background:#FF6B35;color:white;border-color:#FF6B35" onclick="pararAlarme('${key}',${i})">⏹️ PARAR ALARME</button>`; }
+        else if(!t){ if(p.tempoMin>0) htmlBtns=`<button class="timer-btn-main" id="btn-main-${i}" onclick="iniciarTimer(${p.tempoMin},${i})">⏱ Timer ${p.tempoMin} min</button>`; else htmlBtns=`<span style="font-size:12px;color:#9A8C83">Sem timer</span>`; }
         else if(t.pausado){ const m=Math.floor(t.restante/60); const s=t.restante%60; htmlBtns=`<button class="timer-btn-main" id="btn-main-${i}">⏸️ ${m}:${(s+'').padStart(2,'0')} pausado</button><button class="timer-btn-sec" onclick="continuarTimer('${key}',${i})">▶️ Continuar</button><button class="timer-btn-sec" onclick="zerarTimer('${key}',${i},${t.min})">🔄 Zerar</button>`; }
         else{ const rest=Math.max(0, Math.floor((t.fim-Date.now())/1000)); const m=Math.floor(rest/60); const s=rest%60; htmlBtns=`<button class="timer-btn-main" id="btn-main-${i}">⏳ ${m}:${(s+'').padStart(2,'0')} rodando</button><button class="timer-btn-sec" onclick="pausarTimer('${key}',${i})">⏸️ Pausar</button><button class="timer-btn-sec" onclick="zerarTimer('${key}',${i},${t.min})">🔄 Zerar</button>`; }
         const marcadoPasso=!!(chk.passos||[])[i];
@@ -411,24 +481,31 @@ function toggleFavAtual(){
   atualizarGridFavoritos();
 }
 
-// TIMER COM CONFIRMAÇÃO + SOM + SW
+// TIMER COM CONFIRMAÇÃO + SOM + SW - NOVO COMPORTAMENTO FINALIZADO TRAVADO
 function iniciarTimer(min, idx){
   if(!receitaAtual||min<=0) return;
+  const key=`${receitaAtual.id}-${idx}`;
+  if(timersFinalizados[key]){ alert('⏰ Esse timer já finalizou! Aperte ⏹️ PARAR ALARME para poder ligar de novo.'); return; }
   desbloquearAudio();
   travarTelaAcesa();
   if(Notification.permission !== 'granted') Notification.requestPermission();
-  const key=`${receitaAtual.id}-${idx}`; const fim=Date.now()+min*60*1000; timersAtivos[key]={fim, titulo:receitaAtual.titulo, passo:idx+1, min, idReceita:receitaAtual.id, pausado:false}; salvarTimers(); enviarParaSW({type:'SCHEDULE_TIMER', key, titulo:receitaAtual.titulo, passo:idx+1, min, fim}); renderControlesTimer(key, idx, min); atualizarPaginaTimers();
+  const fim=Date.now()+min*60*1000; timersAtivos[key]={fim, titulo:receitaAtual.titulo, passo:idx+1, min, idReceita:receitaAtual.id, pausado:false}; salvarTimers(); enviarParaSW({type:'SCHEDULE_TIMER', key, titulo:receitaAtual.titulo, passo:idx+1, min, fim, idReceita:receitaAtual.id}); renderControlesTimer(key, idx, min); atualizarPaginaTimers();
 }
 function pausarTimer(key, idx){ const t=timersAtivos[key]; if(!t||t.pausado) return; const restante=Math.max(0, Math.floor((t.fim-Date.now())/1000)); t.restante=restante; t.pausado=true; delete t.fim; salvarTimers(); enviarParaSW({type:'CANCEL_TIMER', key}); renderControlesTimer(key, idx, t.min); atualizarPaginaTimers(); }
-function continuarTimer(key, idx){ const t=timersAtivos[key]; if(!t||!t.pausado) return; t.fim=Date.now()+t.restante*1000; t.pausado=false; delete t.restante; salvarTimers(); enviarParaSW({type:'SCHEDULE_TIMER', key, titulo:t.titulo, passo:t.passo, min:t.min, fim:t.fim}); renderControlesTimer(key, idx, t.min); atualizarPaginaTimers(); }
+function continuarTimer(key, idx){ const t=timersAtivos[key]; if(!t||!t.pausado) return; t.fim=Date.now()+t.restante*1000; t.pausado=false; delete t.restante; salvarTimers(); enviarParaSW({type:'SCHEDULE_TIMER', key, titulo:t.titulo, passo:t.passo, min:t.min, fim:t.fim, idReceita:t.idReceita}); renderControlesTimer(key, idx, t.min); atualizarPaginaTimers(); }
 function zerarTimer(key, idx, minOriginal){ 
-  const t = timersAtivos[key];
+  const t = timersAtivos[key] || timersFinalizados[key];
   const nome = t ? `${t.titulo} - Passo ${t.passo}` : 'esse timer';
   if(!confirm(`Tem certeza que quer zerar?\n\n${nome}\n\nO tempo será perdido.`)) return;
-  delete timersAtivos[key]; salvarTimers(); enviarParaSW({type:'CANCEL_TIMER', key}); renderControlesTimer(key, idx, minOriginal, true); atualizarPaginaTimers(); 
+  if(alarmesTocando[key]){ clearInterval(alarmesTocando[key]); delete alarmesTocando[key]; }
+  delete timersAtivos[key]; delete timersFinalizados[key]; salvarTimers(); salvarFinalizados(); enviarParaSW({type:'CANCEL_TIMER', key}); renderControlesTimer(key, idx, minOriginal, true); atualizarPaginaTimers(); 
 }
 function renderControlesTimer(key, idx, minOriginal, zerado=false){
   const cont=document.getElementById(`controls-${idx}`); if(!cont) return;
+  if(timersFinalizados[key]){
+    cont.innerHTML=`<button class="timer-btn-main" style="background:#22C55E" id="btn-main-${idx}">✅ FINALIZADO - APERTE PARAR</button><button class="timer-btn-sec" style="background:#FF6B35;color:white;border-color:#FF6B35" onclick="pararAlarme('${key}',${idx})">⏹️ PARAR ALARME</button>`;
+    return;
+  }
   if(zerado){ cont.innerHTML=`<button class="timer-btn-main" id="btn-main-${idx}" onclick="iniciarTimer(${minOriginal},${idx})">⏱ Timer ${minOriginal} min</button>`; return; }
   const t=timersAtivos[key]; if(!t) return;
   if(t.pausado){ const m=Math.floor(t.restante/60); const s=t.restante%60; cont.innerHTML=`<button class="timer-btn-main" id="btn-main-${idx}">⏸️ ${m}:${(s+'').padStart(2,'0')} pausado</button><button class="timer-btn-sec" onclick="continuarTimer('${key}',${idx})">▶️ Continuar</button><button class="timer-btn-sec" onclick="zerarTimer('${key}',${idx},${t.min})">🔄 Zerar</button>`; }
@@ -437,28 +514,35 @@ function renderControlesTimer(key, idx, minOriginal, zerado=false){
 function restaurarTimersGlobais(){
   setInterval(()=>{
     let mudou=false;
-    Object.keys(timersAtivos).forEach(k=>{ const t=timersAtivos[k]; if(!t) { delete timersAtivos[k]; mudou=true; return; } if(t.pausado) return; if(!t.fim) return; const rest=Math.floor((t.fim-Date.now())/1000); if(receitaAtual && k.startsWith(receitaAtual.id+'-')){ const idx=k.split('-').pop(); const btn=document.getElementById(`btn-main-${idx}`); if(btn){ if(rest>0) btn.innerText=`⏳ ${Math.floor(rest/60)}:${(rest%60).toString().padStart(2,'0')} rodando`; else btn.innerText=`✅ Finalizado!`; } } if(rest<=0){ delete timersAtivos[k]; mudou=true; enviarParaSW({type:'CANCEL_TIMER', key:k}); notificarFim(t); } });
+    Object.keys(timersAtivos).forEach(k=>{ const t=timersAtivos[k]; if(!t) { delete timersAtivos[k]; mudou=true; return; } if(t.pausado) return; if(!t.fim) return; const rest=Math.floor((t.fim-Date.now())/1000); if(receitaAtual && k.startsWith(receitaAtual.id+'-')){ const idx=k.split('-').pop(); const btn=document.getElementById(`btn-main-${idx}`); if(btn){ if(rest>0) btn.innerText=`⏳ ${Math.floor(rest/60)}:${(rest%60).toString().padStart(2,'0')} rodando`; else btn.innerText=`✅ Finalizado!`; } } if(rest<=0){ timersFinalizados[k]={...t, finalizadoEm: Date.now()}; delete timersAtivos[k]; mudou=true; salvarFinalizados(); enviarParaSW({type:'CANCEL_TIMER', key:k}); notificarFim(t, k); if(receitaAtual && k.startsWith(receitaAtual.id+'-')){ const idx=parseInt(k.split('-').pop()); renderControlesTimer(k, idx, t.min); } } });
     if(mudou) salvarTimers(); if(document.getElementById('page-timer')?.classList.contains('ativa')) atualizarPaginaTimers();
   },1000);
 }
 function atualizarPaginaTimers(){
   const global=document.getElementById('timer-global'); if(!global) return;
   const chaves=Object.keys(timersAtivos);
-  if(chaves.length===0){ global.innerHTML=`<div style="text-align:center;padding:30px;color:#9A8C83">Nenhum timer ativo</div>`; return; }
-  global.innerHTML=chaves.map(key=>{
+  const chavesFin=Object.keys(timersFinalizados);
+  if(chaves.length===0 && chavesFin.length===0){ global.innerHTML=`<div style="text-align:center;padding:30px;color:#9A8C83">Nenhum timer ativo</div>`; return; }
+  let html='';
+  html+=chavesFin.map(key=>{
+    const t=timersFinalizados[key]; if(!t) return '';
+    return `<div style="background:#E8F5E9;border:2px solid #22C55E;border-radius:16px;padding:14px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center"><div style="flex:1"><b>${t.titulo} - Passo ${t.passo}</b><div style="font-size:28px;font-weight:900;margin-top:4px;color:#22C55E">✅ FINALIZADO - APERTE PARAR</div><div style="margin-top:8px"><button onclick="pararAlarme('${key}',${t.passo-1})" style="padding:10px 16px;border-radius:20px;border:none;background:#FF6B35;color:white;font-weight:800">⏹️ PARAR ALARME</button></div></div><button onclick="voltarParaModoPreparo('${t.idReceita}','${key}')" style="background:#1A1A1A;color:white;border:none;width:48px;height:48px;border-radius:50%;font-size:20px;cursor:pointer;margin-left:10px">📖</button></div>`;
+  }).join('');
+  html+=chaves.map(key=>{
     const t=timersAtivos[key]; if(!t) return '';
     let tempoStr=t.pausado?`⏸️ ${Math.floor(t.restante/60)}:${(t.restante%60+'').padStart(2,'0')} pausado`:`⏱ ${Math.max(0,Math.floor((t.fim-Date.now())/1000/60))}:${(Math.max(0,Math.floor((t.fim-Date.now())/1000)%60)+'').padStart(2,'0')}`;
     const botoesPausa=t.pausado?`<button onclick="continuarTimer('${key}',${t.passo-1})" style="padding:8px 12px;border-radius:20px;border:1px solid #E8DDD6;background:white;margin-right:6px">▶️ Continuar</button>`:`<button onclick="pausarTimer('${key}',${t.passo-1})" style="padding:8px 12px;border-radius:20px;border:1px solid #E8DDD6;background:white;margin-right:6px">⏸️ Pausar</button>`;
     return `<div style="background:white;border:1.5px solid #FFE9DC;border-radius:16px;padding:14px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center"><div style="flex:1"><b>${t.titulo} - Passo ${t.passo}</b><div style="font-size:28px;font-weight:900;margin-top:4px">${tempoStr}</div><div style="margin-top:8px">${botoesPausa}<button onclick="zerarTimer('${key}',${t.passo-1},${t.min})" style="padding:8px 12px;border-radius:20px;border:1px solid #E8DDD6;background:white">🔄 Zerar</button></div></div><button onclick="voltarParaModoPreparo('${t.idReceita}','${key}')" style="background:#1A1A1A;color:white;border:none;width:48px;height:48px;border-radius:50%;font-size:20px;cursor:pointer;margin-left:10px">📖</button></div>`;
   }).join('')+`<div style="text-align:center;margin-top:20px"><button onclick="limparTodosTimers()" style="background:#FF6B35;color:white;padding:12px 20px;border-radius:20px;border:none;font-weight:800">🧹 LIMPAR TODOS</button></div>`;
+  global.innerHTML=html;
 }
-function voltarParaModoPreparo(idReceita, key){ if(!idReceita){ const t=timersAtivos[key]; if(t) idReceita=t.idReceita; } if(!idReceita) return; mudarPage('home'); setTimeout(()=>{ abrirReceita(idReceita); setTimeout(()=>{ irParaModoPreparo(); }, 600); },200); }
+function voltarParaModoPreparo(idReceita, key){ if(!idReceita){ const t=timersAtivos[key] || timersFinalizados[key]; if(t) idReceita=t.idReceita; } if(!idReceita) return; mudarPage('home'); setTimeout(()=>{ abrirReceita(idReceita); setTimeout(()=>{ irParaModoPreparo(); }, 600); },200); }
 function voltarParaReceita(idReceita, key){ voltarParaModoPreparo(idReceita, key); }
 function limparTodosTimers(){ 
-  const qtd = Object.keys(timersAtivos).length;
+  const qtd = Object.keys(timersAtivos).length + Object.keys(timersFinalizados).length;
   if(qtd === 0) return;
   if(!confirm(`Tem certeza que quer apagar TODOS os ${qtd} timers?\n\nEssa ação não pode ser desfeita.`)) return;
-  localStorage.removeItem('hk_timers'); timersAtivos={}; salvarTimers(); enviarParaSW({type:'CLEAR_ALL'}); atualizarPaginaTimers(); 
+  localStorage.removeItem('hk_timers'); localStorage.removeItem('hk_timers_finalizados'); timersAtivos={}; timersFinalizados={}; Object.values(alarmesTocando).forEach(id=>clearInterval(id)); alarmesTocando={}; salvarTimers(); salvarFinalizados(); enviarParaSW({type:'CLEAR_ALL'}); atualizarPaginaTimers(); 
 }
 function mudarPage(nome){ document.querySelectorAll('.page').forEach(p=>p.classList.remove('ativa')); document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('ativo')); document.getElementById(`page-${nome}`)?.classList.add('ativa'); document.getElementById(`nav-${nome}`)?.classList.add('ativo'); const RECEITAS=getReceitasBase(); if(nome==='favoritos') renderReceitas(RECEITAS.filter(r=>favoritos.includes(r.id)),'grid-favoritos'); if(nome==='recentes') renderReceitas(recentes.map(id=>RECEITAS.find(r=>r.id===id)).filter(Boolean),'grid-recentes'); if(nome==='timer') atualizarPaginaTimers(); if(nome==='finalizadas') renderFinalizadas(); }
 document.addEventListener('DOMContentLoaded',init);
