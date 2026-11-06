@@ -15,10 +15,9 @@ try{
   });
 }catch(e){ localStorage.removeItem('hk_timers'); }
 
-// ===== TIMER FINALIZADO TRAVADO - NOVO COMPORTAMENTO =====
+// ===== TIMER FINALIZADO TRAVADO =====
 let timersFinalizados = JSON.parse(localStorage.getItem('hk_timers_finalizados')||'{}');
 let alarmesTocando = {};
-// Se o timer acabou com o app fechado, ele já entra como finalizado travado (não some)
 try{
   const raw2=JSON.parse(localStorage.getItem('hk_timers')||'{}');
   Object.keys(raw2).forEach(k=>{
@@ -29,9 +28,7 @@ try{
   });
   if(Object.keys(timersFinalizados).length>0) localStorage.setItem('hk_timers_finalizados', JSON.stringify(timersFinalizados));
 }catch(e){}
-
 function salvarFinalizados(){ localStorage.setItem('hk_timers_finalizados', JSON.stringify(timersFinalizados)); }
-
 function tocarAlarme20s(key){
   if(alarmesTocando[key]) return;
   desbloquearAudio();
@@ -54,13 +51,9 @@ function tocarAlarme20s(key){
     vezes++;
     beepUmaVez();
     if(navigator.vibrate) navigator.vibrate([500,200,500]);
-    if(vezes >= 20){
-      clearInterval(alarmesTocando[key]);
-      delete alarmesTocando[key];
-    }
+    if(vezes >= 20){ clearInterval(alarmesTocando[key]); delete alarmesTocando[key]; }
   }, 1000);
 }
-
 function pararAlarme(key, idx){
   if(alarmesTocando[key]){ clearInterval(alarmesTocando[key]); delete alarmesTocando[key]; }
   if(navigator.vibrate) navigator.vibrate(0);
@@ -70,12 +63,9 @@ function pararAlarme(key, idx){
   delete timersAtivos[key];
   salvarFinalizados(); salvarTimers();
   enviarParaSW({type:'CANCEL_TIMER', key});
-  if(typeof idx !== 'undefined' && receitaAtual){
-    renderControlesTimer(key, idx, minOriginal, true);
-  }
+  if(typeof idx !== 'undefined' && receitaAtual){ renderControlesTimer(key, idx, minOriginal, true); }
   atualizarPaginaTimers();
 }
-
 if('serviceWorker' in navigator){
   navigator.serviceWorker.addEventListener('message', (e)=>{
     if(e.data && e.data.type === 'ABRIR_TIMER_FINALIZADO' && e.data.idReceita){
@@ -83,26 +73,19 @@ if('serviceWorker' in navigator){
     }
   });
 }
-
 function salvarTimers(){ localStorage.setItem('hk_timers', JSON.stringify(timersAtivos)); }
 function salvarChecks(){ localStorage.setItem('hk_checks', JSON.stringify(checks)); }
 function salvarFinalizadas(){ localStorage.setItem('hk_finalizadas', JSON.stringify(finalizadas)); }
 function getReceitasBase(){ if(window.TODAS_RECEITAS) return window.TODAS_RECEITAS; if(window.RECEITAS) return window.RECEITAS; return []; }
 function init(){ renderCategorias(); filtrar(); restaurarTimersGlobais(); if(Notification.permission!=='granted') Notification.requestPermission(); }
-
-// ===== TIMER QUE TOCA MESMO MINIMIZADO =====
 let audioCtx = null;
 let wakeLock = null;
-
 function desbloquearAudio(){
-  if(!audioCtx){
-    try{ audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }catch(e){}
-  }
+  if(!audioCtx){ try{ audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }catch(e){} }
   if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
 }
 document.addEventListener('click', desbloquearAudio, {once:false});
 document.addEventListener('touchstart', desbloquearAudio, {once:false});
-
 function tocarAlarme(){
   desbloquearAudio();
   if(navigator.vibrate) navigator.vibrate([500,200,500,200,500,200,1000]);
@@ -120,53 +103,50 @@ function tocarAlarme(){
       osc.start(t); osc.stop(t+0.7);
     }
   }
-  try{
-    const a = new Audio('https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg');
-    a.play().catch(()=>{});
-  }catch(e){}
+  try{ const a = new Audio('https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg'); a.play().catch(()=>{}); }catch(e){}
 }
-
 function notificarFim(t, key){
   tocarAlarme20s(key);
-  if(Notification.permission === 'granted'){
-    const n = new Notification(`⏰ Timer finalizado!`, {
-      body: `${t.titulo} - Passo ${t.passo} - Toque para parar`,
-      tag: key,
-      requireInteraction: true,
-      vibrate: [1000,300,1000,300,1000]
-    });
+  if('serviceWorker' in navigator){
+    navigator.serviceWorker.ready.then(reg=>{
+      reg.showNotification(`⏰ Timer finalizado!`, {
+        body: `${t.titulo} - Passo ${t.passo} - Toque para parar`,
+        icon: './assets/icon-192.png',
+        badge: './assets/icon-192.png',
+        tag: key,
+        requireInteraction: true,
+        renotify: true,
+        vibrate: [1000,300,1000,300,1000,300,1000,300,1000,300,1000],
+        data: {key, idReceita: t.idReceita}
+      });
+    }).catch(()=>{});
+  }
+  if(Notification.permission === 'granted' && !('serviceWorker' in navigator)){
+    const n = new Notification(`⏰ Timer finalizado!`, { body: `${t.titulo} - Passo ${t.passo}`, tag: key, requireInteraction: true });
     n.onclick = () => { window.focus(); n.close(); if(t.idReceita) voltarParaModoPreparo(t.idReceita, key); };
-  } else {
-    alert(`⏰ Timer finalizado!\n${t.titulo} - Passo ${t.passo}`);
   }
 }
-
 async function travarTelaAcesa(){
-  try{
-    if('wakeLock' in navigator && !wakeLock){
-      wakeLock = await navigator.wakeLock.request('screen');
-      wakeLock.addEventListener('release', ()=> wakeLock = null);
-    }
-  }catch(e){}
+  try{ if('wakeLock' in navigator && !wakeLock){ wakeLock = await navigator.wakeLock.request('screen'); wakeLock.addEventListener('release', ()=> wakeLock = null); } }catch(e){}
 }
-document.addEventListener('visibilitychange', ()=>{
-  if(!document.hidden) travarTelaAcesa();
-});
+document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) travarTelaAcesa(); });
 if('serviceWorker' in navigator){
-  navigator.serviceWorker.register('sw.js').catch(()=>{});
+  navigator.serviceWorker.register('sw.js?v=4').then(reg=>{
+    reg.update();
+    if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});
+  }).catch(()=>{});
+  let refreshing = false;
+  navigator.serviceWorker.addEventListener('controllerchange', ()=>{
+    if(!refreshing){ refreshing = true; window.location.reload(); }
+  });
 }
-
-// ===== COMUNICAÇÃO COM O SW.JS QUE VOCÊ JÁ TEM =====
 function enviarParaSW(msg){
   if('serviceWorker' in navigator && navigator.serviceWorker.controller){
     navigator.serviceWorker.controller.postMessage(msg);
   } else if('serviceWorker' in navigator){
-    navigator.serviceWorker.ready.then(reg => {
-      if(reg.active) reg.active.postMessage(msg);
-    }).catch(()=>{});
+    navigator.serviceWorker.ready.then(reg => { if(reg.active) reg.active.postMessage(msg); }).catch(()=>{});
   }
 }
-
 function renderCategorias(){
   const c=document.getElementById('categorias'); if(!c||!CATEGORIAS) return;
   const RECEITAS=getReceitasBase();
@@ -267,13 +247,7 @@ function toggleHistorico(id){
   const btn=document.getElementById(`btn-hist-${id}`);
   if(!lista || !btn) return;
   const aberto=lista.style.display!=='none' && lista.style.display!=='';
-  if(aberto){
-    lista.style.display='none';
-    btn.innerHTML='▼ Ver todas';
-  } else {
-    lista.style.display='flex';
-    btn.innerHTML='▲ Ocultar';
-  }
+  if(aberto){ lista.style.display='none'; btn.innerHTML='▼ Ver todas'; } else { lista.style.display='flex'; btn.innerHTML='▲ Ocultar'; }
 }
 function toggleCheckIng(idx, el){
   if(!receitaAtual) return;
@@ -309,10 +283,7 @@ function finalizarReceita(){
   if(!receitaAtual) return;
   const c=getCheckReceita(receitaAtual.id);
   const total=receitaAtual.passos.length;
-  if((c.passos||[]).filter(Boolean).length!==total){
-    alert('Tique todos os passos do modo de preparo para finalizar!');
-    return;
-  }
+  if((c.passos||[]).filter(Boolean).length!==total){ alert('Tique todos os passos do modo de preparo para finalizar!'); return; }
   if(!finalizadas[receitaAtual.id]) finalizadas[receitaAtual.id]=[];
   finalizadas[receitaAtual.id].push(new Date().toISOString());
   salvarFinalizadas();
@@ -449,10 +420,7 @@ function getBotaoFavCima(){
 function atualizarBotaoFavCima(){
   const btn = getBotaoFavCima();
   if(!btn) return;
-  if(!receitaAtual){
-    btn.innerHTML = '♡ Favoritar';
-    return;
-  }
+  if(!receitaAtual){ btn.innerHTML = '♡ Favoritar'; return; }
   const isFav = favoritos.includes(receitaAtual.id);
   btn.innerHTML = isFav ? '❤️ Favoritada' : '♡ Favoritar';
   btn.style.background = isFav ? '#FF6B35' : '';
@@ -480,8 +448,6 @@ function toggleFavAtual(){
   salvarEFiltrar();
   atualizarGridFavoritos();
 }
-
-// TIMER COM CONFIRMAÇÃO + SOM + SW - NOVO COMPORTAMENTO FINALIZADO TRAVADO
 function iniciarTimer(min, idx){
   if(!receitaAtual||min<=0) return;
   const key=`${receitaAtual.id}-${idx}`;
@@ -546,8 +512,6 @@ function limparTodosTimers(){
 }
 function mudarPage(nome){ document.querySelectorAll('.page').forEach(p=>p.classList.remove('ativa')); document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('ativo')); document.getElementById(`page-${nome}`)?.classList.add('ativa'); document.getElementById(`nav-${nome}`)?.classList.add('ativo'); const RECEITAS=getReceitasBase(); if(nome==='favoritos') renderReceitas(RECEITAS.filter(r=>favoritos.includes(r.id)),'grid-favoritos'); if(nome==='recentes') renderReceitas(recentes.map(id=>RECEITAS.find(r=>r.id===id)).filter(Boolean),'grid-recentes'); if(nome==='timer') atualizarPaginaTimers(); if(nome==='finalizadas') renderFinalizadas(); }
 document.addEventListener('DOMContentLoaded',init);
-
-// ===== GELADEIRA - FINAL LIMPO =====
 const CONDIMENTOS_TIRAR = ['agua','água','alho','caldo','curcuma','cúrcuma','acucar','açucar','açúcar','sal','pimenta','oleo','óleo','azeite','vinagre','manteiga','margarina','cominho','oregano','orégano','salsinha','cebolinha','coentro','alecrim','manjericão','canela','cravo','noz moscada','paprica','páprica','curry','açafrão','cheiro verde','shoyu','molho shoyu','sal grosso','pimenta reino','limão','azeite de dendê','água com gás','amido','polvilho','fermento','louro','folha de louro','tempero verde','mix de folhas','mix folhas','folhas','folha','nori','gengibre'];
 let ingredientesSelecionados = JSON.parse(localStorage.getItem('hk_ing_possuo')||'[]');
 function paraRaiz(nome){nome=nome.toLowerCase().trim();let s=nome.normalize('NFD').replace(/[\u0300-\u036f]/g,'');if(s.includes('guacamole'))return'abacate';if(s.includes('gema')||s.includes('clara'))return'ovo';if(s.includes('ovo'))return'ovo';if(s.includes('tomate'))return'tomate';if(s.includes('pimentao'))return'pimentão';if(s.includes('cebola'))return'cebola';if(s.includes('abobora'))return'abóbora';if(s.includes('batata'))return'batata';if(s.includes('feijao'))return'feijão';if(s.includes('tortilha')||s.includes('tortilla'))return'tortilha';if(s.includes('requeijao'))return'requeijão';if(s.includes('frango'))return'frango';if(s.includes('carne')||s.includes('patinho'))return'carne';if(s.includes('queijo')||s.includes('mucarela')||s.includes('mussarela')||s.includes('parmesao')||s.includes('cheddar')||s.includes('catupiry')||s.includes('meia cura')||s.includes('presunto'))return'queijo';if(s.includes('leite condensado'))return'leite condensado';if(s.includes('leite de coco'))return'leite de coco';if(s.includes('leite'))return'leite';if(s.includes('farinha')||s.includes('panko')||s.includes('massa')||s.includes('espaguete')||s.includes('macarrao'))return'massa';if(s.includes('abobrinha'))return'abobrinha';if(s.includes('cenoura'))return'cenoura';if(s.includes('couve'))return'couve';if(s.includes('alface'))return'alface';if(s.includes('arroz'))return'arroz';if(s.includes('grao de bico')||s.includes('lentilha')||s.includes('ervilha'))return'grãos';if(s.includes('quinoa')||s.includes('aveia'))return'grãos';if(s.includes('pao'))return'pão';if(s.includes('linguica')||s.includes('bacon')||s.includes('calabresa')||s.includes('paio')||s.includes('costela'))return'linguiça';if(s.includes('camarao')||s.includes('robalo')||s.includes('salmao'))return'peixe';if(s.includes('abacate'))return'abacate';if(s.includes('pepino'))return'pepino';if(s.includes('brocolis'))return'brócolis';if(s.includes('repolho'))return'repolho';if(s.includes('milho'))return'milho';if(s.includes('morango'))return'morango';if(s.includes('coco'))return'coco';if(s.includes('chocolate')||s.includes('cacau')||s.includes('pacoca')||s.includes('bolacha')||s.includes('doce de leite'))return'doce';return nome;}
