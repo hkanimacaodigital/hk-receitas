@@ -84,5 +84,113 @@ passos:[
 {texto:"Coloque o macarrão, sem o sachê, dentro do caldo fervendo e cozinhe por 4 minutos, até ficar macio e o caldo engrossar levemente.", timer:4},
 {texto:"Transfira para tigela funda. Coloque por cima o frango, o ovo, a cebolinha e o nori em tiras. Sirva bem quente.", timer:0}
 ]
+},
+{
+id:"gyoza-frango", titulo:"Gyoza de Frango", categoria_principal:"Oriental", categorias:["Oriental"], tempo:"35 min", porcoes:"12 unidades", foto:"assets/gyoza-frango.jpg",
+ingredientes:[
+{nome:"Massa para gyoza", qtd:"12 unidades"},
+{nome:"Frango moído", qtd:"200g"},
+{nome:"Repolho", qtd:"80g picado fininho"},
+{nome:"Cebolinha", qtd:"20g picada"},
+{nome:"Alho", qtd:"1 dente amassado"},
+{nome:"Gengibre", qtd:"1 colher (chá) ralado"},
+{nome:"Shoyu", qtd:"1 colher (sopa)"},
+{nome:"Óleo de gergelim", qtd:"1 colher (chá)"},
+{nome:"Sal", qtd:"a gosto"},
+{nome:"Pimenta-do-reino", qtd:"a gosto"},
+{nome:"Óleo vegetal", qtd:"1 colher (sopa)"},
+{nome:"Água", qtd:"80ml para cozinhar no vapor"}
+],
+passos:[
+{texto:"Misture o frango com o repolho, a cebolinha, o alho, o gengibre, o shoyu, o óleo de gergelim, o sal e a pimenta até virar uma pasta.", timer:0},
+{texto:"Coloque 1 colher (chá) de recheio no centro de cada massa. Molhe a borda com água, feche ao meio e aperte fazendo preguinhas.", timer:0},
+{texto:"Aqueça o óleo em frigideira antiaderente em fogo médio e coloque as gyozas com a base para baixo. Doure por 3 minutos.", timer:3},
+{texto:"Jogue a água, tampe na hora e cozinhe por 6 minutos, até a água secar e a base ficar crocante. Sirva com shoyu.", dica:"Não abra a tampa no vapor, senão perde o cozimento.", timer:6}
+]
+},
+{
+id:"frango-teriyaki", titulo:"Frango Teriyaki", categoria_principal:"Oriental", categorias:["Oriental"], tempo:"20 min", porcoes:"2 porções", foto:"assets/frango-teriyaki.jpg",
+ingredientes:[
+{nome:"Coxa de frango desossada", qtd:"400g em cubos"},
+{nome:"Shoyu", qtd:"60ml - 4 colheres (sopa)"},
+{nome:"Açúcar", qtd:"2 colheres (sopa)"},
+{nome:"Saquê culinário ou vinagre de arroz", qtd:"1 colher (sopa)"},
+{nome:"Alho", qtd:"1 dente amassado"},
+{nome:"Gengibre", qtd:"1 colher (chá) ralado"},
+{nome:"Óleo vegetal", qtd:"1 colher (sopa)"},
+{nome:"Gergelim", qtd:"para finalizar"},
+{nome:"Cebolinha", qtd:"para finalizar"},
+{nome:"Arroz cozido", qtd:"para acompanhar"}
+],
+passos:[
+{texto:"Misture o shoyu, o açúcar, o saquê, o alho e o gengibre até dissolver o açúcar.", timer:0},
+{texto:"Aqueça o óleo em fogo médio-alto e doure o frango por 6 minutos, mexendo de vez em quando.", timer:6},
+{texto:"Jogue o molho na frigideira e cozinhe por 4 minutos, mexendo, até engrossar e ficar brilhante grudando no frango.", timer:4},
+{texto:"Sirva sobre o arroz e finalize com gergelim e cebolinha.", timer:0}
+]
+},
+{
+id:"yakimeshi-frango", titulo:"Yakimeshi de Frango", categoria_principal:"Oriental", categorias:["Oriental"], tempo:"20 min", porcoes:"2 porções", foto:"assets/yakimeshi-frango.jpg",
+ingredientes:[
+{nome:"Arroz cozido frio", qtd:"300g - cerca de 2 xícaras"},
+{nome:"Peito de frango", qtd:"200g em cubos pequenos"},
+{nome:"Ovo", qtd:"2 unidades"},
+{nome:"Cenoura", qtd:"50g em cubinhos"},
+{nome:"Ervilha", qtd:"50g"},
+{nome:"Cebolinha", qtd:"20g picada"},
+{nome:"Shoyu", qtd:"2 colheres (sopa)"},
+{nome:"Alho", qtd:"1 dente amassado"},
+{nome:"Óleo vegetal", qtd:"1 colher (sopa)"},
+{nome:"Sal", qtd:"a gosto"},
+{nome:"Pimenta-do-reino", qtd:"a gosto"}
+],
+passos:[
+{texto:"Aqueça o óleo em wok ou frigideira grande em fogo alto e doure o frango por 5 minutos. Reserve.", timer:5},
+{texto:"Na mesma frigideira, refogue o alho por 30 segundos, junte a cenoura e a ervilha e refogue por 2 minutos.", timer:2},
+{texto:"Empurre para a lateral, coloque os ovos e mexa até virar ovos mexidos. Junte o arroz, o frango e o shoyu.", timer:0},
+{texto:"Frite por 4 minutos em fogo alto, mexendo sempre, até o arroz ficar soltinho. Acerte o sal e a pimenta e finalize com cebolinha.", dica:"Arroz do dia anterior fica mais soltinho.", timer:4}
+]
+},
+{
+id:"rolinho-primavera", titulo:"Rolinho Primavera Crocante", categoria_principal:"Oriental", categorias:["Oriental","Lanche"], tempo:"30 min", porcoes:"6 unidades", foto:"assets/rolinho-primavera.jpg", airfryer:true,
+ingredientes:[
+{nome:"Massa para rolinho primavera", qtd:"6 folhas"},
+{nome:"Repolho", qtd:"100g fatiado fininho"},
+{nome:"Cenoura", qtd:"50g ralada"},
+{nome:"Frango desfiado", qtd:"100g"},
+{nome:"Shoyu", qtd:"1 colher (sopa)"},
+{nome:"Alho", qtd:"1 dente amassado"},
+{nome:"Gengibre", qtd:"1 colher (chá) ralado"},
+{nome:"Óleo de gergelim", qtd:"1 colher (chá)"},
+{nome:"Óleo em spray", qtd:"para borrifar"},
+{nome:"Água", qtd:"para selar a massa"}
+],
+passos:[
+{texto:"Refogue o alho e o gengibre por 30 segundos. Junte o repolho, a cenoura e o frango e refogue por 3 minutos. Tempere com shoyu e óleo de gergelim e deixe esfriar.", timer:3},
+{texto:"Coloque 2 colheres de recheio em cada folha, dobre as laterais, enrole firme e sele a ponta com água.", timer:0},
+{texto:"Coloque na Airfryer, borrife óleo e asse em Airfryer preaquecida a 200°C por 12 minutos, virando aos 6 minutos, até ficar dourado e crocante. Sirva com molho agridoce.", timer:12}
+]
+},
+{
+id:"pad-thai-frango", titulo:"Pad Thai de Frango", categoria_principal:"Oriental", categorias:["Oriental"], tempo:"25 min", porcoes:"2 porções", foto:"assets/pad-thai-frango.jpg",
+ingredientes:[
+{nome:"Macarrão de arroz", qtd:"200g"},
+{nome:"Peito de frango", qtd:"200g em tiras"},
+{nome:"Ovo", qtd:"2 unidades"},
+{nome:"Broto de feijão", qtd:"80g"},
+{nome:"Cebolinha", qtd:"20g picada"},
+{nome:"Amendoim torrado", qtd:"30g picado"},
+{nome:"Shoyu", qtd:"2 colheres (sopa)"},
+{nome:"Açúcar", qtd:"1 colher (sopa)"},
+{nome:"Limão", qtd:"suco de 1 unidade"},
+{nome:"Óleo vegetal", qtd:"1 colher (sopa)"},
+{nome:"Pimenta calabresa", qtd:"a gosto - opcional"}
+],
+passos:[
+{texto:"Deixe o macarrão de molho em água quente por 8 minutos, até ficar macio. Escorra e reserve.", timer:8},
+{texto:"Aqueça o óleo em fogo alto e doure o frango por 5 minutos. Empurre para a lateral e faça os ovos mexidos.", timer:5},
+{texto:"Junte o macarrão, o shoyu, o açúcar e o limão. Misture por 2 minutos em fogo alto.", timer:2},
+{texto:"Junte o broto de feijão e a cebolinha, misture por 1 minuto e desligue. Finalize com amendoim e pimenta, se quiser.", timer:1}
+]
 }
 ];
