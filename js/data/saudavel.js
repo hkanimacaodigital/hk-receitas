@@ -1,6 +1,6 @@
 window.RECEITAS_SAUDAVEL = [
 {
-id:"salmao-legumes", titulo:"Salmão Grelhado com Legumes", categoria_principal:"Saudável", categorias:["Saudável","Fit"], tempo:"25 min", porcoes:"2 porções", nivel:"Fácil", foto:"assets/salmao.jpg", airfryer:true,
+id:"salmao-legumes", titulo:"Salmão Grelhado com Legumes", categoria_principal:"Saudável", categorias:["Saudável","Fit"], tempo:"25 min", porcoes:"2 porções", foto:"assets/salmao.jpg", airfryer:true,
 ingredientes:[
 {nome:"Salmão", qtd:"300g em 2 postas"},
 {nome:"Abobrinha", qtd:"1 unidade média em rodelas"},
@@ -13,14 +13,14 @@ ingredientes:[
 {nome:"Endro ou salsinha", qtd:"para finalizar"}
 ],
 passos:[
-{texto:"Seque as 2 postas de salmão com papel-toalha. Tempere com o suco de meio limão, o sal, a pimenta-do-reino e o dente de alho amassado se for usar. Deixe marinando por 5 minutos.", timer:5},
-{texto:"Corte a abobrinha em rodelas e a cenoura em palitos finos, para cozinharem no mesmo tempo. Coloque os legumes em uma tigela, tempere com 1 pitada de sal, pimenta-do-reino e a colher de azeite e misture bem.", timer:0},
-{texto:"Coloque o salmão na cesta da Airfryer, com a pele para baixo, e distribua os legumes ao lado, sem amontoar. Leve para a Airfryer preaquecida a 200°C por 12 minutos, até o salmão ficar dourado por fora, macio por dentro e os legumes al dente.", timer:12},
-{texto:"Retire com cuidado, finalize com endro ou salsinha picada e mais um pouquinho de limão espremido por cima. Sirva imediatamente.", timer:0}
+{texto:"Seque as postas com papel-toalha. Tempere com o limão, o sal, a pimenta e o alho, se for usar. Deixe marinando por 5 minutos.", timer:5},
+{texto:"Corte a abobrinha em rodelas e a cenoura em palitos finos, para cozinharem no mesmo tempo. Tempere com 1 pitada de sal, pimenta e o azeite e misture bem.", timer:0},
+{texto:"Coloque o salmão na cesta da Airfryer, com a pele para baixo, e distribua os legumes ao lado, sem amontoar. Asse em Airfryer preaquecida a 200°C por 12 minutos, até o salmão dourar por fora, ficar macio por dentro e os legumes al dente.", timer:12},
+{texto:"Retire com cuidado, finalize com endro ou salsinha e mais um pouco de limão espremido por cima.", timer:0}
 ]
 },
 {
-id:"batata-rustica", titulo:"Batata Rústica com Alecrim", categoria_principal:"Saudável", categorias:["Saudável","Vegana"], tempo:"30 min", porcoes:"2 porções", nivel:"Fácil", foto:"assets/batata-rustica.jpg", airfryer:true,
+id:"batata-rustica", titulo:"Batata Rústica com Alecrim", categoria_principal:"Saudável", categorias:["Saudável","Vegana"], tempo:"30 min", porcoes:"2 porções", foto:"assets/batata-rustica.jpg", airfryer:true,
 ingredientes:[
 {nome:"Batata", qtd:"400g com casca"},
 {nome:"Alecrim fresco", qtd:"1 ramo - cerca de 1 colher (sopa) de folhinhas"},
@@ -31,13 +31,13 @@ ingredientes:[
 {nome:"Páprica", qtd:"1/2 colher (chá) - opcional"}
 ],
 passos:[
-{texto:"Lave bem as 400g de batata com casca, com uma escovinha, e seque com papel-toalha. Corte cada batata ao meio e depois em gomos grossos, de tamanho parecido, para assarem por igual.", timer:0},
-{texto:"Coloque os gomos em uma tigela, junte a colher de azeite, o sal, a pimenta-do-reino, o dente de alho amassado se for usar, a páprica se quiser e as folhinhas do ramo de alecrim. Misture bem com as mãos para todos os gomos ficarem temperados.", timer:0},
-{texto:"Coloque as batatas na cesta da Airfryer preaquecida a 200°C, em uma camada só, sem amontoar. Asse por 18 minutos, mexendo ou sacudindo a cesta na metade do tempo, aos 9 minutos, até as batatas ficarem bem douradas por fora e macias por dentro. Sirva imediatamente.", timer:18}
+{texto:"Lave bem a batata com casca e seque. Corte ao meio e depois em gomos grossos, de tamanho parecido, para assarem por igual.", timer:0},
+{texto:"Misture os gomos com o azeite, o sal, a pimenta, o alho se for usar, a páprica se quiser e as folhinhas de alecrim.", timer:0},
+{texto:"Coloque na cesta da Airfryer preaquecida a 200°C, em uma camada só, sem amontoar. Asse por 18 minutos, mexendo ou sacudindo a cesta aos 9 minutos, até ficar bem dourada por fora e macia por dentro.", timer:18}
 ]
 },
 {
-id:"bowl-quinoa-colorido", titulo:"Bowl de Quinoa Colorido", categoria_principal:"Saudável", categorias:["Saudável","Vegana","Fit"], tempo:"25 min", porcoes:"2 porções", nivel:"Fácil", foto:"assets/bowl-quinoa-colorido.jpg",
+id:"bowl-quinoa-colorido", titulo:"Bowl de Quinoa Colorido", categoria_principal:"Saudável", categorias:["Saudável","Vegana","Fit"], tempo:"25 min", porcoes:"2 porções", foto:"assets/bowl-quinoa-colorido.jpg",
 ingredientes:[
 {nome:"Quinoa", qtd:"150g"},
 {nome:"Grão-de-bico cozido", qtd:"80g"},
@@ -52,14 +52,14 @@ ingredientes:[
 {nome:"Cheiro-verde ou coentro", qtd:"para finalizar"}
 ],
 passos:[
-{texto:"Lave os 150g de quinoa em uma peneira fina em água corrente, até a água sair limpa, para tirar o amargor. Coloque em uma panela com os 300ml de água e 1 pitada de sal e leve ao fogo alto.", timer:0},
-{texto:"Quando começar a ferver, abaixe o fogo, tampe e cozinhe por 12 minutos, até a quinoa absorver toda a água e ficar macia, com os grãozinhos abertos. Desligue e deixe descansar tampada por 5 minutos. Solte com um garfo.", timer:12},
-{texto:"Em uma tigelinha, misture o suco de meio limão, a colher de azeite, o sal e a pimenta-do-reino a gosto, batendo com um garfo até virar um molhinho.", timer:0},
-{texto:"Monte os bowls: divida a quinoa cozida em 2 tigelas, distribua por cima os 80g de grão-de-bico cozido, os 50g de abacate em cubos, os 50g de tomate cereja ao meio e os 50g de pepino em cubos. Regue com o molhinho de limão, finalize com cheiro-verde ou coentro e sirva imediatamente.", timer:0}
+{texto:"Lave a quinoa em peneira fina até a água sair limpa, para tirar o amargor. Coloque em panela com a água e 1 pitada de sal e leve ao fogo alto.", timer:0},
+{texto:"Quando ferver, abaixe, tampe e cozinhe por 12 minutos, até absorver toda a água e ficar macia. Desligue e deixe descansar tampada por 5 minutos. Solte com um garfo.", timer:12},
+{texto:"Misture o limão, o azeite, o sal e a pimenta até virar um molhinho.", timer:0},
+{texto:"Divida a quinoa em 2 tigelas, distribua por cima o grão-de-bico, o abacate, o tomate e o pepino. Regue com o molhinho e finalize com cheiro-verde ou coentro.", timer:0}
 ]
 },
 {
-id:"sopa-detox-verde", titulo:"Sopa Detox Verde", categoria_principal:"Saudável", categorias:["Saudável","Vegana","Caldo"], tempo:"30 min", porcoes:"2 porções", nivel:"Fácil", foto:"assets/sopa-detox-verde.jpg",
+id:"sopa-detox-verde", titulo:"Sopa Detox Verde", categoria_principal:"Saudável", categorias:["Saudável","Vegana","Caldo"], tempo:"30 min", porcoes:"2 porções", foto:"assets/sopa-detox-verde.jpg",
 ingredientes:[
 {nome:"Abobrinha", qtd:"200g em cubos"},
 {nome:"Couve", qtd:"100g fatiada fininha"},
@@ -75,10 +75,11 @@ ingredientes:[
 {nome:"Sementes de abóbora", qtd:"para finalizar - opcional"}
 ],
 passos:[
-{texto:"Em uma panela, aqueça a colher de azeite em fogo médio e refogue a cebola picada por 2 minutos, até ficar transparente. Junte o dente de alho amassado e os 10g de gengibre ralado e refogue por mais 1 minuto, até perfumar.", timer:3},
-{texto:"Junte os 200g de abobrinha em cubos, os 80g de ervilha e tempere com sal e pimenta-do-reino a gosto. Cubra com os 600ml de água e cozinhe em fogo médio por 15 minutos, até a abobrinha ficar bem macia.", timer:15},
-{texto:"Junte os 100g de couve fatiada fininha e cozinhe por mais 2 minutos, só até a couve murchar e continuar bem verdinha. Desligue o fogo.", timer:2},
-{texto:"Com um mixer direto na panela ou com uma concha, bata apenas metade da sopa, até virar um creme, deixando a outra metade em pedaços para a sopa ficar cremosa mas com textura. Prove, acerte o sal e junte o suco de meio limão se quiser. Sirva imediatamente com sementes de abóbora por cima.", timer:0}
+{texto:"Aqueça o azeite em fogo médio e refogue a cebola por 2 minutos, até ficar transparente. Junte o alho e o gengibre e refogue por mais 1 minuto.", timer:3},
+{texto:"Junte a abobrinha e a ervilha, tempere com sal e pimenta, cubra com a água e cozinhe em fogo médio por 15 minutos, até a abobrinha ficar bem macia.", timer:15},
+{texto:"Junte a couve e cozinhe por mais 2 minutos, só até murchar e continuar bem verdinha. Desligue.", timer:2},
+{texto:"Bata apenas metade da sopa, até virar um creme, deixando a outra metade em pedaços para ficar cremosa mas com textura.", dica:"Bater só metade mantém a textura.", timer:0},
+{texto:"Prove, acerte o sal e junte o limão, se quiser. Sirva com sementes de abóbora por cima.", timer:0}
 ]
 }
 ];
