@@ -20,6 +20,73 @@ function salvarChecks(){ localStorage.setItem('hk_checks', JSON.stringify(checks
 function salvarFinalizadas(){ localStorage.setItem('hk_finalizadas', JSON.stringify(finalizadas)); }
 function getReceitasBase(){ if(window.TODAS_RECEITAS) return window.TODAS_RECEITAS; if(window.RECEITAS) return window.RECEITAS; return []; }
 function init(){ renderCategorias(); filtrar(); restaurarTimersGlobais(); if(Notification.permission!=='granted') Notification.requestPermission(); }
+
+// ===== TIMER QUE TOCA MESMO MINIMIZADO =====
+let audioCtx = null;
+let wakeLock = null;
+
+function desbloquearAudio(){
+  if(!audioCtx){
+    try{ audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }catch(e){}
+  }
+  if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+}
+document.addEventListener('click', desbloquearAudio, {once:false});
+document.addEventListener('touchstart', desbloquearAudio, {once:false});
+
+function tocarAlarme(){
+  desbloquearAudio();
+  if(navigator.vibrate) navigator.vibrate([500,200,500,200,500,200,1000]);
+  if(audioCtx){
+    for(let i=0; i<3; i++){
+      const t = audioCtx.currentTime + i*0.8;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain); gain.connect(audioCtx.destination);
+      osc.frequency.value = 880;
+      osc.type = 'sine';
+      gain.gain.setValueAtTime(0, t);
+      gain.gain.linearRampToValueAtTime(0.5, t+0.05);
+      gain.gain.exponentialRampToValueAtTime(0.01, t+0.7);
+      osc.start(t); osc.stop(t+0.7);
+    }
+  }
+  try{
+    const a = new Audio('https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg');
+    a.play().catch(()=>{});
+  }catch(e){}
+}
+
+function notificarFim(t){
+  tocarAlarme();
+  if(Notification.permission === 'granted'){
+    const n = new Notification(`⏰ Timer finalizado!`, {
+      body: `${t.titulo} - Passo ${t.passo}`,
+      tag: 'hk-timer',
+      requireInteraction: true,
+      vibrate: [500,200,500]
+    });
+    n.onclick = () => { window.focus(); n.close(); };
+  } else {
+    alert(`⏰ Timer finalizado!\n${t.titulo} - Passo ${t.passo}`);
+  }
+}
+
+async function travarTelaAcesa(){
+  try{
+    if('wakeLock' in navigator && !wakeLock){
+      wakeLock = await navigator.wakeLock.request('screen');
+      wakeLock.addEventListener('release', ()=> wakeLock = null);
+    }
+  }catch(e){}
+}
+document.addEventListener('visibilitychange', ()=>{
+  if(!document.hidden) travarTelaAcesa();
+});
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('sw.js').catch(()=>{});
+}
+
 function renderCategorias(){
   const c=document.getElementById('categorias'); if(!c||!CATEGORIAS) return;
   const RECEITAS=getReceitasBase();
@@ -43,8 +110,6 @@ function calcularNivel(r){
   if(pontos<=4) return 'Médio';
   return 'Difícil';
 }
-
-// FILTRO PREMIUM ATUALIZADO - MAIS FÁCIL NO LUGAR DE MENOS KCAL
 function filtrar(){
   let RECEITAS=getReceitasBase(); if(!RECEITAS) return;
   const busca=(document.getElementById('busca')?.value||'').toLowerCase();
@@ -52,7 +117,6 @@ function filtrar(){
   let lista=[...RECEITAS];
   if(categoriaAtiva!=='tudo'){ if(categoriaAtiva==='airfryer') lista=lista.filter(r=>r.airfryer===true); else if(categoriaAtiva==='rapida') lista=lista.filter(r=>getTempo(r)<=12); else{ const nome=CATEGORIAS.find(c=>c.id===categoriaAtiva)?.nome.toLowerCase()||categoriaAtiva; lista=lista.filter(r=>(r.categoria_principal||'').toLowerCase()===nome||(r.categorias||[]).map(x=>x.toLowerCase()).includes(nome)); }}
   if(busca) lista=lista.filter(r=>r.titulo.toLowerCase().includes(busca));
-  
   if(ordem==='az') lista.sort((a,b)=>a.titulo.localeCompare(b.titulo)); 
   else if(ordem==='tempo') lista.sort((a,b)=>getTempo(a)-getTempo(b));
   else if(ordem==='facil' || ordem==='kcal'){
@@ -84,8 +148,6 @@ function compartilharWhatsApp(){
   const texto = `*${receitaAtual.titulo}* - ${receitaAtual.tempo}\n\n*🛒 INGREDIENTES:*\n${ingList}\n\n*👨‍🍳 MODO:*\n${passosList}\n\n hk-receitas.vercel.app`;
   window.open(`https://wa.me/?text=${encodeURIComponent(texto)}`, '_blank');
 }
-
-// ===== CHECKS + FINALIZADAS =====
 function getCheckReceita(id){
   if(!checks[id]) checks[id]={ing:[],passos:[]};
   return checks[id];
@@ -103,7 +165,6 @@ function htmlHistoricoFinalizadas(id){
   const hist = finalizadas[id]||[];
   if(hist.length===0) return '';
   const ordenado=[...hist].sort((a,b)=>new Date(b)-new Date(a));
-  // Se só fez 1x, não precisa de seta para expandir
   if(ordenado.length===1){
     return `<div style="background:#E8F5E9;border:1.5px solid #C8E6C9;border-radius:14px;padding:12px;margin:12px 0">
       <div style="display:flex;justify-content:space-between;align-items:center"><b>✅ Feita 1x</b><button onclick="event.stopPropagation();limparHistoricoReceita('${id}')" style="background:white;border:1px solid #E8DDD6;padding:6px 10px;border-radius:20px;font-size:11px;font-weight:700">🗑️ Limpar histórico</button></div>
@@ -175,13 +236,11 @@ function finalizarReceita(){
   if(!finalizadas[receitaAtual.id]) finalizadas[receitaAtual.id]=[];
   finalizadas[receitaAtual.id].push(new Date().toISOString());
   salvarFinalizadas();
-  // Zera só as caixas dessa receita
   delete checks[receitaAtual.id];
   salvarChecks();
   const totalVezes=finalizadas[receitaAtual.id].length;
   alert(`🎉 Parabéns! Receita finalizada!\n\nVocê já fez "${receitaAtual.titulo}" ${totalVezes}x`);
   renderFinalizadas();
-  // Volta para ingredientes e reabre para mostrar zerado + histórico atualizado
   const id=receitaAtual.id;
   abrirReceita(id);
 }
@@ -207,7 +266,6 @@ function renderFinalizadas(){
     cont.innerHTML=`<div style="grid-column:1/3;text-align:center;padding:30px;color:#9A8C83">Nenhuma receita finalizada ainda.<br>Finalize uma receita no modo de preparo para aparecer aqui! ✅</div>`;
     return;
   }
-  // Ordena pela mais recente
   ids.sort((a,b)=>new Date(finalizadas[b][finalizadas[b].length-1])-new Date(finalizadas[a][finalizadas[a].length-1]));
   cont.innerHTML=ids.map(id=>{
     const r=RECEITAS.find(x=>x.id===id); if(!r) return '';
@@ -216,7 +274,6 @@ function renderFinalizadas(){
     return `<div class="card" onclick="abrirReceita('${r.id}')"><button class="fav-btn" onclick="event.stopPropagation();toggleFav('${r.id}')">${isFav?'❤️':'🤍'}</button><img src="${r.foto}" loading="lazy"><div style="position:absolute;top:8px;left:8px;background:#22C55E;color:white;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:800">✅ Feita ${hist.length}x</div><div class="card-body"><span class="badge">${r.categoria_principal}</span><h3 style="margin:8px 0 4px;font-weight:800">${r.titulo}</h3><div class="card-info"><span>🕒 Última: ${formatarDataCurta(hist[0])}</span></div><div style="font-size:11px;color:#9A8C83;margin-top:4px">Primeira: ${formatarDataCurta(hist[hist.length-1])}</div></div></div>`;
   }).join('');
 }
-
 function abrirReceita(id){
   const RECEITAS=getReceitasBase();
   const r=RECEITAS.find(x=>x.id===id); if(!r) return; receitaAtual=r;
@@ -305,8 +362,6 @@ function voltarIngredientes(){
   setTimeout(()=>{ v2.style.display='none'; v1.style.display='block'; rolarTopoModal(); },350); 
 }
 function fecharModal(){ document.getElementById('modal').classList.remove('mostrar'); }
-
-// ===== FAVORITOS - SÓ BOTÃO DE CIMA =====
 function getBotaoFavCima(){
   return document.getElementById('rFavBtn') || document.getElementById('btn-fav-topo') || document.querySelector('.btn-fav-topo') || document.querySelector('[data-fav-topo]');
 }
@@ -345,8 +400,14 @@ function toggleFavAtual(){
   atualizarGridFavoritos();
 }
 
-// TIMER COM CONFIRMAÇÃO
-function iniciarTimer(min, idx){ if(!receitaAtual||min<=0) return; const key=`${receitaAtual.id}-${idx}`; const fim=Date.now()+min*60*1000; timersAtivos[key]={fim, titulo:receitaAtual.titulo, passo:idx+1, min, idReceita:receitaAtual.id, pausado:false}; salvarTimers(); renderControlesTimer(key, idx, min); atualizarPaginaTimers(); }
+// TIMER COM CONFIRMAÇÃO + SOM
+function iniciarTimer(min, idx){
+  if(!receitaAtual||min<=0) return;
+  desbloquearAudio();
+  travarTelaAcesa();
+  if(Notification.permission !== 'granted') Notification.requestPermission();
+  const key=`${receitaAtual.id}-${idx}`; const fim=Date.now()+min*60*1000; timersAtivos[key]={fim, titulo:receitaAtual.titulo, passo:idx+1, min, idReceita:receitaAtual.id, pausado:false}; salvarTimers(); renderControlesTimer(key, idx, min); atualizarPaginaTimers();
+}
 function pausarTimer(key, idx){ const t=timersAtivos[key]; if(!t||t.pausado) return; const restante=Math.max(0, Math.floor((t.fim-Date.now())/1000)); t.restante=restante; t.pausado=true; delete t.fim; salvarTimers(); renderControlesTimer(key, idx, t.min); atualizarPaginaTimers(); }
 function continuarTimer(key, idx){ const t=timersAtivos[key]; if(!t||!t.pausado) return; t.fim=Date.now()+t.restante*1000; t.pausado=false; delete t.restante; salvarTimers(); renderControlesTimer(key, idx, t.min); atualizarPaginaTimers(); }
 function zerarTimer(key, idx, minOriginal){ 
@@ -365,7 +426,7 @@ function renderControlesTimer(key, idx, minOriginal, zerado=false){
 function restaurarTimersGlobais(){
   setInterval(()=>{
     let mudou=false;
-    Object.keys(timersAtivos).forEach(k=>{ const t=timersAtivos[k]; if(!t) { delete timersAtivos[k]; mudou=true; return; } if(t.pausado) return; if(!t.fim) return; const rest=Math.floor((t.fim-Date.now())/1000); if(receitaAtual && k.startsWith(receitaAtual.id+'-')){ const idx=k.split('-').pop(); const btn=document.getElementById(`btn-main-${idx}`); if(btn){ if(rest>0) btn.innerText=`⏳ ${Math.floor(rest/60)}:${(rest%60).toString().padStart(2,'0')} rodando`; else btn.innerText=`✅ Finalizado!`; } } if(rest<=0){ delete timersAtivos[k]; mudou=true; if(Notification.permission==='granted') new Notification(`⏰ Finalizado!`, {body: `${t.titulo} - Passo ${t.passo}`}); } });
+    Object.keys(timersAtivos).forEach(k=>{ const t=timersAtivos[k]; if(!t) { delete timersAtivos[k]; mudou=true; return; } if(t.pausado) return; if(!t.fim) return; const rest=Math.floor((t.fim-Date.now())/1000); if(receitaAtual && k.startsWith(receitaAtual.id+'-')){ const idx=k.split('-').pop(); const btn=document.getElementById(`btn-main-${idx}`); if(btn){ if(rest>0) btn.innerText=`⏳ ${Math.floor(rest/60)}:${(rest%60).toString().padStart(2,'0')} rodando`; else btn.innerText=`✅ Finalizado!`; } } if(rest<=0){ delete timersAtivos[k]; mudou=true; notificarFim(t); } });
     if(mudou) salvarTimers(); if(document.getElementById('page-timer')?.classList.contains('ativa')) atualizarPaginaTimers();
   },1000);
 }
