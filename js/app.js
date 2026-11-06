@@ -56,12 +56,12 @@ function renderReceitas(lista, alvoId){
   if(lista.length===0){ cont.innerHTML=`<div style="grid-column:1/3;text-align:center;padding:30px">Nenhuma receita</div>`; return; }
   cont.innerHTML=lista.map(r=>{ const isFav=favoritos.includes(r.id); return `<div class="card" onclick="abrirReceita('${r.id}')"><button class="fav-btn" onclick="event.stopPropagation();toggleFav('${r.id}')">${isFav?'❤️':'🤍'}</button><img src="${r.foto}" loading="lazy"><div class="card-body"><span class="badge">${r.categoria_principal}</span><h3 style="margin:8px 0 4px;font-weight:800">${r.titulo}</h3><div class="card-info"><span>⏰ ${r.tempo}</span><span>🍽️ ${r.porcoes||''}</span><span>📊 ${r.nivel||''}</span></div></div></div>`}).join('');
 }
-function normalizarPasso(p){ if(typeof p==='string') return {texto:p, tempoMin: extrairMin(p)}; return {texto:p.texto||p.passo||'', tempoMin: p.timer||p.tempoMin||extrairMin(p.texto||''), label:p.label||''}; }
+function normalizarPasso(p){ if(typeof p==='string') return {texto:p, tempoMin: extrairMin(p), dica:''}; return {texto:p.texto||p.passo||'', tempoMin: p.timer||p.tempoMin||extrairMin(p.texto||''), label:p.label||'', dica:p.dica||''}; }
 function extrairMin(t){ const m=(t||'').match(/(\d+)\s*min/); return m?parseInt(m[1]):0; }
 function detalharPasso(p, idx, total){
   let base = p.texto;
-  let dica = idx===0 ? "<br><small style='color:#9A8C83'>💡 Dica: Separe todos antes.</small>" : idx===total-1 ? "<br><small style='color:#FF6B35;font-weight:700'>🔥 Finalização: Sirva imediatamente!</small>" : "";
-  return {texto: base + dica, tempoMin: p.tempoMin>0?p.tempoMin:0, label: p.label || `Passo ${idx+1}`};
+  let dica = p.dica ? "<br><small style='color:#9A8C83'>💡 Dica: " + p.dica + "</small>" : "";
+  return {texto: base + dica, tempoMin: p.tempoMin>0?p.tempoMin:0, label: p.label || `Passo ${idx+1}`, dica: p.dica||''};
 }
 function compartilharWhatsApp(){
   if(!receitaAtual) return;
