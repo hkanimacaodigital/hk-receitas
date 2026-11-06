@@ -29,6 +29,20 @@ function renderCategorias(){
 }
 function setCategoria(id){ categoriaAtiva=id; renderCategorias(); filtrar(); }
 function getTempo(r){ const m=(r.tempo||'').match(/(\d+)/); return m?parseInt(m[1]):999; }
+function calcularNivel(r){
+  let pontos=0;
+  const tempo=getTempo(r);
+  const nIng=(r.ingredientes||[]).length;
+  const nPassos=(r.passos||[]).length;
+  const texto=(r.passos||[]).map(p=>p.texto||p.passo||p).join(' ').toLowerCase();
+  if(tempo>90) pontos+=2; else if(tempo>45) pontos+=1;
+  if(nIng>15) pontos+=2; else if(nIng>10) pontos+=1;
+  if(nPassos>7) pontos+=2; else if(nPassos>5) pontos+=1;
+  if(texto.includes('pressão')||texto.includes('pressao')||texto.includes('merengue')||texto.includes('caramelo')||texto.includes('caramelizar')||texto.includes('ponto de brigadeiro')||texto.includes('fritura por imersão')||texto.includes('fermentação')||texto.includes('fermentacao')||texto.includes('sovar')||texto.includes('folhear')||texto.includes('chantilly')) pontos+=1;
+  if(pontos<=2) return 'Fácil';
+  if(pontos<=4) return 'Médio';
+  return 'Difícil';
+}
 
 // FILTRO PREMIUM ATUALIZADO - MAIS FÁCIL NO LUGAR DE MENOS KCAL
 function filtrar(){
@@ -44,8 +58,8 @@ function filtrar(){
   else if(ordem==='facil' || ordem==='kcal'){
     const peso = { 'fácil':1, 'facil':1, 'médio':2, 'medio':2, 'difícil':3, 'dificil':3 };
     lista.sort((a,b)=>{
-      const pa = peso[(a.nivel||'').toLowerCase()] || 2;
-      const pb = peso[(b.nivel||'').toLowerCase()] || 2;
+      const pa = peso[calcularNivel(a).toLowerCase()] || 2;
+      const pb = peso[calcularNivel(b).toLowerCase()] || 2;
       return pa - pb;
     });
   }
@@ -54,7 +68,7 @@ function filtrar(){
 function renderReceitas(lista, alvoId){
   const cont=document.getElementById(alvoId); if(!cont) return;
   if(lista.length===0){ cont.innerHTML=`<div style="grid-column:1/3;text-align:center;padding:30px">Nenhuma receita</div>`; return; }
-  cont.innerHTML=lista.map(r=>{ const isFav=favoritos.includes(r.id); return `<div class="card" onclick="abrirReceita('${r.id}')"><button class="fav-btn" onclick="event.stopPropagation();toggleFav('${r.id}')">${isFav?'❤️':'🤍'}</button><img src="${r.foto}" loading="lazy"><div class="card-body"><span class="badge">${r.categoria_principal}</span><h3 style="margin:8px 0 4px;font-weight:800">${r.titulo}</h3><div class="card-info"><span>⏰ ${r.tempo}</span><span>🍽️ ${r.porcoes||''}</span><span>📊 ${r.nivel||''}</span></div></div></div>`}).join('');
+  cont.innerHTML=lista.map(r=>{ const isFav=favoritos.includes(r.id); return `<div class="card" onclick="abrirReceita('${r.id}')"><button class="fav-btn" onclick="event.stopPropagation();toggleFav('${r.id}')">${isFav?'❤️':'🤍'}</button><img src="${r.foto}" loading="lazy"><div class="card-body"><span class="badge">${r.categoria_principal}</span><h3 style="margin:8px 0 4px;font-weight:800">${r.titulo}</h3><div class="card-info"><span>⏰ ${r.tempo}</span><span>🍽️ ${r.porcoes||''}</span><span>📊 ${calcularNivel(r)}</span></div></div></div>`}).join('');
 }
 function normalizarPasso(p){ if(typeof p==='string') return {texto:p, tempoMin: extrairMin(p), dica:''}; return {texto:p.texto||p.passo||'', tempoMin: p.timer||p.tempoMin||extrairMin(p.texto||''), label:p.label||'', dica:p.dica||''}; }
 function extrairMin(t){ const m=(t||'').match(/(\d+)\s*min/); return m?parseInt(m[1]):0; }
@@ -233,7 +247,7 @@ function abrirReceita(id){
       <div style="display:flex;gap:8px;margin:12px 0;flex-wrap:wrap">
         <span style="background:#FFF0E6;padding:6px 12px;border-radius:20px;font-size:13px;font-weight:700">⏰ ${r.tempo}</span>
         <span style="background:#FFF0E6;padding:6px 12px;border-radius:20px;font-size:13px;font-weight:700">🍽️ ${r.porcoes||''}</span>
-        <span style="background:#FFF0E6;padding:6px 12px;border-radius:20px;font-size:13px;font-weight:700">📊 ${r.nivel||''}</span>
+        <span style="background:#FFF0E6;padding:6px 12px;border-radius:20px;font-size:13px;font-weight:700">📊 ${calcularNivel(r)}</span>
       </div>
       ${htmlHistoricoFinalizadas(r.id)}
       <h3 style="margin:20px 0 12px">🛒 Ingredientes (${r.ingredientes.length})</h3>
@@ -317,7 +331,7 @@ function atualizarGridFavoritos(){
 function toggleFav(id){ 
   if(favoritos.includes(id)) favoritos=favoritos.filter(x=>x!==id); else favoritos.push(id); 
   localStorage.setItem('hk_fav',JSON.stringify(favoritos)); 
-  filtrar(); 
+  salvarEFiltrar(); 
   atualizarBotaoFavCima();
   atualizarGridFavoritos();
 }
@@ -327,7 +341,7 @@ function toggleFavAtual(){
   if(favoritos.includes(id)) favoritos=favoritos.filter(x=>x!==id); else favoritos.push(id);
   localStorage.setItem('hk_fav',JSON.stringify(favoritos));
   atualizarBotaoFavCima();
-  filtrar();
+  salvarEFiltrar();
   atualizarGridFavoritos();
 }
 
