@@ -77,7 +77,14 @@ function salvarTimers(){ localStorage.setItem('hk_timers', JSON.stringify(timers
 function salvarChecks(){ localStorage.setItem('hk_checks', JSON.stringify(checks)); }
 function salvarFinalizadas(){ localStorage.setItem('hk_finalizadas', JSON.stringify(finalizadas)); }
 function getReceitasBase(){ if(window.TODAS_RECEITAS) return window.TODAS_RECEITAS; if(window.RECEITAS) return window.RECEITAS; return []; }
-function init(){ renderCategorias(); filtrar(); restaurarTimersGlobais(); if(Notification.permission!=='granted') Notification.requestPermission(); }
+function init(){
+  renderCategorias(); filtrar(); restaurarTimersGlobais();
+  Object.keys(timersAtivos).forEach(k=>{
+    const t = timersAtivos[k];
+    if(t && !t.pausado && t.fim) enviarParaSW({type:'SCHEDULE_TIMER', key:k, titulo:t.titulo, passo:t.passo, min:t.min, fim:t.fim, idReceita:t.idReceita});
+  });
+  if(Notification.permission!=='granted') Notification.requestPermission();
+}
 let audioCtx = null;
 let wakeLock = null;
 function desbloquearAudio(){
@@ -152,7 +159,7 @@ async function travarTelaAcesa(){
 }
 document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) travarTelaAcesa(); });
 if('serviceWorker' in navigator){
-  navigator.serviceWorker.register('sw.js?v=5').then(reg=>{
+  navigator.serviceWorker.register('sw.js?v=6').then(reg=>{
     reg.update();
     if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});
   }).catch(()=>{});
