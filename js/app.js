@@ -129,6 +129,8 @@ function init(){
   renderCategorias(); filtrar(); restaurarTimersGlobais();
   if(Notification.permission!=='granted') Notification.requestPermission();
   getPushSubscription().catch(()=>{});
+  // CORREÇÃO BOTÃO VOLTAR DO CELULAR - inicia a trava
+  try{ history.pushState({tela:'home'}, '', location.href); }catch(e){}
 }
 let audioCtx = null;
 let wakeLock = null;
@@ -278,7 +280,7 @@ function filtrar(){
 function renderReceitas(lista, alvoId){
   const cont=document.getElementById(alvoId); if(!cont) return;
   if(lista.length===0){ cont.innerHTML=`<div style="grid-column:1/3;text-align:center;padding:30px">Nenhuma receita</div>`; return; }
-  cont.innerHTML=lista.map(r=>{ const isFav=favoritos.includes(r.id); return `<div class="card" onclick="abrirReceita('${r.id}')"><button class="fav-btn" onclick="event.stopPropagation();toggleFav('${r.id}')">${isFav?'❤️':'🤍'}</button><img src="${r.foto}" loading="lazy"><div class="card-body"><span class="badge">${r.categoria_principal}</span><h3 style="margin:8px 0 4px;font-weight:800">${r.titulo}</h3><div class="card-info"><span>⏰ ${r.tempo}</span><span>🍽️ ${r.porcoes||''}</span><span>📊 ${calcularNivel(r)}</span></div></div></div>`}).join('');
+  cont.innerHTML=lista.map(r=>{ const isFav=favoritos.includes(r.id); return `<div class="card" onclick="abrirReceita('${r.id}')"><button class="fav-btn" data-fav-id="${r.id}" onclick="event.stopPropagation();toggleFav('${r.id}')">${isFav?'❤️':'🤍'}</button><img src="${r.foto}" loading="lazy"><div class="card-body"><span class="badge">${r.categoria_principal}</span><h3 style="margin:8px 0 4px;font-weight:800">${r.titulo}</h3><div class="card-info"><span>⏰ ${r.tempo}</span><span>🍽️ ${r.porcoes||''}</span><span>📊 ${calcularNivel(r)}</span></div></div></div>`}).join('');
 }
 function normalizarPasso(p){ if(typeof p==='string') return {texto:p, tempoMin: extrairMin(p), dica:''}; return {texto:p.texto||p.passo||'', tempoMin: p.timer||p.tempoMin||extrairMin(p.texto||''), label:p.label||'', dica:p.dica||''}; }
 function extrairMin(t){ const m=(t||'').match(/(\d+)\s*min/); return m?parseInt(m[1]):0; }
@@ -408,17 +410,34 @@ function renderFinalizadas(){
     const r=RECEITAS.find(x=>x.id===id); if(!r) return '';
     const hist=[...finalizadas[id]].sort((a,b)=>new Date(b)-new Date(a));
     const isFav=favoritos.includes(r.id);
-    return `<div class="card" onclick="abrirReceita('${r.id}')"><button class="fav-btn" onclick="event.stopPropagation();toggleFav('${r.id}')">${isFav?'❤️':'🤍'}</button><img src="${r.foto}" loading="lazy"><div style="position:absolute;top:8px;left:8px;background:#22C55E;color:white;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:800">✅ Feita ${hist.length}x</div><div class="card-body"><span class="badge">${r.categoria_principal}</span><h3 style="margin:8px 0 4px;font-weight:800">${r.titulo}</h3><div class="card-info"><span>🕒 Última: ${formatarDataCurta(hist[0])}</span></div><div style="font-size:11px;color:#9A8C83;margin-top:4px">Primeira: ${formatarDataCurta(hist[hist.length-1])}</div></div></div>`;
+    return `<div class="card" onclick="abrirReceita('${r.id}')"><button class="fav-btn" data-fav-id="${r.id}" onclick="event.stopPropagation();toggleFav('${r.id}');return false;">${isFav?'❤️':'🤍'}</button><img src="${r.foto}" loading="lazy"><div style="position:absolute;top:8px;left:8px;background:#22C55E;color:white;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:800">✅ Feita ${hist.length}x</div><div class="card-body"><span class="badge">${r.categoria_principal}</span><h3 style="margin:8px 0 4px;font-weight:800">${r.titulo}</h3><div class="card-info"><span>🕒 Última: ${formatarDataCurta(hist[0])}</span></div><div style="font-size:11px;color:#9A8C83;margin-top:4px">Primeira: ${formatarDataCurta(hist[hist.length-1])}</div></div></div>`;
   }).join('');
+}
+// ===== CORREÇÃO FAVORITOS - ATUALIZA TODAS AS ABAS =====
+function renderRecentes(){
+  const RECEITAS=getReceitasBase();
+  const cont=document.getElementById('grid-recentes'); if(!cont) return;
+  renderReceitas(recentes.map(id=>RECEITAS.find(r=>r.id===id)).filter(Boolean),'grid-recentes');
+}
+function atualizarTodasAbasFav(){
+  const RECEITAS=getReceitasBase();
+  filtrar();
+  atualizarGridFavoritos();
+  renderRecentes();
+  renderFinalizadas();
+  atualizarBotaoFavCima();
 }
 function abrirReceita(id){
   const RECEITAS=getReceitasBase();
   const r=RECEITAS.find(x=>x.id===id); if(!r) return; receitaAtual=r;
   if(!recentes.includes(id)){ recentes.unshift(id); recentes=recentes.slice(0,12); localStorage.setItem('hk_rec',JSON.stringify(recentes)); }
+  // Trava pro botão voltar do celular voltar pra lista, não fechar o app
+  try{ history.pushState({tela:'receita', id}, '', location.href); }catch(e){}
   const modal=document.getElementById('modal'); const corpo=document.getElementById('modal-corpo'); 
   const passosNorm=r.passos.map(normalizarPasso);
   const passosDetalhados=passosNorm.map((p,i)=>detalharPasso(p,i,passosNorm.length));
   const chk=getCheckReceita(r.id);
+  const isFavTopo = favoritos.includes(r.id);
   corpo.innerHTML=`
   <style>
     .flip-wrapper{ perspective:1200px; } .flip-inner{ position:relative; width:100%; transition: transform 0.7s; transform-style: preserve-3d; }
@@ -433,7 +452,14 @@ function abrirReceita(id){
     .timer-controls{ display:flex; gap:8px; margin-top:10px; flex-wrap:wrap; align-items:center; }
     .timer-btn-main{ background:#1A1A1A; color:white; border:none; padding:10px 18px; border-radius:20px; font-weight:800; cursor:pointer; }
     .timer-btn-sec{ background:white; color:#1A1A1A; border:1.5px solid #E8DDD6; padding:8px 14px; border-radius:20px; font-weight:700; cursor:pointer; font-size:12px; }
+    .topo-receita{ display:flex; justify-content:space-between; gap:10px; padding:12px 12px 0; position:sticky; top:0; z-index:10; }
+    .btn-topo-voltar{ background:white; border:1.5px solid #E8DDD6; padding:10px 18px; border-radius:30px; font-weight:800; cursor:pointer; }
+    .btn-topo-fav{ background:${isFavTopo ? '#FF6B35' : '#E8DDD6'}; color:${isFavTopo ? 'white' : '#333'}; border:none; padding:10px 18px; border-radius:30px; font-weight:800; cursor:pointer; }
   </style>
+  <div class="topo-receita">
+    <button class="btn-topo-voltar" onclick="fecharModal()">← Voltar</button>
+    <button id="rFavBtn" class="btn-topo-fav" onclick="event.stopPropagation();toggleFavAtual()">${isFavTopo ? '❤️ Favoritada' : '♡ Favoritar'}</button>
+  </div>
   <img class="capa" src="${r.foto}">
   <div class="flip-wrapper"><div class="flip-inner" id="flip-inner">
     <div class="view" id="view-ingredientes"><div class="modal-conteudo">
@@ -499,18 +525,21 @@ function voltarIngredientes(){
   rolarTopoModal();
   setTimeout(()=>{ v2.style.display='none'; v1.style.display='block'; rolarTopoModal(); },350); 
 }
-function fecharModal(){ document.getElementById('modal').classList.remove('mostrar'); }
+function fecharModal(){ 
+  document.getElementById('modal').classList.remove('mostrar'); 
+  receitaAtual=null;
+}
 function getBotaoFavCima(){
   return document.getElementById('rFavBtn') || document.getElementById('btn-fav-topo') || document.querySelector('.btn-fav-topo') || document.querySelector('[data-fav-topo]');
 }
 function atualizarBotaoFavCima(){
   const btn = getBotaoFavCima();
   if(!btn) return;
-  if(!receitaAtual){ btn.innerHTML = '♡ Favoritar'; return; }
+  if(!receitaAtual){ btn.innerHTML = '♡ Favoritar'; btn.style.background=''; btn.style.color=''; return; }
   const isFav = favoritos.includes(receitaAtual.id);
   btn.innerHTML = isFav ? '❤️ Favoritada' : '♡ Favoritar';
-  btn.style.background = isFav ? '#FF6B35' : '';
-  btn.onclick = function(e){ e.stopPropagation(); toggleFavAtual(); };
+  btn.style.background = isFav ? '#FF6B35' : '#E8DDD6';
+  btn.style.color = isFav ? 'white' : '#333';
 }
 function atualizarBotaoFavDentro(){ atualizarBotaoFavCima(); }
 function atualizarGridFavoritos(){
@@ -521,9 +550,7 @@ function atualizarGridFavoritos(){
 function toggleFav(id){ 
   if(favoritos.includes(id)) favoritos=favoritos.filter(x=>x!==id); else favoritos.push(id); 
   localStorage.setItem('hk_fav',JSON.stringify(favoritos)); 
-  salvarEFiltrar(); 
-  atualizarBotaoFavCima();
-  atualizarGridFavoritos();
+  atualizarTodasAbasFav();
 }
 function toggleFavAtual(){
   if(!receitaAtual) return;
@@ -531,9 +558,19 @@ function toggleFavAtual(){
   if(favoritos.includes(id)) favoritos=favoritos.filter(x=>x!==id); else favoritos.push(id);
   localStorage.setItem('hk_fav',JSON.stringify(favoritos));
   atualizarBotaoFavCima();
-  salvarEFiltrar();
-  atualizarGridFavoritos();
+  atualizarTodasAbasFav();
 }
+// ===== BOTÃO VOLTAR DO CELULAR = BOTÃO VOLTAR DE CIMA =====
+window.addEventListener('popstate', function(){
+  const modalAberto = document.getElementById('modal')?.classList.contains('mostrar');
+  if(modalAberto){
+    fecharModal();
+    try{ history.pushState({tela:'home'}, '', location.href); }catch(e){}
+  } else {
+    // Já está na Home - não deixa fechar, só recria a trava
+    try{ history.pushState({tela:'home'}, '', location.href); }catch(e){}
+  }
+});
 function iniciarTimer(min, idx){
   if(!receitaAtual||min<=0) return;
   const key=`${receitaAtual.id}-${idx}`;
@@ -596,7 +633,7 @@ function limparTodosTimers(){
   if(!confirm(`Tem certeza que quer apagar TODOS os ${qtd} timers?\n\nEssa ação não pode ser desfeita.`)) return;
   localStorage.removeItem('hk_timers'); localStorage.removeItem('hk_timers_finalizados'); timersAtivos={}; timersFinalizados={}; Object.values(alarmesTocando).forEach(id=>clearInterval(id)); alarmesTocando={}; salvarTimers(); salvarFinalizados(); enviarParaSW({type:'CLEAR_ALL'}); atualizarPaginaTimers(); 
 }
-function mudarPage(nome){ document.querySelectorAll('.page').forEach(p=>p.classList.remove('ativa')); document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('ativo')); document.getElementById(`page-${nome}`)?.classList.add('ativa'); document.getElementById(`nav-${nome}`)?.classList.add('ativo'); const RECEITAS=getReceitasBase(); if(nome==='favoritos') renderReceitas(RECEITAS.filter(r=>favoritos.includes(r.id)),'grid-favoritos'); if(nome==='recentes') renderReceitas(recentes.map(id=>RECEITAS.find(r=>r.id===id)).filter(Boolean),'grid-recentes'); if(nome==='timer') atualizarPaginaTimers(); if(nome==='finalizadas') renderFinalizadas(); }
+function mudarPage(nome){ document.querySelectorAll('.page').forEach(p=>p.classList.remove('ativa')); document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('ativo')); document.getElementById(`page-${nome}`)?.classList.add('ativa'); document.getElementById(`nav-${nome}`)?.classList.add('ativo'); const RECEITAS=getReceitasBase(); if(nome==='favoritos') renderReceitas(RECEITAS.filter(r=>favoritos.includes(r.id)),'grid-favoritos'); if(nome==='recentes') renderRecentes(); if(nome==='timer') atualizarPaginaTimers(); if(nome==='finalizadas') renderFinalizadas(); }
 document.addEventListener('DOMContentLoaded',init);
 const CONDIMENTOS_TIRAR = ['agua','água','alho','caldo','curcuma','cúrcuma','acucar','açucar','açúcar','sal','pimenta','oleo','óleo','azeite','vinagre','manteiga','margarina','cominho','oregano','orégano','salsinha','cebolinha','coentro','alecrim','manjericão','canela','cravo','noz moscada','paprica','páprica','curry','açafrão','cheiro verde','shoyu','molho shoyu','sal grosso','pimenta reino','limão','azeite de dendê','água com gás','amido','polvilho','fermento','louro','folha de louro','tempero verde','mix de folhas','mix folhas','folhas','folha','nori','gengibre'];
 let ingredientesSelecionados = JSON.parse(localStorage.getItem('hk_ing_possuo')||'[]');
