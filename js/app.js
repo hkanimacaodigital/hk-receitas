@@ -14,8 +14,6 @@ try{
     }
   });
 }catch(e){ localStorage.removeItem('hk_timers'); }
-
-// ===== PUSH - FUNCIONA COM APP FECHADO =====
 const VAPID_PUBLIC = 'COLA_AQUI_SUA_PUBLIC_KEY';
 function urlBase64ToUint8Array(base64String){
   const padding = '='.repeat((4 - base64String.length % 4) % 4);
@@ -31,10 +29,7 @@ async function getPushSubscription(){
     const reg = await navigator.serviceWorker.ready;
     let sub = await reg.pushManager.getSubscription();
     if(!sub){
-      sub = await reg.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC)
-      });
+      sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC) });
     }
     return sub;
   }catch(e){ console.log('Push falhou', e); return null; }
@@ -43,35 +38,23 @@ async function agendarPushServidor(t, key){
   try{
     const sub = await getPushSubscription();
     if(!sub) return;
-    await fetch('/api/agendar', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ subscription: sub, titulo: t.titulo, passo: t.passo, key, idReceita: t.idReceita, fim: t.fim })
-    });
+    await fetch('/api/agendar', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ subscription: sub, titulo: t.titulo, passo: t.passo, key, idReceita: t.idReceita, fim: t.fim }) });
   }catch(e){ console.log('Push não agendado', e); }
 }
 async function cancelarPushServidor(key){
   try{
     const sub = await getPushSubscription();
     if(!sub) return;
-    await fetch('/api/cancelar', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ subscription: sub, key })
-    }).catch(()=>{});
+    await fetch('/api/cancelar', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ subscription: sub, key }) }).catch(()=>{});
   }catch(e){}
 }
-
-// ===== TIMER FINALIZADO TRAVADO =====
 let timersFinalizados = JSON.parse(localStorage.getItem('hk_timers_finalizados')||'{}');
 let alarmesTocando = {};
 try{
   const raw2=JSON.parse(localStorage.getItem('hk_timers')||'{}');
   Object.keys(raw2).forEach(k=>{
     const t=raw2[k];
-    if(t && t.titulo && !t.pausado && t.fim && t.fim <= Date.now() && !timersFinalizados[k]){
-      timersFinalizados[k] = {...t, finalizadoEm: t.fim};
-    }
+    if(t && t.titulo && !t.pausado && t.fim && t.fim <= Date.now() && !timersFinalizados[k]){ timersFinalizados[k] = {...t, finalizadoEm: t.fim}; }
   });
   if(Object.keys(timersFinalizados).length>0) localStorage.setItem('hk_timers_finalizados', JSON.stringify(timersFinalizados));
 }catch(e){}
@@ -116,9 +99,7 @@ function pararAlarme(key, idx){
 }
 if('serviceWorker' in navigator){
   navigator.serviceWorker.addEventListener('message', (e)=>{
-    if(e.data && e.data.type === 'ABRIR_TIMER_FINALIZADO' && e.data.idReceita){
-      voltarParaModoPreparo(e.data.idReceita, e.data.key);
-    }
+    if(e.data && e.data.type === 'ABRIR_TIMER_FINALIZADO' && e.data.idReceita){ voltarParaModoPreparo(e.data.idReceita, e.data.key); }
   });
 }
 function salvarTimers(){ localStorage.setItem('hk_timers', JSON.stringify(timersAtivos)); }
@@ -129,7 +110,6 @@ function init(){
   renderCategorias(); filtrar(); restaurarTimersGlobais();
   if(Notification.permission!=='granted') Notification.requestPermission();
   getPushSubscription().catch(()=>{});
-  // CORREÇÃO BOTÃO VOLTAR DO CELULAR - inicia a trava
   try{ history.pushState({tela:'home'}, '', location.href); }catch(e){}
 }
 let audioCtx = null;
@@ -149,8 +129,7 @@ function tocarAlarme(){
       const osc = audioCtx.createOscillator();
       const gain = audioCtx.createGain();
       osc.connect(gain); gain.connect(audioCtx.destination);
-      osc.frequency.value = 880;
-      osc.type = 'sine';
+      osc.frequency.value = 880; osc.type = 'sine';
       gain.gain.setValueAtTime(0, t);
       gain.gain.linearRampToValueAtTime(0.5, t+0.05);
       gain.gain.exponentialRampToValueAtTime(0.01, t+0.7);
@@ -171,6 +150,7 @@ function notificarFim(t, key){
         requireInteraction: true,
         renotify: true,
         vibrate: [1000,300,1000,300,1000,300,1000,300,1000,300,1000],
+        silent: false,
         data: {key, idReceita: t.idReceita}
       });
     }).catch(()=>{});
@@ -195,6 +175,7 @@ function testarNotificacao(){
       badge: './assets/icon-192.png',
       vibrate: [1000,300,1000,300,1000],
       requireInteraction: true,
+      silent: false,
       tag: 'teste-hk',
       data: {key:'teste', idReceita:''}
     });
@@ -205,11 +186,7 @@ async function testarPush(){
   try{
     const sub = await getPushSubscription();
     if(!sub){ alert('Push não ativado'); return; }
-    const res = await fetch('/api/agendar', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ subscription: sub, titulo: 'TESTE PUSH', passo: 1, key: 'teste-push-'+Date.now(), idReceita: '', fim: Date.now()+10000 })
-    });
+    const res = await fetch('/api/agendar', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ subscription: sub, titulo: 'TESTE PUSH', passo: 1, key: 'teste-push-'+Date.now(), idReceita: '', fim: Date.now()+10000 }) });
     const j = await res.json();
     alert('Push de teste agendado! Fecha o app agora e espera 10 segundos. Tem que vibrar mesmo com app fechado. ' + JSON.stringify(j));
   }catch(e){ alert('Erro push: '+e.message); }
@@ -219,14 +196,9 @@ async function travarTelaAcesa(){
 }
 document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) travarTelaAcesa(); });
 if('serviceWorker' in navigator){
-  navigator.serviceWorker.register('sw.js?v=7').then(reg=>{
-    reg.update();
-    if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});
-  }).catch(()=>{});
+  navigator.serviceWorker.register('sw.js?v=8').then(reg=>{ reg.update(); if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'}); }).catch(()=>{});
   let refreshing = false;
-  navigator.serviceWorker.addEventListener('controllerchange', ()=>{
-    if(!refreshing){ refreshing = true; window.location.reload(); }
-  });
+  navigator.serviceWorker.addEventListener('controllerchange', ()=>{ if(!refreshing){ refreshing = true; window.location.reload(); } });
 }
 function enviarParaSW(msg){
   if(!('serviceWorker' in navigator)) return;
@@ -269,11 +241,7 @@ function filtrar(){
   else if(ordem==='tempo') lista.sort((a,b)=>getTempo(a)-getTempo(b));
   else if(ordem==='facil' || ordem==='kcal'){
     const peso = { 'fácil':1, 'facil':1, 'médio':2, 'medio':2, 'difícil':3, 'dificil':3 };
-    lista.sort((a,b)=>{
-      const pa = peso[calcularNivel(a).toLowerCase()] || 2;
-      const pb = peso[calcularNivel(b).toLowerCase()] || 2;
-      return pa - pb;
-    });
+    lista.sort((a,b)=>{ const pa = peso[calcularNivel(a).toLowerCase()] || 2; const pb = peso[calcularNivel(b).toLowerCase()] || 2; return pa - pb; });
   }
   window.RECEITAS=RECEITAS; renderReceitas(lista,'grid-receitas');
 }
@@ -296,148 +264,84 @@ function compartilharWhatsApp(){
   const texto = `*${receitaAtual.titulo}* - ${receitaAtual.tempo}\n\n*🛒 INGREDIENTES:*\n${ingList}\n\n*👨‍🍳 MODO:*\n${passosList}\n\n hk-receitas.vercel.app`;
   window.open(`https://wa.me/?text=${encodeURIComponent(texto)}`, '_blank');
 }
-function getCheckReceita(id){
-  if(!checks[id]) checks[id]={ing:[],passos:[]};
-  return checks[id];
-}
+function getCheckReceita(id){ if(!checks[id]) checks[id]={ing:[],passos:[]}; return checks[id]; }
 function formatarData(iso){
-  try{
-    const d=new Date(iso);
-    return d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric'})+' às '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
-  }catch(e){ return iso; }
+  try{ const d=new Date(iso); return d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric'})+' às '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}); }catch(e){ return iso; }
 }
-function formatarDataCurta(iso){
-  try{ return new Date(iso).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric'}); }catch(e){ return iso; }
-}
+function formatarDataCurta(iso){ try{ return new Date(iso).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric'}); }catch(e){ return iso; } }
 function htmlHistoricoFinalizadas(id){
   const hist = finalizadas[id]||[];
   if(hist.length===0) return '';
   const ordenado=[...hist].sort((a,b)=>new Date(b)-new Date(a));
   if(ordenado.length===1){
-    return `<div style="background:#E8F5E9;border:1.5px solid #C8E6C9;border-radius:14px;padding:12px;margin:12px 0">
-      <div style="display:flex;justify-content:space-between;align-items:center"><b>✅ Feita 1x</b><button onclick="event.stopPropagation();limparHistoricoReceita('${id}')" style="background:white;border:1px solid #E8DDD6;padding:6px 10px;border-radius:20px;font-size:11px;font-weight:700">🗑️ Limpar histórico</button></div>
-      <div style="font-size:12px;color:#2E7D32;margin-top:4px">Última vez: ${formatarData(ordenado[0])}</div>
-    </div>`;
+    return `<div style="background:#E8F5E9;border:1.5px solid #C8E6C9;border-radius:14px;padding:12px;margin:12px 0"><div style="display:flex;justify-content:space-between;align-items:center"><b>✅ Feita 1x</b><button onclick="event.stopPropagation();limparHistoricoReceita('${id}')" style="background:white;border:1px solid #E8DDD6;padding:6px 10px;border-radius:20px;font-size:11px;font-weight:700">🗑️ Limpar histórico</button></div><div style="font-size:12px;color:#2E7D32;margin-top:4px">Última vez: ${formatarData(ordenado[0])}</div></div>`;
   }
-  return `<div style="background:#E8F5E9;border:1.5px solid #C8E6C9;border-radius:14px;padding:12px;margin:12px 0">
-    <div style="display:flex;justify-content:space-between;align-items:center"><b>✅ Feita ${hist.length}x</b><button onclick="event.stopPropagation();limparHistoricoReceita('${id}')" style="background:white;border:1px solid #E8DDD6;padding:6px 10px;border-radius:20px;font-size:11px;font-weight:700">🗑️ Limpar histórico</button></div>
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px">
-      <span style="font-size:12px;color:#2E7D32">Última vez: ${formatarData(ordenado[0])}</span>
-      <button id="btn-hist-${id}" onclick="event.stopPropagation();toggleHistorico('${id}')" style="background:white;border:1px solid #C8E6C9;padding:5px 10px;border-radius:20px;font-size:11px;font-weight:800;color:#2E7D32">▼ Ver todas</button>
-    </div>
-    <div id="lista-hist-${id}" style="display:none;margin-top:8px;flex-direction:column;gap:4px">
-      ${ordenado.map((d,i)=>`<div style="font-size:12px;background:white;padding:6px 10px;border-radius:8px">${ordenado.length-i}ª vez: ${formatarData(d)}</div>`).join('')}
-    </div>
-  </div>`;
+  return `<div style="background:#E8F5E9;border:1.5px solid #C8E6C9;border-radius:14px;padding:12px;margin:12px 0"><div style="display:flex;justify-content:space-between;align-items:center"><b>✅ Feita ${hist.length}x</b><button onclick="event.stopPropagation();limparHistoricoReceita('${id}')" style="background:white;border:1px solid #E8DDD6;padding:6px 10px;border-radius:20px;font-size:11px;font-weight:700">🗑️ Limpar histórico</button></div><div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px"><span style="font-size:12px;color:#2E7D32">Última vez: ${formatarData(ordenado[0])}</span><button id="btn-hist-${id}" onclick="event.stopPropagation();toggleHistorico('${id}')" style="background:white;border:1px solid #C8E6C9;padding:5px 10px;border-radius:20px;font-size:11px;font-weight:800;color:#2E7D32">▼ Ver todas</button></div><div id="lista-hist-${id}" style="display:none;margin-top:8px;flex-direction:column;gap:4px">${ordenado.map((d,i)=>`<div style="font-size:12px;background:white;padding:6px 10px;border-radius:8px">${ordenado.length-i}ª vez: ${formatarData(d)}</div>`).join('')}</div></div>`;
 }
 function toggleHistorico(id){
-  const lista=document.getElementById(`lista-hist-${id}`);
-  const btn=document.getElementById(`btn-hist-${id}`);
+  const lista=document.getElementById(`lista-hist-${id}`); const btn=document.getElementById(`btn-hist-${id}`);
   if(!lista || !btn) return;
   const aberto=lista.style.display!=='none' && lista.style.display!=='';
   if(aberto){ lista.style.display='none'; btn.innerHTML='▼ Ver todas'; } else { lista.style.display='flex'; btn.innerHTML='▲ Ocultar'; }
 }
 function toggleCheckIng(idx, el){
   if(!receitaAtual) return;
-  const c=getCheckReceita(receitaAtual.id);
-  c.ing[idx]=!!el.checked;
-  salvarChecks();
+  const c=getCheckReceita(receitaAtual.id); c.ing[idx]=!!el.checked; salvarChecks();
   const li=el.closest('li'); if(li) li.style.opacity=el.checked?'0.5':'1';
 }
 function toggleCheckPasso(idx, el){
   if(!receitaAtual) return;
-  const c=getCheckReceita(receitaAtual.id);
-  c.passos[idx]=!!el.checked;
-  salvarChecks();
+  const c=getCheckReceita(receitaAtual.id); c.passos[idx]=!!el.checked; salvarChecks();
   const div=el.closest('.passo-detalhado'); if(div) div.classList.toggle('feito', !!el.checked);
   atualizarBotaoFinalizar();
 }
 function atualizarBotaoFinalizar(){
-  const btn=document.getElementById('btn-finalizar');
-  if(!btn || !receitaAtual) return;
-  const c=getCheckReceita(receitaAtual.id);
-  const total=receitaAtual.passos.length;
-  const marcados=(c.passos||[]).filter(Boolean).length;
-  const todos=total>0 && marcados===total;
-  btn.disabled=!todos;
-  btn.style.opacity=todos?'1':'0.4';
-  btn.style.background=todos?'#22C55E':'#9A8C83';
-  btn.style.cursor=todos?'pointer':'not-allowed';
-  btn.innerHTML=todos?'✅ RECEITA FINALIZADA':'✅ RECEITA FINALIZADA';
-  const info=document.getElementById('info-finalizar');
-  if(info) info.innerHTML=todos?'Todos os passos concluídos! Pode finalizar 🎉':`Faltam ${total-marcados} passo(s) para finalizar (${marcados}/${total})`;
+  const btn=document.getElementById('btn-finalizar'); if(!btn || !receitaAtual) return;
+  const c=getCheckReceita(receitaAtual.id); const total=receitaAtual.passos.length; const marcados=(c.passos||[]).filter(Boolean).length; const todos=total>0 && marcados===total;
+  btn.disabled=!todos; btn.style.opacity=todos?'1':'0.4'; btn.style.background=todos?'#22C55E':'#9A8C83'; btn.style.cursor=todos?'pointer':'not-allowed'; btn.innerHTML='✅ RECEITA FINALIZADA';
+  const info=document.getElementById('info-finalizar'); if(info) info.innerHTML=todos?'Todos os passos concluídos! Pode finalizar 🎉':`Faltam ${total-marcados} passo(s) para finalizar (${marcados}/${total})`;
 }
 function finalizarReceita(){
   if(!receitaAtual) return;
-  const c=getCheckReceita(receitaAtual.id);
-  const total=receitaAtual.passos.length;
+  const c=getCheckReceita(receitaAtual.id); const total=receitaAtual.passos.length;
   if((c.passos||[]).filter(Boolean).length!==total){ alert('Tique todos os passos do modo de preparo para finalizar!'); return; }
   if(!finalizadas[receitaAtual.id]) finalizadas[receitaAtual.id]=[];
-  finalizadas[receitaAtual.id].push(new Date().toISOString());
-  salvarFinalizadas();
-  delete checks[receitaAtual.id];
-  salvarChecks();
+  finalizadas[receitaAtual.id].push(new Date().toISOString()); salvarFinalizadas();
+  delete checks[receitaAtual.id]; salvarChecks();
   const totalVezes=finalizadas[receitaAtual.id].length;
   alert(`🎉 Parabéns! Receita finalizada!\n\nVocê já fez "${receitaAtual.titulo}" ${totalVezes}x`);
-  renderFinalizadas();
-  const id=receitaAtual.id;
-  abrirReceita(id);
+  renderFinalizadas(); const id=receitaAtual.id; abrirReceita(id);
 }
 function limparHistoricoReceita(id){
   if(!confirm('Apagar todo o histórico dessa receita na aba Finalizadas?')) return;
-  delete finalizadas[id];
-  salvarFinalizadas();
-  renderFinalizadas();
+  delete finalizadas[id]; salvarFinalizadas(); renderFinalizadas();
   if(receitaAtual && receitaAtual.id===id) abrirReceita(id);
 }
 function renderFinalizadas(){
-  const cont=document.getElementById('grid-finalizadas');
-  const resumo=document.getElementById('resumo-finalizadas');
-  if(!cont) return;
-  const RECEITAS=getReceitasBase();
-  const ids=Object.keys(finalizadas).filter(id=>(finalizadas[id]||[]).length>0);
+  const cont=document.getElementById('grid-finalizadas'); const resumo=document.getElementById('resumo-finalizadas'); if(!cont) return;
+  const RECEITAS=getReceitasBase(); const ids=Object.keys(finalizadas).filter(id=>(finalizadas[id]||[]).length>0);
   const totalVezes=ids.reduce((s,id)=>s+(finalizadas[id].length||0),0);
-  if(resumo){
-    if(ids.length===0) resumo.innerHTML='';
-    else resumo.innerHTML=`<div style="background:#FFF0E6;border-radius:14px;padding:12px;font-weight:800">🏆 Você já finalizou <b>${totalVezes} receitas</b> • ${ids.length} receita(s) diferente(s)</div>`;
-  }
-  if(ids.length===0){
-    cont.innerHTML=`<div style="grid-column:1/3;text-align:center;padding:30px;color:#9A8C83">Nenhuma receita finalizada ainda.<br>Finalize uma receita no modo de preparo para aparecer aqui! ✅</div>`;
-    return;
-  }
+  if(resumo){ if(ids.length===0) resumo.innerHTML=''; else resumo.innerHTML=`<div style="background:#FFF0E6;border-radius:14px;padding:12px;font-weight:800">🏆 Você já finalizou <b>${totalVezes} receitas</b> • ${ids.length} receita(s) diferente(s)</div>`; }
+  if(ids.length===0){ cont.innerHTML=`<div style="grid-column:1/3;text-align:center;padding:30px;color:#9A8C83">Nenhuma receita finalizada ainda.<br>Finalize uma receita no modo de preparo para aparecer aqui! ✅</div>`; return; }
   ids.sort((a,b)=>new Date(finalizadas[b][finalizadas[b].length-1])-new Date(finalizadas[a][finalizadas[a].length-1]));
   cont.innerHTML=ids.map(id=>{
     const r=RECEITAS.find(x=>x.id===id); if(!r) return '';
-    const hist=[...finalizadas[id]].sort((a,b)=>new Date(b)-new Date(a));
-    const isFav=favoritos.includes(r.id);
+    const hist=[...finalizadas[id]].sort((a,b)=>new Date(b)-new Date(a)); const isFav=favoritos.includes(r.id);
     return `<div class="card" onclick="abrirReceita('${r.id}')"><button class="fav-btn" data-fav-id="${r.id}" onclick="event.stopPropagation();toggleFav('${r.id}');return false;">${isFav?'❤️':'🤍'}</button><img src="${r.foto}" loading="lazy"><div style="position:absolute;top:8px;left:8px;background:#22C55E;color:white;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:800">✅ Feita ${hist.length}x</div><div class="card-body"><span class="badge">${r.categoria_principal}</span><h3 style="margin:8px 0 4px;font-weight:800">${r.titulo}</h3><div class="card-info"><span>🕒 Última: ${formatarDataCurta(hist[0])}</span></div><div style="font-size:11px;color:#9A8C83;margin-top:4px">Primeira: ${formatarDataCurta(hist[hist.length-1])}</div></div></div>`;
   }).join('');
 }
-// ===== CORREÇÃO FAVORITOS - ATUALIZA TODAS AS ABAS =====
 function renderRecentes(){
-  const RECEITAS=getReceitasBase();
-  const cont=document.getElementById('grid-recentes'); if(!cont) return;
+  const RECEITAS=getReceitasBase(); const cont=document.getElementById('grid-recentes'); if(!cont) return;
   renderReceitas(recentes.map(id=>RECEITAS.find(r=>r.id===id)).filter(Boolean),'grid-recentes');
 }
-function atualizarTodasAbasFav(){
-  const RECEITAS=getReceitasBase();
-  filtrar();
-  atualizarGridFavoritos();
-  renderRecentes();
-  renderFinalizadas();
-  atualizarBotaoFavCima();
-}
+function atualizarTodasAbasFav(){ filtrar(); atualizarGridFavoritos(); renderRecentes(); renderFinalizadas(); atualizarBotaoFavCima(); }
 function abrirReceita(id){
-  const RECEITAS=getReceitasBase();
-  const r=RECEITAS.find(x=>x.id===id); if(!r) return; receitaAtual=r;
+  const RECEITAS=getReceitasBase(); const r=RECEITAS.find(x=>x.id===id); if(!r) return; receitaAtual=r;
   if(!recentes.includes(id)){ recentes.unshift(id); recentes=recentes.slice(0,12); localStorage.setItem('hk_rec',JSON.stringify(recentes)); }
-  // Trava pro botão voltar do celular voltar pra lista, não fechar o app
   try{ history.pushState({tela:'receita', id}, '', location.href); }catch(e){}
-  const modal=document.getElementById('modal'); const corpo=document.getElementById('modal-corpo'); 
-  const passosNorm=r.passos.map(normalizarPasso);
-  const passosDetalhados=passosNorm.map((p,i)=>detalharPasso(p,i,passosNorm.length));
-  const chk=getCheckReceita(r.id);
-  const isFavTopo = favoritos.includes(r.id);
+  const modal=document.getElementById('modal'); const corpo=document.getElementById('modal-corpo');
+  const passosNorm=r.passos.map(normalizarPasso); const passosDetalhados=passosNorm.map((p,i)=>detalharPasso(p,i,passosNorm.length)); const chk=getCheckReceita(r.id);
+  // CORRIGIDO: sem topo duplicado aqui - usa o topo que já existe no index.html
   corpo.innerHTML=`
   <style>
     .flip-wrapper{ perspective:1200px; } .flip-inner{ position:relative; width:100%; transition: transform 0.7s; transform-style: preserve-3d; }
@@ -452,30 +356,16 @@ function abrirReceita(id){
     .timer-controls{ display:flex; gap:8px; margin-top:10px; flex-wrap:wrap; align-items:center; }
     .timer-btn-main{ background:#1A1A1A; color:white; border:none; padding:10px 18px; border-radius:20px; font-weight:800; cursor:pointer; }
     .timer-btn-sec{ background:white; color:#1A1A1A; border:1.5px solid #E8DDD6; padding:8px 14px; border-radius:20px; font-weight:700; cursor:pointer; font-size:12px; }
-    .topo-receita{ display:flex; justify-content:space-between; gap:10px; padding:12px 12px 0; position:sticky; top:0; z-index:10; }
-    .btn-topo-voltar{ background:white; border:1.5px solid #E8DDD6; padding:10px 18px; border-radius:30px; font-weight:800; cursor:pointer; }
-    .btn-topo-fav{ background:${isFavTopo ? '#FF6B35' : '#E8DDD6'}; color:${isFavTopo ? 'white' : '#333'}; border:none; padding:10px 18px; border-radius:30px; font-weight:800; cursor:pointer; }
   </style>
-  <div class="topo-receita">
-    <button class="btn-topo-voltar" onclick="fecharModal()">← Voltar</button>
-    <button id="rFavBtn" class="btn-topo-fav" onclick="event.stopPropagation();toggleFavAtual()">${isFavTopo ? '❤️ Favoritada' : '♡ Favoritar'}</button>
-  </div>
   <img class="capa" src="${r.foto}">
   <div class="flip-wrapper"><div class="flip-inner" id="flip-inner">
     <div class="view" id="view-ingredientes"><div class="modal-conteudo">
       <h1 style="font-size:24px;font-weight:900">${r.titulo}</h1>
-      <div style="display:flex;gap:8px;margin:12px 0;flex-wrap:wrap">
-        <span style="background:#FFF0E6;padding:6px 12px;border-radius:20px;font-size:13px;font-weight:700">⏰ ${r.tempo}</span>
-        <span style="background:#FFF0E6;padding:6px 12px;border-radius:20px;font-size:13px;font-weight:700">🍽️ ${r.porcoes||''}</span>
-        <span style="background:#FFF0E6;padding:6px 12px;border-radius:20px;font-size:13px;font-weight:700">📊 ${calcularNivel(r)}</span>
-      </div>
+      <div style="display:flex;gap:8px;margin:12px 0;flex-wrap:wrap"><span style="background:#FFF0E6;padding:6px 12px;border-radius:20px;font-size:13px;font-weight:700">⏰ ${r.tempo}</span><span style="background:#FFF0E6;padding:6px 12px;border-radius:20px;font-size:13px;font-weight:700">🍽️ ${r.porcoes||''}</span><span style="background:#FFF0E6;padding:6px 12px;border-radius:20px;font-size:13px;font-weight:700">📊 ${calcularNivel(r)}</span></div>
       ${htmlHistoricoFinalizadas(r.id)}
       <h3 style="margin:20px 0 12px">🛒 Ingredientes (${r.ingredientes.length})</h3>
       <ul style="list-style:none;display:flex;flex-direction:column;gap:10px;padding:0">
-        ${r.ingredientes.map((i,idx)=>{
-          const marcado=!!(chk.ing||[])[idx];
-          return `<li style="background:#FFFBF8;border:1px solid #FFE9DC;padding:14px;border-radius:14px;display:flex;gap:12px;opacity:${marcado?'0.5':'1'}"><input type="checkbox" ${marcado?'checked':''} onchange="toggleCheckIng(${idx},this)" style="width:22px;height:22px;accent-color:#FF6B35;flex-shrink:0"><span style="${marcado?'text-decoration:line-through':''}"><b>${i.nome||i.name}</b><br><small>${i.qtd||''}</small></span></li>`;
-        }).join('')}
+        ${r.ingredientes.map((i,idx)=>{ const marcado=!!(chk.ing||[])[idx]; return `<li style="background:#FFFBF8;border:1px solid #FFE9DC;padding:14px;border-radius:14px;display:flex;gap:12px;opacity:${marcado?'0.5':'1'}"><input type="checkbox" ${marcado?'checked':''} onchange="toggleCheckIng(${idx},this)" style="width:22px;height:22px;accent-color:#FF6B35;flex-shrink:0"><span style="${marcado?'text-decoration:line-through':''}"><b>${i.nome||i.name}</b><br><small>${i.qtd||''}</small></span></li>`; }).join('')}
       </ul>
       <button class="btn-whatsapp" onclick="compartilharWhatsApp()">📲 Exportar WhatsApp</button>
       <button class="btn-modo" onclick="irParaModoPreparo()">👨‍🍳 MODO DE PREPARO →</button><div style="height:30px"></div>
@@ -483,8 +373,7 @@ function abrirReceita(id){
     <div class="view" id="view-preparo"><div class="modal-conteudo">
       <h1 style="font-size:22px;font-weight:900">${r.titulo}</h1>
       ${passosDetalhados.map((p,i)=>{
-        const key=`${r.id}-${i}`; const t=timersAtivos[key];
-        let htmlBtns='';
+        const key=`${r.id}-${i}`; const t=timersAtivos[key]; let htmlBtns='';
         if(timersFinalizados[key]){ htmlBtns=`<button class="timer-btn-main" style="background:#22C55E" id="btn-main-${i}">✅ FINALIZADO - APERTE PARAR</button><button class="timer-btn-sec" style="background:#FF6B35;color:white;border-color:#FF6B35" onclick="pararAlarme('${key}',${i})">⏹️ PARAR ALARME</button>`; }
         else if(!t){ if(p.tempoMin>0) htmlBtns=`<button class="timer-btn-main" id="btn-main-${i}" onclick="iniciarTimer(${p.tempoMin},${i})">⏱ Timer ${p.tempoMin} min</button>`; else htmlBtns=`<span style="font-size:12px;color:#9A8C83">Sem timer</span>`; }
         else if(t.pausado){ const m=Math.floor(t.restante/60); const s=t.restante%60; htmlBtns=`<button class="timer-btn-main" id="btn-main-${i}">⏸️ ${m}:${(s+'').padStart(2,'0')} pausado</button><button class="timer-btn-sec" onclick="continuarTimer('${key}',${i})">▶️ Continuar</button><button class="timer-btn-sec" onclick="zerarTimer('${key}',${i},${t.min})">🔄 Zerar</button>`; }
@@ -502,99 +391,37 @@ function abrirReceita(id){
   document.getElementById('flip-inner').classList.remove('virando');
   document.getElementById('view-ingredientes').style.display='block';
   document.getElementById('view-preparo').style.display='none';
-  rolarTopoModal();
-  atualizarBotaoFavCima();
-  atualizarBotaoFinalizar();
+  rolarTopoModal(); atualizarBotaoFavCima(); atualizarBotaoFinalizar();
 }
-function rolarTopoModal(){
-  const modal = document.getElementById('modal');
-  const corpo = document.getElementById('modal-corpo');
-  if(modal) modal.scrollTo({top:0, behavior:'smooth'});
-  if(corpo) corpo.scrollTo({top:0, behavior:'smooth'});
-  window.scrollTo({top:0, behavior:'smooth'});
-}
-function irParaModoPreparo(){ 
-  const flip=document.getElementById('flip-inner'); const v1=document.getElementById('view-ingredientes'); const v2=document.getElementById('view-preparo'); 
-  flip.classList.add('virando'); 
-  rolarTopoModal();
-  setTimeout(()=>{ v1.style.display='none'; v2.style.display='block'; v2.style.position='relative'; v2.style.transform='rotateY(180deg)'; rolarTopoModal(); atualizarBotaoFinalizar(); },350); 
-}
-function voltarIngredientes(){ 
-  const flip=document.getElementById('flip-inner'); const v1=document.getElementById('view-ingredientes'); const v2=document.getElementById('view-preparo'); 
-  flip.classList.remove('virando'); 
-  rolarTopoModal();
-  setTimeout(()=>{ v2.style.display='none'; v1.style.display='block'; rolarTopoModal(); },350); 
-}
-function fecharModal(){ 
-  document.getElementById('modal').classList.remove('mostrar'); 
-  receitaAtual=null;
-}
-function getBotaoFavCima(){
-  return document.getElementById('rFavBtn') || document.getElementById('btn-fav-topo') || document.querySelector('.btn-fav-topo') || document.querySelector('[data-fav-topo]');
-}
+function rolarTopoModal(){ const modal=document.getElementById('modal'); const corpo=document.getElementById('modal-corpo'); if(modal) modal.scrollTo({top:0, behavior:'smooth'}); if(corpo) corpo.scrollTo({top:0, behavior:'smooth'}); window.scrollTo({top:0, behavior:'smooth'}); }
+function irParaModoPreparo(){ const flip=document.getElementById('flip-inner'); const v1=document.getElementById('view-ingredientes'); const v2=document.getElementById('view-preparo'); flip.classList.add('virando'); rolarTopoModal(); setTimeout(()=>{ v1.style.display='none'; v2.style.display='block'; v2.style.position='relative'; v2.style.transform='rotateY(180deg)'; rolarTopoModal(); atualizarBotaoFinalizar(); },350); }
+function voltarIngredientes(){ const flip=document.getElementById('flip-inner'); const v1=document.getElementById('view-ingredientes'); const v2=document.getElementById('view-preparo'); flip.classList.remove('virando'); rolarTopoModal(); setTimeout(()=>{ v2.style.display='none'; v1.style.display='block'; rolarTopoModal(); },350); }
+function fecharModal(){ document.getElementById('modal').classList.remove('mostrar'); receitaAtual=null; }
+function getBotaoFavCima(){ return document.getElementById('rFavBtn') || document.getElementById('btn-fav-topo') || document.querySelector('.btn-fav-topo') || document.querySelector('[data-fav-topo]'); }
 function atualizarBotaoFavCima(){
-  const btn = getBotaoFavCima();
-  if(!btn) return;
+  const btn = getBotaoFavCima(); if(!btn) return;
   if(!receitaAtual){ btn.innerHTML = '♡ Favoritar'; btn.style.background=''; btn.style.color=''; return; }
   const isFav = favoritos.includes(receitaAtual.id);
   btn.innerHTML = isFav ? '❤️ Favoritada' : '♡ Favoritar';
-  btn.style.background = isFav ? '#FF6B35' : '#E8DDD6';
-  btn.style.color = isFav ? 'white' : '#333';
+  btn.style.background = isFav ? '#FF6B35' : '#E8DDD6'; btn.style.color = isFav ? 'white' : '#333';
 }
 function atualizarBotaoFavDentro(){ atualizarBotaoFavCima(); }
-function atualizarGridFavoritos(){
-  const RECEITAS = getReceitasBase();
-  const gridFav = document.getElementById('grid-favoritos');
-  if(gridFav) renderReceitas(RECEITAS.filter(r=>favoritos.includes(r.id)),'grid-favoritos');
-}
-function toggleFav(id){ 
-  if(favoritos.includes(id)) favoritos=favoritos.filter(x=>x!==id); else favoritos.push(id); 
-  localStorage.setItem('hk_fav',JSON.stringify(favoritos)); 
-  atualizarTodasAbasFav();
-}
-function toggleFavAtual(){
-  if(!receitaAtual) return;
-  const id = receitaAtual.id;
-  if(favoritos.includes(id)) favoritos=favoritos.filter(x=>x!==id); else favoritos.push(id);
-  localStorage.setItem('hk_fav',JSON.stringify(favoritos));
-  atualizarBotaoFavCima();
-  atualizarTodasAbasFav();
-}
-// ===== BOTÃO VOLTAR DO CELULAR = BOTÃO VOLTAR DE CIMA =====
-window.addEventListener('popstate', function(){
-  const modalAberto = document.getElementById('modal')?.classList.contains('mostrar');
-  if(modalAberto){
-    fecharModal();
-    try{ history.pushState({tela:'home'}, '', location.href); }catch(e){}
-  } else {
-    // Já está na Home - não deixa fechar, só recria a trava
-    try{ history.pushState({tela:'home'}, '', location.href); }catch(e){}
-  }
-});
+function atualizarGridFavoritos(){ const RECEITAS=getReceitasBase(); const gridFav=document.getElementById('grid-favoritos'); if(gridFav) renderReceitas(RECEITAS.filter(r=>favoritos.includes(r.id)),'grid-favoritos'); }
+function toggleFav(id){ if(favoritos.includes(id)) favoritos=favoritos.filter(x=>x!==id); else favoritos.push(id); localStorage.setItem('hk_fav',JSON.stringify(favoritos)); atualizarTodasAbasFav(); }
+function toggleFavAtual(){ if(!receitaAtual) return; const id=receitaAtual.id; if(favoritos.includes(id)) favoritos=favoritos.filter(x=>x!==id); else favoritos.push(id); localStorage.setItem('hk_fav',JSON.stringify(favoritos)); atualizarBotaoFavCima(); atualizarTodasAbasFav(); }
+window.addEventListener('popstate', function(){ const modalAberto=document.getElementById('modal')?.classList.contains('mostrar'); if(modalAberto){ fecharModal(); try{ history.pushState({tela:'home'}, '', location.href); }catch(e){} } else { try{ history.pushState({tela:'home'}, '', location.href); }catch(e){} } });
 function iniciarTimer(min, idx){
-  if(!receitaAtual||min<=0) return;
-  const key=`${receitaAtual.id}-${idx}`;
+  if(!receitaAtual||min<=0) return; const key=`${receitaAtual.id}-${idx}`;
   if(timersFinalizados[key]){ alert('⏰ Esse timer já finalizou! Aperte ⏹️ PARAR ALARME para poder ligar de novo.'); return; }
-  desbloquearAudio();
-  travarTelaAcesa();
-  if(Notification.permission !== 'granted') Notification.requestPermission();
+  desbloquearAudio(); travarTelaAcesa(); if(Notification.permission !== 'granted') Notification.requestPermission();
   const fim=Date.now()+min*60*1000; timersAtivos[key]={fim, titulo:receitaAtual.titulo, passo:idx+1, min, idReceita:receitaAtual.id, pausado:false}; salvarTimers(); agendarPushServidor(timersAtivos[key], key); renderControlesTimer(key, idx, min); atualizarPaginaTimers();
 }
 function pausarTimer(key, idx){ const t=timersAtivos[key]; if(!t||t.pausado) return; const restante=Math.max(0, Math.floor((t.fim-Date.now())/1000)); t.restante=restante; t.pausado=true; delete t.fim; salvarTimers(); enviarParaSW({type:'CANCEL_TIMER', key}); cancelarPushServidor(key); renderControlesTimer(key, idx, t.min); atualizarPaginaTimers(); }
 function continuarTimer(key, idx){ const t=timersAtivos[key]; if(!t||!t.pausado) return; t.fim=Date.now()+t.restante*1000; t.pausado=false; delete t.restante; salvarTimers(); agendarPushServidor(t, key); renderControlesTimer(key, idx, t.min); atualizarPaginaTimers(); }
-function zerarTimer(key, idx, minOriginal){ 
-  const t = timersAtivos[key] || timersFinalizados[key];
-  const nome = t ? `${t.titulo} - Passo ${t.passo}` : 'esse timer';
-  if(!confirm(`Tem certeza que quer zerar?\n\n${nome}\n\nO tempo será perdido.`)) return;
-  if(alarmesTocando[key]){ clearInterval(alarmesTocando[key]); delete alarmesTocando[key]; }
-  delete timersAtivos[key]; delete timersFinalizados[key]; salvarTimers(); salvarFinalizados(); enviarParaSW({type:'CANCEL_TIMER', key}); cancelarPushServidor(key); renderControlesTimer(key, idx, minOriginal, true); atualizarPaginaTimers(); 
-}
+function zerarTimer(key, idx, minOriginal){ const t=timersAtivos[key]||timersFinalizados[key]; const nome=t?`${t.titulo} - Passo ${t.passo}`:'esse timer'; if(!confirm(`Tem certeza que quer zerar?\n\n${nome}\n\nO tempo será perdido.`)) return; if(alarmesTocando[key]){ clearInterval(alarmesTocando[key]); delete alarmesTocando[key]; } delete timersAtivos[key]; delete timersFinalizados[key]; salvarTimers(); salvarFinalizados(); enviarParaSW({type:'CANCEL_TIMER', key}); cancelarPushServidor(key); renderControlesTimer(key, idx, minOriginal, true); atualizarPaginaTimers(); }
 function renderControlesTimer(key, idx, minOriginal, zerado=false){
   const cont=document.getElementById(`controls-${idx}`); if(!cont) return;
-  if(timersFinalizados[key]){
-    cont.innerHTML=`<button class="timer-btn-main" style="background:#22C55E" id="btn-main-${idx}">✅ FINALIZADO - APERTE PARAR</button><button class="timer-btn-sec" style="background:#FF6B35;color:white;border-color:#FF6B35" onclick="pararAlarme('${key}',${idx})">⏹️ PARAR ALARME</button>`;
-    return;
-  }
+  if(timersFinalizados[key]){ cont.innerHTML=`<button class="timer-btn-main" style="background:#22C55E" id="btn-main-${idx}">✅ FINALIZADO - APERTE PARAR</button><button class="timer-btn-sec" style="background:#FF6B35;color:white;border-color:#FF6B35" onclick="pararAlarme('${key}',${idx})">⏹️ PARAR ALARME</button>`; return; }
   if(zerado){ cont.innerHTML=`<button class="timer-btn-main" id="btn-main-${idx}" onclick="iniciarTimer(${minOriginal},${idx})">⏱ Timer ${minOriginal} min</button>`; return; }
   const t=timersAtivos[key]; if(!t) return;
   if(t.pausado){ const m=Math.floor(t.restante/60); const s=t.restante%60; cont.innerHTML=`<button class="timer-btn-main" id="btn-main-${idx}">⏸️ ${m}:${(s+'').padStart(2,'0')} pausado</button><button class="timer-btn-sec" onclick="continuarTimer('${key}',${idx})">▶️ Continuar</button><button class="timer-btn-sec" onclick="zerarTimer('${key}',${idx},${t.min})">🔄 Zerar</button>`; }
@@ -603,36 +430,22 @@ function renderControlesTimer(key, idx, minOriginal, zerado=false){
 function restaurarTimersGlobais(){
   setInterval(()=>{
     let mudou=false;
-    Object.keys(timersAtivos).forEach(k=>{ const t=timersAtivos[k]; if(!t) { delete timersAtivos[k]; mudou=true; return; } if(t.pausado) return; if(!t.fim) return; const rest=Math.floor((t.fim-Date.now())/1000); if(receitaAtual && k.startsWith(receitaAtual.id+'-')){ const idx=k.split('-').pop(); const btn=document.getElementById(`btn-main-${idx}`); if(btn){ if(rest>0) btn.innerText=`⏳ ${Math.floor(rest/60)}:${(rest%60).toString().padStart(2,'0')} rodando`; else btn.innerText=`✅ Finalizado!`; } } if(rest<=0){ timersFinalizados[k]={...t, finalizadoEm: Date.now()}; delete timersAtivos[k]; mudou=true; salvarFinalizados(); enviarParaSW({type:'CANCEL_TIMER', key:k}); notificarFim(t, k); if(receitaAtual && k.startsWith(receitaAtual.id+'-')){ const idx=parseInt(k.split('-').pop()); renderControlesTimer(k, idx, t.min); } } });
+    Object.keys(timersAtivos).forEach(k=>{ const t=timersAtivos[k]; if(!t){ delete timersAtivos[k]; mudou=true; return; } if(t.pausado) return; if(!t.fim) return; const rest=Math.floor((t.fim-Date.now())/1000); if(receitaAtual && k.startsWith(receitaAtual.id+'-')){ const idx=k.split('-').pop(); const btn=document.getElementById(`btn-main-${idx}`); if(btn){ if(rest>0) btn.innerText=`⏳ ${Math.floor(rest/60)}:${(rest%60).toString().padStart(2,'0')} rodando`; else btn.innerText=`✅ Finalizado!`; } } if(rest<=0){ timersFinalizados[k]={...t, finalizadoEm: Date.now()}; delete timersAtivos[k]; mudou=true; salvarFinalizados(); enviarParaSW({type:'CANCEL_TIMER', key:k}); notificarFim(t, k); if(receitaAtual && k.startsWith(receitaAtual.id+'-')){ const idx=parseInt(k.split('-').pop()); renderControlesTimer(k, idx, t.min); } } });
     if(mudou) salvarTimers(); if(document.getElementById('page-timer')?.classList.contains('ativa')) atualizarPaginaTimers();
   },1000);
 }
 function atualizarPaginaTimers(){
   const global=document.getElementById('timer-global'); if(!global) return;
-  const chaves=Object.keys(timersAtivos);
-  const chavesFin=Object.keys(timersFinalizados);
+  const chaves=Object.keys(timersAtivos); const chavesFin=Object.keys(timersFinalizados);
   if(chaves.length===0 && chavesFin.length===0){ global.innerHTML=`<div style="text-align:center;padding:30px;color:#9A8C83">Nenhum timer ativo</div>`; return; }
   let html='';
-  html+=chavesFin.map(key=>{
-    const t=timersFinalizados[key]; if(!t) return '';
-    return `<div style="background:#E8F5E9;border:2px solid #22C55E;border-radius:16px;padding:14px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center"><div style="flex:1"><b>${t.titulo} - Passo ${t.passo}</b><div style="font-size:28px;font-weight:900;margin-top:4px;color:#22C55E">✅ FINALIZADO - APERTE PARAR</div><div style="margin-top:8px"><button onclick="pararAlarme('${key}',${t.passo-1})" style="padding:10px 16px;border-radius:20px;border:none;background:#FF6B35;color:white;font-weight:800">⏹️ PARAR ALARME</button></div></div><button onclick="voltarParaModoPreparo('${t.idReceita}','${key}')" style="background:#1A1A1A;color:white;border:none;width:48px;height:48px;border-radius:50%;font-size:20px;cursor:pointer;margin-left:10px">📖</button></div>`;
-  }).join('');
-  html+=chaves.map(key=>{
-    const t=timersAtivos[key]; if(!t) return '';
-    let tempoStr=t.pausado?`⏸️ ${Math.floor(t.restante/60)}:${(t.restante%60+'').padStart(2,'0')} pausado`:`⏱ ${Math.max(0,Math.floor((t.fim-Date.now())/1000/60))}:${(Math.max(0,Math.floor((t.fim-Date.now())/1000)%60)+'').padStart(2,'0')}`;
-    const botoesPausa=t.pausado?`<button onclick="continuarTimer('${key}',${t.passo-1})" style="padding:8px 12px;border-radius:20px;border:1px solid #E8DDD6;background:white;margin-right:6px">▶️ Continuar</button>`:`<button onclick="pausarTimer('${key}',${t.passo-1})" style="padding:8px 12px;border-radius:20px;border:1px solid #E8DDD6;background:white;margin-right:6px">⏸️ Pausar</button>`;
-    return `<div style="background:white;border:1.5px solid #FFE9DC;border-radius:16px;padding:14px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center"><div style="flex:1"><b>${t.titulo} - Passo ${t.passo}</b><div style="font-size:28px;font-weight:900;margin-top:4px">${tempoStr}</div><div style="margin-top:8px">${botoesPausa}<button onclick="zerarTimer('${key}',${t.passo-1},${t.min})" style="padding:8px 12px;border-radius:20px;border:1px solid #E8DDD6;background:white">🔄 Zerar</button></div></div><button onclick="voltarParaModoPreparo('${t.idReceita}','${key}')" style="background:#1A1A1A;color:white;border:none;width:48px;height:48px;border-radius:50%;font-size:20px;cursor:pointer;margin-left:10px">📖</button></div>`;
-  }).join('')+`<div style="text-align:center;margin-top:20px"><button onclick="limparTodosTimers()" style="background:#FF6B35;color:white;padding:12px 20px;border-radius:20px;border:none;font-weight:800">🧹 LIMPAR TODOS</button></div>`;
+  html+=chavesFin.map(key=>{ const t=timersFinalizados[key]; if(!t) return ''; return `<div style="background:#E8F5E9;border:2px solid #22C55E;border-radius:16px;padding:14px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center"><div style="flex:1"><b>${t.titulo} - Passo ${t.passo}</b><div style="font-size:28px;font-weight:900;margin-top:4px;color:#22C55E">✅ FINALIZADO - APERTE PARAR</div><div style="margin-top:8px"><button onclick="pararAlarme('${key}',${t.passo-1})" style="padding:10px 16px;border-radius:20px;border:none;background:#FF6B35;color:white;font-weight:800">⏹️ PARAR ALARME</button></div></div><button onclick="voltarParaModoPreparo('${t.idReceita}','${key}')" style="background:#1A1A1A;color:white;border:none;width:48px;height:48px;border-radius:50%;font-size:20px;cursor:pointer;margin-left:10px">📖</button></div>`; }).join('');
+  html+=chaves.map(key=>{ const t=timersAtivos[key]; if(!t) return ''; let tempoStr=t.pausado?`⏸️ ${Math.floor(t.restante/60)}:${(t.restante%60+'').padStart(2,'0')} pausado`:`⏱ ${Math.max(0,Math.floor((t.fim-Date.now())/1000/60))}:${(Math.max(0,Math.floor((t.fim-Date.now())/1000)%60)+'').padStart(2,'0')}`; const botoesPausa=t.pausado?`<button onclick="continuarTimer('${key}',${t.passo-1})" style="padding:8px 12px;border-radius:20px;border:1px solid #E8DDD6;background:white;margin-right:6px">▶️ Continuar</button>`:`<button onclick="pausarTimer('${key}',${t.passo-1})" style="padding:8px 12px;border-radius:20px;border:1px solid #E8DDD6;background:white;margin-right:6px">⏸️ Pausar</button>`; return `<div style="background:white;border:1.5px solid #FFE9DC;border-radius:16px;padding:14px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center"><div style="flex:1"><b>${t.titulo} - Passo ${t.passo}</b><div style="font-size:28px;font-weight:900;margin-top:4px">${tempoStr}</div><div style="margin-top:8px">${botoesPausa}<button onclick="zerarTimer('${key}',${t.passo-1},${t.min})" style="padding:8px 12px;border-radius:20px;border:1px solid #E8DDD6;background:white">🔄 Zerar</button></div></div><button onclick="voltarParaModoPreparo('${t.idReceita}','${key}')" style="background:#1A1A1A;color:white;border:none;width:48px;height:48px;border-radius:50%;font-size:20px;cursor:pointer;margin-left:10px">📖</button></div>`; }).join('')+`<div style="text-align:center;margin-top:20px"><button onclick="limparTodosTimers()" style="background:#FF6B35;color:white;padding:12px 20px;border-radius:20px;border:none;font-weight:800">🧹 LIMPAR TODOS</button></div>`;
   global.innerHTML=html;
 }
-function voltarParaModoPreparo(idReceita, key){ if(!idReceita){ const t=timersAtivos[key] || timersFinalizados[key]; if(t) idReceita=t.idReceita; } if(!idReceita) return; mudarPage('home'); setTimeout(()=>{ abrirReceita(idReceita); setTimeout(()=>{ irParaModoPreparo(); }, 600); },200); }
+function voltarParaModoPreparo(idReceita, key){ if(!idReceita){ const t=timersAtivos[key]||timersFinalizados[key]; if(t) idReceita=t.idReceita; } if(!idReceita) return; mudarPage('home'); setTimeout(()=>{ abrirReceita(idReceita); setTimeout(()=>{ irParaModoPreparo(); }, 600); },200); }
 function voltarParaReceita(idReceita, key){ voltarParaModoPreparo(idReceita, key); }
-function limparTodosTimers(){ 
-  const qtd = Object.keys(timersAtivos).length + Object.keys(timersFinalizados).length;
-  if(qtd === 0) return;
-  if(!confirm(`Tem certeza que quer apagar TODOS os ${qtd} timers?\n\nEssa ação não pode ser desfeita.`)) return;
-  localStorage.removeItem('hk_timers'); localStorage.removeItem('hk_timers_finalizados'); timersAtivos={}; timersFinalizados={}; Object.values(alarmesTocando).forEach(id=>clearInterval(id)); alarmesTocando={}; salvarTimers(); salvarFinalizados(); enviarParaSW({type:'CLEAR_ALL'}); atualizarPaginaTimers(); 
-}
+function limparTodosTimers(){ const qtd=Object.keys(timersAtivos).length+Object.keys(timersFinalizados).length; if(qtd===0) return; if(!confirm(`Tem certeza que quer apagar TODOS os ${qtd} timers?\n\nEssa ação não pode ser desfeita.`)) return; localStorage.removeItem('hk_timers'); localStorage.removeItem('hk_timers_finalizados'); timersAtivos={}; timersFinalizados={}; Object.values(alarmesTocando).forEach(id=>clearInterval(id)); alarmesTocando={}; salvarTimers(); salvarFinalizados(); enviarParaSW({type:'CLEAR_ALL'}); atualizarPaginaTimers(); }
 function mudarPage(nome){ document.querySelectorAll('.page').forEach(p=>p.classList.remove('ativa')); document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('ativo')); document.getElementById(`page-${nome}`)?.classList.add('ativa'); document.getElementById(`nav-${nome}`)?.classList.add('ativo'); const RECEITAS=getReceitasBase(); if(nome==='favoritos') renderReceitas(RECEITAS.filter(r=>favoritos.includes(r.id)),'grid-favoritos'); if(nome==='recentes') renderRecentes(); if(nome==='timer') atualizarPaginaTimers(); if(nome==='finalizadas') renderFinalizadas(); }
 document.addEventListener('DOMContentLoaded',init);
 const CONDIMENTOS_TIRAR = ['agua','água','alho','caldo','curcuma','cúrcuma','acucar','açucar','açúcar','sal','pimenta','oleo','óleo','azeite','vinagre','manteiga','margarina','cominho','oregano','orégano','salsinha','cebolinha','coentro','alecrim','manjericão','canela','cravo','noz moscada','paprica','páprica','curry','açafrão','cheiro verde','shoyu','molho shoyu','sal grosso','pimenta reino','limão','azeite de dendê','água com gás','amido','polvilho','fermento','louro','folha de louro','tempero verde','mix de folhas','mix folhas','folhas','folha','nori','gengibre'];
