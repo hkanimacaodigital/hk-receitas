@@ -20,7 +20,7 @@ function temNotificacao(){ try{ return typeof Notification !== 'undefined' && ty
 function temVibrar(){ try{ return typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function'; }catch(e){ return false; } }
 function vibrar(p){ try{ if(temVibrar()) navigator.vibrate(p); }catch(e){} }
 
-const VAPID_PUBLIC = 'COLA_AQUI_SUA_PUBLIC_KEY';
+const VAPID_PUBLIC = 'BJJeTOZZ0hTPQXA1EVlz1U7A62lhMLFIQRZaLazAN0vkxZJYJxNt6nozf74KheVc-kTv2jCyp_danJS-5buxlwc';
 function urlBase64ToUint8Array(base64String){
   const padding = '='.repeat((4 - base64String.length % 4) % 4);
   const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
@@ -374,7 +374,7 @@ function renderRecentes(){
   const RECEITAS=getReceitasBase(); const cont=document.getElementById('grid-recentes'); if(!cont) return;
   renderReceitas(recentes.map(id=>RECEITAS.find(r=>r.id===id)).filter(Boolean),'grid-recentes');
 }
-function atualizarTodasAbasFav(){ try{ filtrar(); }catch(e){} try{ atualizarGridFavoritos(); }catch(e){} try{ renderRecentes(); }catch(e){} try{ renderFinalizadas(); }catch(e){} try{ atualizarBotaoFavCima(); }catch(e){} }
+function atualizarTodasAbasFav(){ if(typeof ingredientesSelecionados !== 'undefined' && ingredientesSelecionados.length > 0){ try{ salvarEFiltrar(); }catch(e){ try{ filtrar(); }catch(e2){} } } else { try{ filtrar(); }catch(e){} } try{ atualizarGridFavoritos(); }catch(e){} try{ renderRecentes(); }catch(e){} try{ renderFinalizadas(); }catch(e){} try{ atualizarBotaoFavCima(); }catch(e){} }
 function abrirReceita(id){
   const RECEITAS=getReceitasBase(); const r=RECEITAS.find(x=>x.id===id); if(!r) return; receitaAtual=r;
   if(!recentes.includes(id)){ recentes.unshift(id); recentes=recentes.slice(0,12); try{ localStorage.setItem('hk_rec',JSON.stringify(recentes)); }catch(e){} }
