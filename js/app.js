@@ -512,5 +512,30 @@ function fecharModalIngredientesPossuo(){document.getElementById('modal-ingredie
 function filtrarListaIngredientes(){const termo=document.getElementById('busca-ingrediente').value.toLowerCase();document.querySelectorAll('#lista-todos-ingredientes label').forEach(l=>{const txt=l.innerText.toLowerCase();l.style.display=txt.includes(termo)?'flex':'none';});}
 function toggleIngredientePossuo(id){if(ingredientesSelecionados.includes(id)){ingredientesSelecionados=ingredientesSelecionados.filter(x=>x!==id);}else{ingredientesSelecionados.push(id);}try{ localStorage.setItem('hk_ing_possuo',JSON.stringify(ingredientesSelecionados)); }catch(e){} const todos=getTodosIngredientesUnicos();const lista=document.getElementById('lista-todos-ingredientes');if(!lista)return;lista.innerHTML=todos.map(item=>{const checked=ingredientesSelecionados.includes(item.id)?'checked':'';const bg=checked?'#FFF0E6':'#FFFBF8';return`<label style="display:flex;align-items:center;gap:12px;background:${bg};border:1.5px solid #FFE9DC;padding:12px;border-radius:12px;cursor:pointer;margin-bottom:8px"><input type="checkbox" value="${item.id}" ${checked} onchange="toggleIngredientePossuo(this.value)" style="width:20px;height:20px"><span style="font-weight:600;text-transform:capitalize">${item.label}</span></label>`;}).join('');const cont=document.getElementById('contador-ingredientes-possuo');if(cont)cont.innerText=`${ingredientesSelecionados.length} selecionados`;}
 function limparSelecaoIngredientes(){ingredientesSelecionados=[];try{ localStorage.setItem('hk_ing_possuo',JSON.stringify([])); }catch(e){} abrirModalIngredientesPossuo();salvarEFiltrar();}
-function salvarEFiltrar(){const contador=document.getElementById('contador-ingredientes-possuo');if(contador)contador.innerText=`${ingredientesSelecionados.length} selecionados`;if(ingredientesSelecionados.length===0){const box=document.getElementById('receitas-filtradas-possuo');if(box)box.innerHTML='';filtrar();return;}let filtradas=[...getReceitasBase()];if(categoriaAtiva!=='tudo'){if(categoriaAtiva==='airfryer')filtradas=filtradas.filter(r=>r.airfryer===true);else{const nome=CATEGORIAS.find(c=>c.id===categoriaAtiva)?.nome.toLowerCase()||categoriaAtiva;filtradas=filtradas.filter(r=>(r.categoria_principal||'').toLowerCase()===nome||(r.categorias||[]).map(x=>x.toLowerCase()).includes(nome));}}filtradas=filtradas.filter(receita=>{const obrigatorios=getIngredientesObrigatoriosDaReceita(receita);if(obrigatorios.length===0)return false;return obrigatorios.every(ob=>ingredientesSelecionados.includes(ob));});const box=document.getElementById('receitas-filtradas-possuo');if(box){if(filtradas.length===0){box.innerHTML=`<div style="text-align:center;padding:16px;background:#FFF0E6;border-radius:12px">Com <b>${ingredientesSelecionados.join(', ')}</b> ainda não dá pra fazer nenhuma receita completa</div>`;}else{box.innerHTML=`<div style="font-weight:800;margin-bottom:8px">✅ Você consegue fazer ${filtradas.length} receitas com: ${ingredientesSelecionados.join(', ')}</div>`;}}renderReceitas(filtradas,'grid-receitas');}
-document.addEventListener('DOMContentLoaded',init);
+function salvarEFiltrar(){
+  const contador=document.getElementById('contador-ingredientes-possuo');
+  if(contador)contador.innerText=`${ingredientesSelecionados.length} selecionados`;
+  if(ingredientesSelecionados.length===0){
+    const box=document.getElementById('receitas-filtradas-possuo');
+    if(box)box.innerHTML='';
+    // CORREÇÃO 2: não chama filtrar() aqui pra não dar volta extra / recursão - renderiza a lista normal direto
+    let RECEITAS=getReceitasBase();
+    const busca=(document.getElementById('busca')?.value||'').toLowerCase();
+    const ordem=document.getElementById('ordem')?.value||'padrao';
+    let lista=[...RECEITAS];
+    if(categoriaAtiva!=='tudo'){ if(categoriaAtiva==='airfryer') lista=lista.filter(r=>r.airfryer===true); else if(categoriaAtiva==='rapida') lista=lista.filter(r=>getTempo(r)<=12); else{ const nome=CATEGORIAS.find(c=>c.id===categoriaAtiva)?.nome.toLowerCase()||categoriaAtiva; lista=lista.filter(r=>(r.categoria_principal||'').toLowerCase()===nome||(r.categorias||[]).map(x=>x.toLowerCase()).includes(nome)); }}
+    if(busca) lista=lista.filter(r=>r.titulo.toLowerCase().includes(busca));
+    if(ordem==='az') lista.sort((a,b)=>a.titulo.localeCompare(b.titulo));
+    else if(ordem==='tempo') lista.sort((a,b)=>getTempo(a)-getTempo(b));
+    else if(ordem==='facil' || ordem==='kcal'){ const peso = { 'fácil':1, 'facil':1, 'médio':2, 'medio':2, 'difícil':3, 'dificil':3 }; lista.sort((a,b)=>{ const pa = peso[calcularNivel(a).toLowerCase()] || 2; const pb = peso[calcularNivel(b).toLowerCase()] || 2; return pa - pb; }); }
+    window.RECEITAS=RECEITAS; renderReceitas(lista,'grid-receitas');
+    return;
+  }
+  let filtradas=[...getReceitasBase()];
+  if(categoriaAtiva!=='tudo'){if(categoriaAtiva==='airfryer')filtradas=filtradas.filter(r=>r.airfryer===true);else{const nome=CATEGORIAS.find(c=>c.id===categoriaAtiva)?.nome.toLowerCase()||categoriaAtiva;filtradas=filtradas.filter(r=>(r.categoria_principal||'').toLowerCase()===nome||(r.categorias||[]).map(x=>x.toLowerCase()).includes(nome));}}
+  filtradas=filtradas.filter(receita=>{const obrigatorios=getIngredientesObrigatoriosDaReceita(receita);if(obrigatorios.length===0)return false;return obrigatorios.every(ob=>ingredientesSelecionados.includes(ob));});
+  const box=document.getElementById('receitas-filtradas-possuo');
+  if(box){if(filtradas.length===0){box.innerHTML=`<div style="text-align:center;padding:16px;background:#FFF0E6;border-radius:12px">Com <b>${ingredientesSelecionados.join(', ')}</b> ainda não dá pra fazer nenhuma receita completa</div>`;}else{box.innerHTML=`<div style="font-weight:800;margin-bottom:8px">✅ Você consegue fazer ${filtradas.length} receitas com: ${ingredientesSelecionados.join(', ')}</div>`;}}
+  renderReceitas(filtradas,'grid-receitas');
+}
+// CORREÇÃO 1: removida a 2ª linha duplicada document.addEventListener('DOMContentLoaded',init); que estava aqui no final - agora o init() roda só 1x
