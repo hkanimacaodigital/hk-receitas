@@ -271,6 +271,10 @@ function calcularNivel(r){
   return 'Difícil';
 }
 function filtrar(){
+  // CORREÇÃO CATEGORIA: se o filtro "que eu tenho" estiver ativo, mantém ele em vez de mostrar todas da categoria
+  if(typeof ingredientesSelecionados !== 'undefined' && ingredientesSelecionados.length > 0){
+    try{ salvarEFiltrar(); return; }catch(e){}
+  }
   let RECEITAS=getReceitasBase(); if(!RECEITAS) return;
   const busca=(document.getElementById('busca')?.value||'').toLowerCase();
   const ordem=document.getElementById('ordem')?.value||'padrao';
@@ -518,7 +522,6 @@ function salvarEFiltrar(){
   if(ingredientesSelecionados.length===0){
     const box=document.getElementById('receitas-filtradas-possuo');
     if(box)box.innerHTML='';
-    // CORREÇÃO 2: não chama filtrar() aqui pra não dar volta extra / recursão - renderiza a lista normal direto
     let RECEITAS=getReceitasBase();
     const busca=(document.getElementById('busca')?.value||'').toLowerCase();
     const ordem=document.getElementById('ordem')?.value||'padrao';
@@ -532,10 +535,20 @@ function salvarEFiltrar(){
     return;
   }
   let filtradas=[...getReceitasBase()];
-  if(categoriaAtiva!=='tudo'){if(categoriaAtiva==='airfryer')filtradas=filtradas.filter(r=>r.airfryer===true);else{const nome=CATEGORIAS.find(c=>c.id===categoriaAtiva)?.nome.toLowerCase()||categoriaAtiva;filtradas=filtradas.filter(r=>(r.categoria_principal||'').toLowerCase()===nome||(r.categorias||[]).map(x=>x.toLowerCase()).includes(nome));}}
+  if(categoriaAtiva!=='tudo'){
+    if(categoriaAtiva==='airfryer') filtradas=filtradas.filter(r=>r.airfryer===true);
+    else if(categoriaAtiva==='rapida') filtradas=filtradas.filter(r=>getTempo(r)<=12);
+    else{ const nome=CATEGORIAS.find(c=>c.id===categoriaAtiva)?.nome.toLowerCase()||categoriaAtiva; filtradas=filtradas.filter(r=>(r.categoria_principal||'').toLowerCase()===nome||(r.categorias||[]).map(x=>x.toLowerCase()).includes(nome)); }
+  }
   filtradas=filtradas.filter(receita=>{const obrigatorios=getIngredientesObrigatoriosDaReceita(receita);if(obrigatorios.length===0)return false;return obrigatorios.every(ob=>ingredientesSelecionados.includes(ob));});
+  const busca=(document.getElementById('busca')?.value||'').toLowerCase();
+  const ordem=document.getElementById('ordem')?.value||'padrao';
+  if(busca) filtradas=filtradas.filter(r=>r.titulo.toLowerCase().includes(busca));
+  if(ordem==='az') filtradas.sort((a,b)=>a.titulo.localeCompare(b.titulo));
+  else if(ordem==='tempo') filtradas.sort((a,b)=>getTempo(a)-getTempo(b));
+  else if(ordem==='facil' || ordem==='kcal'){ const peso = { 'fácil':1, 'facil':1, 'médio':2, 'medio':2, 'difícil':3, 'dificil':3 }; filtradas.sort((a,b)=>{ const pa = peso[calcularNivel(a).toLowerCase()] || 2; const pb = peso[calcularNivel(b).toLowerCase()] || 2; return pa - pb; }); }
   const box=document.getElementById('receitas-filtradas-possuo');
   if(box){if(filtradas.length===0){box.innerHTML=`<div style="text-align:center;padding:16px;background:#FFF0E6;border-radius:12px">Com <b>${ingredientesSelecionados.join(', ')}</b> ainda não dá pra fazer nenhuma receita completa</div>`;}else{box.innerHTML=`<div style="font-weight:800;margin-bottom:8px">✅ Você consegue fazer ${filtradas.length} receitas com: ${ingredientesSelecionados.join(', ')}</div>`;}}
   renderReceitas(filtradas,'grid-receitas');
 }
-// CORREÇÃO 1: removida a 2ª linha duplicada document.addEventListener('DOMContentLoaded',init); que estava aqui no final - agora o init() roda só 1x
+// CORREÇÃO: removida a 2ª linha duplicada document.addEventListener('DOMContentLoaded',init); que estava aqui no final - agora o init() roda só 1x
