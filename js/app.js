@@ -14,6 +14,12 @@ try{
     }
   });
 }catch(e){ localStorage.removeItem('hk_timers'); }
+
+// ===== AJUDA IPHONE: verifica se existe antes de usar =====
+function temNotificacao(){ try{ return typeof Notification !== 'undefined' && typeof Notification.requestPermission === 'function'; }catch(e){ return false; } }
+function temVibrar(){ try{ return typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function'; }catch(e){ return false; } }
+function vibrar(p){ try{ if(temVibrar()) navigator.vibrate(p); }catch(e){} }
+
 const VAPID_PUBLIC = 'COLA_AQUI_SUA_PUBLIC_KEY';
 function urlBase64ToUint8Array(base64String){
   const padding = '='.repeat((4 - base64String.length % 4) % 4);
@@ -58,35 +64,37 @@ try{
   });
   if(Object.keys(timersFinalizados).length>0) localStorage.setItem('hk_timers_finalizados', JSON.stringify(timersFinalizados));
 }catch(e){}
-function salvarFinalizados(){ localStorage.setItem('hk_timers_finalizados', JSON.stringify(timersFinalizados)); }
+function salvarFinalizados(){ try{ localStorage.setItem('hk_timers_finalizados', JSON.stringify(timersFinalizados)); }catch(e){} }
 function tocarAlarme20s(key){
   if(alarmesTocando[key]) return;
-  desbloquearAudio();
-  if(navigator.vibrate) navigator.vibrate([1000,300,1000,300,1000,300,1000,300,1000,300,1000,300,1000]);
+  try{ desbloquearAudio(); }catch(e){}
+  vibrar([1000,300,1000,300,1000,300,1000,300,1000,300,1000,300,1000]);
   let vezes = 0;
   const beepUmaVez = ()=>{
-    if(!audioCtx) return;
-    const t = audioCtx.currentTime;
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.connect(gain); gain.connect(audioCtx.destination);
-    osc.frequency.value = 880; osc.type = 'sine';
-    gain.gain.setValueAtTime(0, t);
-    gain.gain.linearRampToValueAtTime(0.5, t+0.05);
-    gain.gain.exponentialRampToValueAtTime(0.01, t+0.7);
-    osc.start(t); osc.stop(t+0.7);
+    try{
+      if(!audioCtx) return;
+      const t = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain); gain.connect(audioCtx.destination);
+      osc.frequency.value = 880; osc.type = 'sine';
+      gain.gain.setValueAtTime(0, t);
+      gain.gain.linearRampToValueAtTime(0.5, t+0.05);
+      gain.gain.exponentialRampToValueAtTime(0.01, t+0.7);
+      osc.start(t); osc.stop(t+0.7);
+    }catch(e){}
   };
   beepUmaVez();
   alarmesTocando[key] = setInterval(()=>{
     vezes++;
     beepUmaVez();
-    if(navigator.vibrate) navigator.vibrate([500,200,500]);
+    vibrar([500,200,500]);
     if(vezes >= 20){ clearInterval(alarmesTocando[key]); delete alarmesTocando[key]; }
   }, 1000);
 }
 function pararAlarme(key, idx){
   if(alarmesTocando[key]){ clearInterval(alarmesTocando[key]); delete alarmesTocando[key]; }
-  if(navigator.vibrate) navigator.vibrate(0);
+  vibrar(0);
   const t = timersFinalizados[key] || timersAtivos[key];
   const minOriginal = t ? t.min : 0;
   delete timersFinalizados[key];
@@ -98,94 +106,122 @@ function pararAlarme(key, idx){
   atualizarPaginaTimers();
 }
 if('serviceWorker' in navigator){
-  navigator.serviceWorker.addEventListener('message', (e)=>{
-    if(e.data && e.data.type === 'ABRIR_TIMER_FINALIZADO' && e.data.idReceita){ voltarParaModoPreparo(e.data.idReceita, e.data.key); }
-  });
+  try{
+    navigator.serviceWorker.addEventListener('message', (e)=>{
+      if(e.data && e.data.type === 'ABRIR_TIMER_FINALIZADO' && e.data.idReceita){ voltarParaModoPreparo(e.data.idReceita, e.data.key); }
+    });
+  }catch(e){}
 }
-function salvarTimers(){ localStorage.setItem('hk_timers', JSON.stringify(timersAtivos)); }
-function salvarChecks(){ localStorage.setItem('hk_checks', JSON.stringify(checks)); }
-function salvarFinalizadas(){ localStorage.setItem('hk_finalizadas', JSON.stringify(finalizadas)); }
+function salvarTimers(){ try{ localStorage.setItem('hk_timers', JSON.stringify(timersAtivos)); }catch(e){} }
+function salvarChecks(){ try{ localStorage.setItem('hk_checks', JSON.stringify(checks)); }catch(e){} }
+function salvarFinalizadas(){ try{ localStorage.setItem('hk_finalizadas', JSON.stringify(finalizadas)); }catch(e){} }
 function getReceitasBase(){ if(window.TODAS_RECEITAS) return window.TODAS_RECEITAS; if(window.RECEITAS) return window.RECEITAS; return []; }
 function init(){
-  renderCategorias(); filtrar(); restaurarTimersGlobais();
-  if(Notification.permission!=='granted') Notification.requestPermission();
-  getPushSubscription().catch(()=>{});
+  try{ renderCategorias(); }catch(e){}
+  try{ filtrar(); }catch(e){}
+  try{ restaurarTimersGlobais(); }catch(e){}
+  // CORREÇÃO IPHONE: não pede notificação no init, senão trava no Safari
+  try{ getPushSubscription().catch(()=>{}); }catch(e){}
   try{ history.pushState({tela:'home'}, '', location.href); }catch(e){}
+  // CORREÇÃO IPHONE: se voltou pro app com timer vencido, já marca como finalizado
+  try{ checarTimersVencidos(); }catch(e){}
+}
+function checarTimersVencidos(){
+  let mudou=false;
+  Object.keys(timersAtivos).forEach(k=>{
+    const t=timersAtivos[k];
+    if(t && !t.pausado && t.fim && t.fim <= Date.now()){
+      timersFinalizados[k]={...t, finalizadoEm: t.fim};
+      delete timersAtivos[k]; mudou=true;
+    }
+  });
+  if(mudou){ salvarTimers(); salvarFinalizados(); }
 }
 let audioCtx = null;
 let wakeLock = null;
 function desbloquearAudio(){
-  if(!audioCtx){ try{ audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }catch(e){} }
-  if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+  try{
+    if(!audioCtx){ audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+    if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+  }catch(e){}
 }
 document.addEventListener('click', desbloquearAudio, {once:false});
 document.addEventListener('touchstart', desbloquearAudio, {once:false});
 function tocarAlarme(){
-  desbloquearAudio();
-  if(navigator.vibrate) navigator.vibrate([500,200,500,200,500,200,1000]);
-  if(audioCtx){
-    for(let i=0; i<3; i++){
-      const t = audioCtx.currentTime + i*0.8;
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      osc.connect(gain); gain.connect(audioCtx.destination);
-      osc.frequency.value = 880; osc.type = 'sine';
-      gain.gain.setValueAtTime(0, t);
-      gain.gain.linearRampToValueAtTime(0.5, t+0.05);
-      gain.gain.exponentialRampToValueAtTime(0.01, t+0.7);
-      osc.start(t); osc.stop(t+0.7);
+  try{ desbloquearAudio(); }catch(e){}
+  vibrar([500,200,500,200,500,200,1000]);
+  try{
+    if(audioCtx){
+      for(let i=0; i<3; i++){
+        const t = audioCtx.currentTime + i*0.8;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.frequency.value = 880; osc.type = 'sine';
+        gain.gain.setValueAtTime(0, t);
+        gain.gain.linearRampToValueAtTime(0.5, t+0.05);
+        gain.gain.exponentialRampToValueAtTime(0.01, t+0.7);
+        osc.start(t); osc.stop(t+0.7);
+      }
     }
-  }
+  }catch(e){}
   try{ const a = new Audio('https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg'); a.play().catch(()=>{}); }catch(e){}
 }
 function notificarFim(t, key){
-  tocarAlarme20s(key);
+  try{ tocarAlarme20s(key); }catch(e){}
   if('serviceWorker' in navigator){
-    navigator.serviceWorker.ready.then(reg=>{
-      reg.showNotification(`⏰ Timer finalizado!`, {
-        body: `${t.titulo} - Passo ${t.passo} - Toque para parar`,
-        icon: './assets/icon-192.png',
-        badge: './assets/icon-192.png',
-        tag: key,
-        requireInteraction: true,
-        renotify: true,
-        vibrate: [1000,300,1000,300,1000,300,1000,300,1000,300,1000],
-        silent: false,
-        data: {key, idReceita: t.idReceita}
-      });
-    }).catch(()=>{});
+    try{
+      navigator.serviceWorker.ready.then(reg=>{
+        reg.showNotification(`⏰ Timer finalizado!`, {
+          body: `${t.titulo} - Passo ${t.passo} - Toque para parar`,
+          icon: './assets/icon-192.png',
+          badge: './assets/icon-192.png',
+          tag: key,
+          requireInteraction: true,
+          renotify: true,
+          vibrate: [1000,300,1000,300,1000,300,1000,300,1000,300,1000],
+          silent: false,
+          data: {key, idReceita: t.idReceita}
+        });
+      }).catch(()=>{});
+    }catch(e){}
   }
-  if(Notification.permission === 'granted' && !('serviceWorker' in navigator)){
-    const n = new Notification(`⏰ Timer finalizado!`, { body: `${t.titulo} - Passo ${t.passo}`, tag: key, requireInteraction: true });
-    n.onclick = () => { window.focus(); n.close(); if(t.idReceita) voltarParaModoPreparo(t.idReceita, key); };
-  }
+  try{
+    if(temNotificacao() && Notification.permission === 'granted' && !('serviceWorker' in navigator)){
+      const n = new Notification(`⏰ Timer finalizado!`, { body: `${t.titulo} - Passo ${t.passo}`, tag: key, requireInteraction: true });
+      n.onclick = () => { window.focus(); n.close(); if(t.idReceita) voltarParaModoPreparo(t.idReceita, key); };
+    }
+  }catch(e){}
 }
 function testarNotificacao(){
+  if(!temNotificacao()){ alert('Esse navegador não suporta notificação. No iPhone, instale o app na Tela de Início: Compartilhar > Adicionar à Tela de Início.'); return; }
   if(Notification.permission !== 'granted'){
     Notification.requestPermission().then(p=>{
-      if(p !== 'granted') alert('Você bloqueou a notificação! Vai em 3 pontinhos > Configurações do site > Notificações > Permitir');
+      if(p !== 'granted') alert('Você bloqueou a notificação! Vai em Ajustes > Notificações > Permitir');
       else alert('Permissão liberada! Clica de novo em testar.');
-    });
+    }).catch(()=>{});
     return;
   }
-  navigator.serviceWorker.ready.then(reg=>{
-    reg.showNotification('⏰ TESTE', {
-      body: 'Se você viu isso, a notificação está funcionando! Toque para abrir',
-      icon: './assets/icon-192.png',
-      badge: './assets/icon-192.png',
-      vibrate: [1000,300,1000,300,1000],
-      requireInteraction: true,
-      silent: false,
-      tag: 'teste-hk',
-      data: {key:'teste', idReceita:''}
+  try{
+    navigator.serviceWorker.ready.then(reg=>{
+      reg.showNotification('⏰ TESTE', {
+        body: 'Se você viu isso, a notificação está funcionando! Toque para abrir',
+        icon: './assets/icon-192.png',
+        badge: './assets/icon-192.png',
+        vibrate: [1000,300,1000,300,1000],
+        requireInteraction: true,
+        silent: false,
+        tag: 'teste-hk',
+        data: {key:'teste', idReceita:''}
+      });
+      alert('Notificação de teste enviada! Olha a barra de notificação do celular.');
     });
-    alert('Notificação de teste enviada! Olha a barra de notificação do celular.');
-  });
+  }catch(e){ alert('Erro teste: '+e.message); }
 }
 async function testarPush(){
   try{
     const sub = await getPushSubscription();
-    if(!sub){ alert('Push não ativado'); return; }
+    if(!sub){ alert('Push não ativado. No iPhone só funciona com app instalado na Tela de Início.'); return; }
     const res = await fetch('/api/agendar', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ subscription: sub, titulo: 'TESTE PUSH', passo: 1, key: 'teste-push-'+Date.now(), idReceita: '', fim: Date.now()+10000 }) });
     const j = await res.json();
     alert('Push de teste agendado! Fecha o app agora e espera 10 segundos. Tem que vibrar mesmo com app fechado. ' + JSON.stringify(j));
@@ -194,18 +230,22 @@ async function testarPush(){
 async function travarTelaAcesa(){
   try{ if('wakeLock' in navigator && !wakeLock){ wakeLock = await navigator.wakeLock.request('screen'); wakeLock.addEventListener('release', ()=> wakeLock = null); } }catch(e){}
 }
-document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) travarTelaAcesa(); });
+document.addEventListener('visibilitychange', ()=>{ if(!document.hidden){ try{ travarTelaAcesa(); }catch(e){} try{ checarTimersVencidos(); }catch(e){} } });
 if('serviceWorker' in navigator){
-  navigator.serviceWorker.register('sw.js?v=8').then(reg=>{ reg.update(); if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'}); }).catch(()=>{});
-  let refreshing = false;
-  navigator.serviceWorker.addEventListener('controllerchange', ()=>{ if(!refreshing){ refreshing = true; window.location.reload(); } });
+  try{
+    navigator.serviceWorker.register('sw.js?v=9').then(reg=>{ reg.update(); if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'}); }).catch(()=>{});
+    let refreshing = false;
+    navigator.serviceWorker.addEventListener('controllerchange', ()=>{ if(!refreshing){ refreshing = true; window.location.reload(); } });
+  }catch(e){}
 }
 function enviarParaSW(msg){
   if(!('serviceWorker' in navigator)) return;
-  navigator.serviceWorker.ready.then(reg => {
-    if(reg.active) reg.active.postMessage(msg);
-    else if(navigator.serviceWorker.controller) navigator.serviceWorker.controller.postMessage(msg);
-  }).catch(()=>{});
+  try{
+    navigator.serviceWorker.ready.then(reg => {
+      if(reg.active) reg.active.postMessage(msg);
+      else if(navigator.serviceWorker.controller) navigator.serviceWorker.controller.postMessage(msg);
+    }).catch(()=>{});
+  }catch(e){}
 }
 function renderCategorias(){
   const c=document.getElementById('categorias'); if(!c||!CATEGORIAS) return;
@@ -248,7 +288,7 @@ function filtrar(){
 function renderReceitas(lista, alvoId){
   const cont=document.getElementById(alvoId); if(!cont) return;
   if(lista.length===0){ cont.innerHTML=`<div style="grid-column:1/3;text-align:center;padding:30px">Nenhuma receita</div>`; return; }
-  cont.innerHTML=lista.map(r=>{ const isFav=favoritos.includes(r.id); return `<div class="card" onclick="abrirReceita('${r.id}')"><button class="fav-btn" data-fav-id="${r.id}" onclick="event.stopPropagation();toggleFav('${r.id}')">${isFav?'❤️':'🤍'}</button><img src="${r.foto}" loading="lazy"><div class="card-body"><span class="badge">${r.categoria_principal}</span><h3 style="margin:8px 0 4px;font-weight:800">${r.titulo}</h3><div class="card-info"><span>⏰ ${r.tempo}</span><span>🍽️ ${r.porcoes||''}</span><span>📊 ${calcularNivel(r)}</span></div></div></div>`}).join('');
+  cont.innerHTML=lista.map(r=>{ const isFav=favoritos.includes(r.id); return `<div class="card" onclick="abrirReceita('${r.id}')"><button class="fav-btn" data-fav-id="${r.id}" onclick="event.stopPropagation();toggleFav('${r.id}');return false;">${isFav?'❤️':'🤍'}</button><img src="${r.foto}" loading="lazy"><div class="card-body"><span class="badge">${r.categoria_principal}</span><h3 style="margin:8px 0 4px;font-weight:800">${r.titulo}</h3><div class="card-info"><span>⏰ ${r.tempo}</span><span>🍽️ ${r.porcoes||''}</span><span>📊 ${calcularNivel(r)}</span></div></div></div>`}).join('');
 }
 function normalizarPasso(p){ if(typeof p==='string') return {texto:p, tempoMin: extrairMin(p), dica:''}; return {texto:p.texto||p.passo||'', tempoMin: p.timer||p.tempoMin||extrairMin(p.texto||''), label:p.label||'', dica:p.dica||''}; }
 function extrairMin(t){ const m=(t||'').match(/(\d+)\s*min/); return m?parseInt(m[1]):0; }
@@ -334,14 +374,13 @@ function renderRecentes(){
   const RECEITAS=getReceitasBase(); const cont=document.getElementById('grid-recentes'); if(!cont) return;
   renderReceitas(recentes.map(id=>RECEITAS.find(r=>r.id===id)).filter(Boolean),'grid-recentes');
 }
-function atualizarTodasAbasFav(){ filtrar(); atualizarGridFavoritos(); renderRecentes(); renderFinalizadas(); atualizarBotaoFavCima(); }
+function atualizarTodasAbasFav(){ try{ filtrar(); }catch(e){} try{ atualizarGridFavoritos(); }catch(e){} try{ renderRecentes(); }catch(e){} try{ renderFinalizadas(); }catch(e){} try{ atualizarBotaoFavCima(); }catch(e){} }
 function abrirReceita(id){
   const RECEITAS=getReceitasBase(); const r=RECEITAS.find(x=>x.id===id); if(!r) return; receitaAtual=r;
-  if(!recentes.includes(id)){ recentes.unshift(id); recentes=recentes.slice(0,12); localStorage.setItem('hk_rec',JSON.stringify(recentes)); }
+  if(!recentes.includes(id)){ recentes.unshift(id); recentes=recentes.slice(0,12); try{ localStorage.setItem('hk_rec',JSON.stringify(recentes)); }catch(e){} }
   try{ history.pushState({tela:'receita', id}, '', location.href); }catch(e){}
   const modal=document.getElementById('modal'); const corpo=document.getElementById('modal-corpo');
   const passosNorm=r.passos.map(normalizarPasso); const passosDetalhados=passosNorm.map((p,i)=>detalharPasso(p,i,passosNorm.length)); const chk=getCheckReceita(r.id);
-  // CORRIGIDO: sem topo duplicado aqui - usa o topo que já existe no index.html
   corpo.innerHTML=`
   <style>
     .flip-wrapper{ perspective:1200px; } .flip-inner{ position:relative; width:100%; transition: transform 0.7s; transform-style: preserve-3d; }
@@ -396,8 +435,8 @@ function abrirReceita(id){
 function rolarTopoModal(){ const modal=document.getElementById('modal'); const corpo=document.getElementById('modal-corpo'); if(modal) modal.scrollTo({top:0, behavior:'smooth'}); if(corpo) corpo.scrollTo({top:0, behavior:'smooth'}); window.scrollTo({top:0, behavior:'smooth'}); }
 function irParaModoPreparo(){ const flip=document.getElementById('flip-inner'); const v1=document.getElementById('view-ingredientes'); const v2=document.getElementById('view-preparo'); flip.classList.add('virando'); rolarTopoModal(); setTimeout(()=>{ v1.style.display='none'; v2.style.display='block'; v2.style.position='relative'; v2.style.transform='rotateY(180deg)'; rolarTopoModal(); atualizarBotaoFinalizar(); },350); }
 function voltarIngredientes(){ const flip=document.getElementById('flip-inner'); const v1=document.getElementById('view-ingredientes'); const v2=document.getElementById('view-preparo'); flip.classList.remove('virando'); rolarTopoModal(); setTimeout(()=>{ v2.style.display='none'; v1.style.display='block'; rolarTopoModal(); },350); }
-function fecharModal(){ document.getElementById('modal').classList.remove('mostrar'); receitaAtual=null; }
-function getBotaoFavCima(){ return document.getElementById('rFavBtn') || document.getElementById('btn-fav-topo') || document.querySelector('.btn-fav-topo') || document.querySelector('[data-fav-topo]'); }
+function fecharModal(){ try{ document.getElementById('modal').classList.remove('mostrar'); }catch(e){} receitaAtual=null; }
+function getBotaoFavCima(){ try{ return document.getElementById('rFavBtn') || document.getElementById('btn-fav-topo') || document.querySelector('.btn-fav-topo') || document.querySelector('[data-fav-topo]'); }catch(e){ return null; } }
 function atualizarBotaoFavCima(){
   const btn = getBotaoFavCima(); if(!btn) return;
   if(!receitaAtual){ btn.innerHTML = '♡ Favoritar'; btn.style.background=''; btn.style.color=''; return; }
@@ -407,17 +446,29 @@ function atualizarBotaoFavCima(){
 }
 function atualizarBotaoFavDentro(){ atualizarBotaoFavCima(); }
 function atualizarGridFavoritos(){ const RECEITAS=getReceitasBase(); const gridFav=document.getElementById('grid-favoritos'); if(gridFav) renderReceitas(RECEITAS.filter(r=>favoritos.includes(r.id)),'grid-favoritos'); }
-function toggleFav(id){ if(favoritos.includes(id)) favoritos=favoritos.filter(x=>x!==id); else favoritos.push(id); localStorage.setItem('hk_fav',JSON.stringify(favoritos)); atualizarTodasAbasFav(); }
-function toggleFavAtual(){ if(!receitaAtual) return; const id=receitaAtual.id; if(favoritos.includes(id)) favoritos=favoritos.filter(x=>x!==id); else favoritos.push(id); localStorage.setItem('hk_fav',JSON.stringify(favoritos)); atualizarBotaoFavCima(); atualizarTodasAbasFav(); }
+function toggleFav(id){ if(favoritos.includes(id)) favoritos=favoritos.filter(x=>x!==id); else favoritos.push(id); try{ localStorage.setItem('hk_fav',JSON.stringify(favoritos)); }catch(e){} atualizarTodasAbasFav(); }
+function toggleFavAtual(){ if(!receitaAtual) return; const id=receitaAtual.id; if(favoritos.includes(id)) favoritos=favoritos.filter(x=>x!==id); else favoritos.push(id); try{ localStorage.setItem('hk_fav',JSON.stringify(favoritos)); }catch(e){} atualizarBotaoFavCima(); atualizarTodasAbasFav(); }
 window.addEventListener('popstate', function(){ const modalAberto=document.getElementById('modal')?.classList.contains('mostrar'); if(modalAberto){ fecharModal(); try{ history.pushState({tela:'home'}, '', location.href); }catch(e){} } else { try{ history.pushState({tela:'home'}, '', location.href); }catch(e){} } });
+// ===== TIMER - CORRIGIDO PRO IPHONE =====
 function iniciarTimer(min, idx){
-  if(!receitaAtual||min<=0) return; const key=`${receitaAtual.id}-${idx}`;
-  if(timersFinalizados[key]){ alert('⏰ Esse timer já finalizou! Aperte ⏹️ PARAR ALARME para poder ligar de novo.'); return; }
-  desbloquearAudio(); travarTelaAcesa(); if(Notification.permission !== 'granted') Notification.requestPermission();
-  const fim=Date.now()+min*60*1000; timersAtivos[key]={fim, titulo:receitaAtual.titulo, passo:idx+1, min, idReceita:receitaAtual.id, pausado:false}; salvarTimers(); agendarPushServidor(timersAtivos[key], key); renderControlesTimer(key, idx, min); atualizarPaginaTimers();
+  try{
+    if(!receitaAtual||!min||min<=0) return;
+    const key=`${receitaAtual.id}-${idx}`;
+    if(timersFinalizados[key]){ alert('⏰ Esse timer já finalizou! Aperte ⏹️ PARAR ALARME para poder ligar de novo.'); return; }
+    try{ desbloquearAudio(); }catch(e){}
+    try{ travarTelaAcesa(); }catch(e){}
+    // NÃO pede Notification aqui - no iPhone isso travava o botão
+    const fim=Date.now()+min*60*1000;
+    timersAtivos[key]={fim, titulo:receitaAtual.titulo, passo:idx+1, min, idReceita:receitaAtual.id, pausado:false};
+    salvarTimers();
+    try{ agendarPushServidor(timersAtivos[key], key); }catch(e){}
+    renderControlesTimer(key, idx, min);
+    atualizarPaginaTimers();
+    vibrar(100);
+  }catch(e){ alert('Erro ao ligar timer: '+e.message); }
 }
-function pausarTimer(key, idx){ const t=timersAtivos[key]; if(!t||t.pausado) return; const restante=Math.max(0, Math.floor((t.fim-Date.now())/1000)); t.restante=restante; t.pausado=true; delete t.fim; salvarTimers(); enviarParaSW({type:'CANCEL_TIMER', key}); cancelarPushServidor(key); renderControlesTimer(key, idx, t.min); atualizarPaginaTimers(); }
-function continuarTimer(key, idx){ const t=timersAtivos[key]; if(!t||!t.pausado) return; t.fim=Date.now()+t.restante*1000; t.pausado=false; delete t.restante; salvarTimers(); agendarPushServidor(t, key); renderControlesTimer(key, idx, t.min); atualizarPaginaTimers(); }
+function pausarTimer(key, idx){ try{ const t=timersAtivos[key]; if(!t||t.pausado) return; const restante=Math.max(0, Math.floor((t.fim-Date.now())/1000)); t.restante=restante; t.pausado=true; delete t.fim; salvarTimers(); enviarParaSW({type:'CANCEL_TIMER', key}); cancelarPushServidor(key); renderControlesTimer(key, idx, t.min); atualizarPaginaTimers(); }catch(e){} }
+function continuarTimer(key, idx){ try{ const t=timersAtivos[key]; if(!t||!t.pausado) return; t.fim=Date.now()+t.restante*1000; t.pausado=false; delete t.restante; salvarTimers(); agendarPushServidor(t, key); renderControlesTimer(key, idx, t.min); atualizarPaginaTimers(); }catch(e){} }
 function zerarTimer(key, idx, minOriginal){ const t=timersAtivos[key]||timersFinalizados[key]; const nome=t?`${t.titulo} - Passo ${t.passo}`:'esse timer'; if(!confirm(`Tem certeza que quer zerar?\n\n${nome}\n\nO tempo será perdido.`)) return; if(alarmesTocando[key]){ clearInterval(alarmesTocando[key]); delete alarmesTocando[key]; } delete timersAtivos[key]; delete timersFinalizados[key]; salvarTimers(); salvarFinalizados(); enviarParaSW({type:'CANCEL_TIMER', key}); cancelarPushServidor(key); renderControlesTimer(key, idx, minOriginal, true); atualizarPaginaTimers(); }
 function renderControlesTimer(key, idx, minOriginal, zerado=false){
   const cont=document.getElementById(`controls-${idx}`); if(!cont) return;
@@ -430,8 +481,10 @@ function renderControlesTimer(key, idx, minOriginal, zerado=false){
 function restaurarTimersGlobais(){
   setInterval(()=>{
     let mudou=false;
-    Object.keys(timersAtivos).forEach(k=>{ const t=timersAtivos[k]; if(!t){ delete timersAtivos[k]; mudou=true; return; } if(t.pausado) return; if(!t.fim) return; const rest=Math.floor((t.fim-Date.now())/1000); if(receitaAtual && k.startsWith(receitaAtual.id+'-')){ const idx=k.split('-').pop(); const btn=document.getElementById(`btn-main-${idx}`); if(btn){ if(rest>0) btn.innerText=`⏳ ${Math.floor(rest/60)}:${(rest%60).toString().padStart(2,'0')} rodando`; else btn.innerText=`✅ Finalizado!`; } } if(rest<=0){ timersFinalizados[k]={...t, finalizadoEm: Date.now()}; delete timersAtivos[k]; mudou=true; salvarFinalizados(); enviarParaSW({type:'CANCEL_TIMER', key:k}); notificarFim(t, k); if(receitaAtual && k.startsWith(receitaAtual.id+'-')){ const idx=parseInt(k.split('-').pop()); renderControlesTimer(k, idx, t.min); } } });
-    if(mudou) salvarTimers(); if(document.getElementById('page-timer')?.classList.contains('ativa')) atualizarPaginaTimers();
+    try{
+      Object.keys(timersAtivos).forEach(k=>{ const t=timersAtivos[k]; if(!t){ delete timersAtivos[k]; mudou=true; return; } if(t.pausado) return; if(!t.fim) return; const rest=Math.floor((t.fim-Date.now())/1000); if(receitaAtual && k.startsWith(receitaAtual.id+'-')){ const idx=k.split('-').pop(); const btn=document.getElementById(`btn-main-${idx}`); if(btn){ if(rest>0) btn.innerText=`⏳ ${Math.floor(rest/60)}:${(rest%60).toString().padStart(2,'0')} rodando`; else btn.innerText=`✅ Finalizado!`; } } if(rest<=0){ timersFinalizados[k]={...t, finalizadoEm: Date.now()}; delete timersAtivos[k]; mudou=true; salvarFinalizados(); enviarParaSW({type:'CANCEL_TIMER', key:k}); notificarFim(t, k); if(receitaAtual && k.startsWith(receitaAtual.id+'-')){ const idx=parseInt(k.split('-').pop()); renderControlesTimer(k, idx, t.min); } } });
+    }catch(e){}
+    if(mudou) salvarTimers(); try{ if(document.getElementById('page-timer')?.classList.contains('ativa')) atualizarPaginaTimers(); }catch(e){}
   },1000);
 }
 function atualizarPaginaTimers(){
@@ -445,18 +498,19 @@ function atualizarPaginaTimers(){
 }
 function voltarParaModoPreparo(idReceita, key){ if(!idReceita){ const t=timersAtivos[key]||timersFinalizados[key]; if(t) idReceita=t.idReceita; } if(!idReceita) return; mudarPage('home'); setTimeout(()=>{ abrirReceita(idReceita); setTimeout(()=>{ irParaModoPreparo(); }, 600); },200); }
 function voltarParaReceita(idReceita, key){ voltarParaModoPreparo(idReceita, key); }
-function limparTodosTimers(){ const qtd=Object.keys(timersAtivos).length+Object.keys(timersFinalizados).length; if(qtd===0) return; if(!confirm(`Tem certeza que quer apagar TODOS os ${qtd} timers?\n\nEssa ação não pode ser desfeita.`)) return; localStorage.removeItem('hk_timers'); localStorage.removeItem('hk_timers_finalizados'); timersAtivos={}; timersFinalizados={}; Object.values(alarmesTocando).forEach(id=>clearInterval(id)); alarmesTocando={}; salvarTimers(); salvarFinalizados(); enviarParaSW({type:'CLEAR_ALL'}); atualizarPaginaTimers(); }
+function limparTodosTimers(){ const qtd=Object.keys(timersAtivos).length+Object.keys(timersFinalizados).length; if(qtd===0) return; if(!confirm(`Tem certeza que quer apagar TODOS os ${qtd} timers?\n\nEssa ação não pode ser desfeita.`)) return; try{ localStorage.removeItem('hk_timers'); localStorage.removeItem('hk_timers_finalizados'); }catch(e){} timersAtivos={}; timersFinalizados={}; Object.values(alarmesTocando).forEach(id=>clearInterval(id)); alarmesTocando={}; salvarTimers(); salvarFinalizados(); enviarParaSW({type:'CLEAR_ALL'}); atualizarPaginaTimers(); }
 function mudarPage(nome){ document.querySelectorAll('.page').forEach(p=>p.classList.remove('ativa')); document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('ativo')); document.getElementById(`page-${nome}`)?.classList.add('ativa'); document.getElementById(`nav-${nome}`)?.classList.add('ativo'); const RECEITAS=getReceitasBase(); if(nome==='favoritos') renderReceitas(RECEITAS.filter(r=>favoritos.includes(r.id)),'grid-favoritos'); if(nome==='recentes') renderRecentes(); if(nome==='timer') atualizarPaginaTimers(); if(nome==='finalizadas') renderFinalizadas(); }
 document.addEventListener('DOMContentLoaded',init);
 const CONDIMENTOS_TIRAR = ['agua','água','alho','caldo','curcuma','cúrcuma','acucar','açucar','açúcar','sal','pimenta','oleo','óleo','azeite','vinagre','manteiga','margarina','cominho','oregano','orégano','salsinha','cebolinha','coentro','alecrim','manjericão','canela','cravo','noz moscada','paprica','páprica','curry','açafrão','cheiro verde','shoyu','molho shoyu','sal grosso','pimenta reino','limão','azeite de dendê','água com gás','amido','polvilho','fermento','louro','folha de louro','tempero verde','mix de folhas','mix folhas','folhas','folha','nori','gengibre'];
-let ingredientesSelecionados = JSON.parse(localStorage.getItem('hk_ing_possuo')||'[]');
+let ingredientesSelecionados = [];
+try{ ingredientesSelecionados = JSON.parse(localStorage.getItem('hk_ing_possuo')||'[]'); }catch(e){ ingredientesSelecionados=[]; }
 function paraRaiz(nome){nome=nome.toLowerCase().trim();let s=nome.normalize('NFD').replace(/[\u0300-\u036f]/g,'');if(s.includes('guacamole'))return'abacate';if(s.includes('gema')||s.includes('clara'))return'ovo';if(s.includes('ovo'))return'ovo';if(s.includes('tomate'))return'tomate';if(s.includes('pimentao'))return'pimentão';if(s.includes('cebola'))return'cebola';if(s.includes('abobora'))return'abóbora';if(s.includes('batata'))return'batata';if(s.includes('feijao'))return'feijão';if(s.includes('tortilha')||s.includes('tortilla'))return'tortilha';if(s.includes('requeijao'))return'requeijão';if(s.includes('frango'))return'frango';if(s.includes('carne')||s.includes('patinho'))return'carne';if(s.includes('queijo')||s.includes('mucarela')||s.includes('mussarela')||s.includes('parmesao')||s.includes('cheddar')||s.includes('catupiry')||s.includes('meia cura')||s.includes('presunto'))return'queijo';if(s.includes('leite condensado'))return'leite condensado';if(s.includes('leite de coco'))return'leite de coco';if(s.includes('leite'))return'leite';if(s.includes('farinha')||s.includes('panko')||s.includes('massa')||s.includes('espaguete')||s.includes('macarrao'))return'massa';if(s.includes('abobrinha'))return'abobrinha';if(s.includes('cenoura'))return'cenoura';if(s.includes('couve'))return'couve';if(s.includes('alface'))return'alface';if(s.includes('arroz'))return'arroz';if(s.includes('grao de bico')||s.includes('lentilha')||s.includes('ervilha'))return'grãos';if(s.includes('quinoa')||s.includes('aveia'))return'grãos';if(s.includes('pao'))return'pão';if(s.includes('linguica')||s.includes('bacon')||s.includes('calabresa')||s.includes('paio')||s.includes('costela'))return'linguiça';if(s.includes('camarao')||s.includes('robalo')||s.includes('salmao'))return'peixe';if(s.includes('abacate'))return'abacate';if(s.includes('pepino'))return'pepino';if(s.includes('brocolis'))return'brócolis';if(s.includes('repolho'))return'repolho';if(s.includes('milho'))return'milho';if(s.includes('morango'))return'morango';if(s.includes('coco'))return'coco';if(s.includes('chocolate')||s.includes('cacau')||s.includes('pacoca')||s.includes('bolacha')||s.includes('doce de leite'))return'doce';return nome;}
 function getIngredientesObrigatoriosDaReceita(receita){let obrigatorios=[];if(!receita.ingredientes)return[];receita.ingredientes.forEach(ing=>{let nome=(ing.nome||'').toLowerCase().trim();if(!nome)return;if(CONDIMENTOS_TIRAR.some(c=>nome.includes(c)))return;let raiz=paraRaiz(nome);if(raiz.length>=3&&!CONDIMENTOS_TIRAR.includes(raiz))obrigatorios.push(raiz);});return[...new Set(obrigatorios)];}
-function getTodosIngredientesUnicos(){const map=new Map();if(!RECEITAS)return[];RECEITAS.forEach(r=>{getIngredientesObrigatoriosDaReceita(r).forEach(raiz=>{if(!map.has(raiz))map.set(raiz,raiz);});});return Array.from(map.keys()).map(k=>({id:k,label:k})).sort((a,b)=>a.label.localeCompare(b.label));}
+function getTodosIngredientesUnicos(){const map=new Map();const TODAS=getReceitasBase();if(!TODAS)return[];TODAS.forEach(r=>{getIngredientesObrigatoriosDaReceita(r).forEach(raiz=>{if(!map.has(raiz))map.set(raiz,raiz);});});return Array.from(map.keys()).map(k=>({id:k,label:k})).sort((a,b)=>a.label.localeCompare(b.label));}
 function abrirModalIngredientesPossuo(){const modal=document.getElementById('modal-ingredientes');const lista=document.getElementById('lista-todos-ingredientes');if(!modal||!lista){alert('Use o index.html novo');return;}if(!document.getElementById('style-topo-fixo-final')){const style=document.createElement('style');style.id='style-topo-fixo-final';style.innerHTML=`#modal-ingredientes > div{ display: flex !important; flex-direction: column !important; max-height: 85vh !important; overflow: hidden !important; } #modal-ingredientes > div > div:first-child{ position: sticky !important; top: 0 !important; background: white !important; z-index: 100 !important; flex-shrink: 0 !important; padding-bottom: 12px !important; border-bottom: 1.5px solid #FFE9DC !important; } #lista-todos-ingredientes{ overflow-y: auto !important; flex: 1 !important; padding-top: 12px !important; }`;document.head.appendChild(style);}const todos=getTodosIngredientesUnicos();lista.innerHTML=todos.map(item=>{const checked=ingredientesSelecionados.includes(item.id)?'checked':'';const bg=checked?'#FFF0E6':'#FFFBF8';return`<label style="display:flex;align-items:center;gap:12px;background:${bg};border:1.5px solid #FFE9DC;padding:12px;border-radius:12px;cursor:pointer;margin-bottom:8px"><input type="checkbox" value="${item.id}" ${checked} onchange="toggleIngredientePossuo(this.value)" style="width:20px;height:20px"><span style="font-weight:600;text-transform:capitalize">${item.label}</span></label>`;}).join('');modal.style.display='flex';}
 function fecharModalIngredientesPossuo(){document.getElementById('modal-ingredientes').style.display='none';salvarEFiltrar();}
 function filtrarListaIngredientes(){const termo=document.getElementById('busca-ingrediente').value.toLowerCase();document.querySelectorAll('#lista-todos-ingredientes label').forEach(l=>{const txt=l.innerText.toLowerCase();l.style.display=txt.includes(termo)?'flex':'none';});}
-function toggleIngredientePossuo(id){if(ingredientesSelecionados.includes(id)){ingredientesSelecionados=ingredientesSelecionados.filter(x=>x!==id);}else{ingredientesSelecionados.push(id);}localStorage.setItem('hk_ing_possuo',JSON.stringify(ingredientesSelecionados));const todos=getTodosIngredientesUnicos();const lista=document.getElementById('lista-todos-ingredientes');if(!lista)return;lista.innerHTML=todos.map(item=>{const checked=ingredientesSelecionados.includes(item.id)?'checked':'';const bg=checked?'#FFF0E6':'#FFFBF8';return`<label style="display:flex;align-items:center;gap:12px;background:${bg};border:1.5px solid #FFE9DC;padding:12px;border-radius:12px;cursor:pointer;margin-bottom:8px"><input type="checkbox" value="${item.id}" ${checked} onchange="toggleIngredientePossuo(this.value)" style="width:20px;height:20px"><span style="font-weight:600;text-transform:capitalize">${item.label}</span></label>`;}).join('');const cont=document.getElementById('contador-ingredientes-possuo');if(cont)cont.innerText=`${ingredientesSelecionados.length} selecionados`;}
-function limparSelecaoIngredientes(){ingredientesSelecionados=[];localStorage.setItem('hk_ing_possuo',JSON.stringify([]));abrirModalIngredientesPossuo();salvarEFiltrar();}
-function salvarEFiltrar(){const contador=document.getElementById('contador-ingredientes-possuo');if(contador)contador.innerText=`${ingredientesSelecionados.length} selecionados`;if(ingredientesSelecionados.length===0){const box=document.getElementById('receitas-filtradas-possuo');if(box)box.innerHTML='';filtrar();return;}let filtradas=[...RECEITAS];if(categoriaAtiva!=='tudo'){if(categoriaAtiva==='airfryer')filtradas=filtradas.filter(r=>r.airfryer===true);else{const nome=CATEGORIAS.find(c=>c.id===categoriaAtiva)?.nome.toLowerCase()||categoriaAtiva;filtradas=filtradas.filter(r=>(r.categoria_principal||'').toLowerCase()===nome||(r.categorias||[]).map(x=>x.toLowerCase()).includes(nome));}}filtradas=filtradas.filter(receita=>{const obrigatorios=getIngredientesObrigatoriosDaReceita(receita);if(obrigatorios.length===0)return false;return obrigatorios.every(ob=>ingredientesSelecionados.includes(ob));});const box=document.getElementById('receitas-filtradas-possuo');if(box){if(filtradas.length===0){box.innerHTML=`<div style="text-align:center;padding:16px;background:#FFF0E6;border-radius:12px">Com <b>${ingredientesSelecionados.join(', ')}</b> ainda não dá pra fazer nenhuma receita completa</div>`;}else{box.innerHTML=`<div style="font-weight:800;margin-bottom:8px">✅ Você consegue fazer ${filtradas.length} receitas com: ${ingredientesSelecionados.join(', ')}</div>`;}}renderReceitas(filtradas,'grid-receitas');}
+function toggleIngredientePossuo(id){if(ingredientesSelecionados.includes(id)){ingredientesSelecionados=ingredientesSelecionados.filter(x=>x!==id);}else{ingredientesSelecionados.push(id);}try{ localStorage.setItem('hk_ing_possuo',JSON.stringify(ingredientesSelecionados)); }catch(e){} const todos=getTodosIngredientesUnicos();const lista=document.getElementById('lista-todos-ingredientes');if(!lista)return;lista.innerHTML=todos.map(item=>{const checked=ingredientesSelecionados.includes(item.id)?'checked':'';const bg=checked?'#FFF0E6':'#FFFBF8';return`<label style="display:flex;align-items:center;gap:12px;background:${bg};border:1.5px solid #FFE9DC;padding:12px;border-radius:12px;cursor:pointer;margin-bottom:8px"><input type="checkbox" value="${item.id}" ${checked} onchange="toggleIngredientePossuo(this.value)" style="width:20px;height:20px"><span style="font-weight:600;text-transform:capitalize">${item.label}</span></label>`;}).join('');const cont=document.getElementById('contador-ingredientes-possuo');if(cont)cont.innerText=`${ingredientesSelecionados.length} selecionados`;}
+function limparSelecaoIngredientes(){ingredientesSelecionados=[];try{ localStorage.setItem('hk_ing_possuo',JSON.stringify([])); }catch(e){} abrirModalIngredientesPossuo();salvarEFiltrar();}
+function salvarEFiltrar(){const contador=document.getElementById('contador-ingredientes-possuo');if(contador)contador.innerText=`${ingredientesSelecionados.length} selecionados`;if(ingredientesSelecionados.length===0){const box=document.getElementById('receitas-filtradas-possuo');if(box)box.innerHTML='';filtrar();return;}let filtradas=[...getReceitasBase()];if(categoriaAtiva!=='tudo'){if(categoriaAtiva==='airfryer')filtradas=filtradas.filter(r=>r.airfryer===true);else{const nome=CATEGORIAS.find(c=>c.id===categoriaAtiva)?.nome.toLowerCase()||categoriaAtiva;filtradas=filtradas.filter(r=>(r.categoria_principal||'').toLowerCase()===nome||(r.categorias||[]).map(x=>x.toLowerCase()).includes(nome));}}filtradas=filtradas.filter(receita=>{const obrigatorios=getIngredientesObrigatoriosDaReceita(receita);if(obrigatorios.length===0)return false;return obrigatorios.every(ob=>ingredientesSelecionados.includes(ob));});const box=document.getElementById('receitas-filtradas-possuo');if(box){if(filtradas.length===0){box.innerHTML=`<div style="text-align:center;padding:16px;background:#FFF0E6;border-radius:12px">Com <b>${ingredientesSelecionados.join(', ')}</b> ainda não dá pra fazer nenhuma receita completa</div>`;}else{box.innerHTML=`<div style="font-weight:800;margin-bottom:8px">✅ Você consegue fazer ${filtradas.length} receitas com: ${ingredientesSelecionados.join(', ')}</div>`;}}renderReceitas(filtradas,'grid-receitas');}
 document.addEventListener('DOMContentLoaded',init);
