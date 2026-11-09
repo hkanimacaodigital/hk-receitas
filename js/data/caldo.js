@@ -1,3 +1,13 @@
+// RECEITAS CALDO
+// 1 - Caldo Verde Tradicional
+// 2 - Caldo de Abóbora com Frango
+// 3 - Caldo de Feijão com Bacon
+// 4 - Sopa de Legumes com Macarrão
+// 5 - Caldo de Mandioquinha com Bacon
+// 6 - Canja de Galinha
+// 7 - Creme de Milho com Frango
+// 8 - Caldo de Ervilha com Linguiça
+// TOTAL: 8 receitas
 window.RECEITAS_CALDO = [
 {
 id:"caldo-verde-tradicional", titulo:"Caldo Verde Tradicional", categoria_principal:"Caldo", categorias:["Caldo","Brasileira"], tempo:"40 min", porcoes:"4 porções", foto:"assets/caldo-verde.jpg",
@@ -64,6 +74,115 @@ passos:[
 {texto:"Junte o feijão com o caldo, tempere com sal, pimenta e páprica, se quiser, e misture. Bata cerca da metade com mixer ou concha até virar um creme, deixando a outra metade em grãos para dar textura.", dica:"Bater só metade deixa o caldo cremoso sem ficar papado.", timer:0},
 {texto:"Ferva em fogo baixo por 10 minutos, mexendo de vez em quando, até engrossar. Se ficar grosso demais, adicione um pouco de água quente.", timer:10},
 {texto:"Junte a couve, misture e ferva por mais 2 minutos, só até murchar e continuar verdinha. Desligue e finalize com o bacon crocante e o cheiro-verde.", timer:2}
+]
+},
+{
+id:"sopa-legumes-macarrao", titulo:"Sopa de Legumes com Macarrão", categoria_principal:"Caldo", categorias:["Caldo","Saudável","Vegana"], tempo:"40 min", porcoes:"5 porções", foto:"assets/sopa-legumes-macarrao.jpg",
+ingredientes:[
+{nome:"Batata", qtd:"300g em cubos"},
+{nome:"Cenoura", qtd:"2 unidades médias em rodelas"},
+{nome:"Abobrinha", qtd:"1 unidade média em cubos"},
+{nome:"Vagem", qtd:"100g picada"},
+{nome:"Macarrão conchinha", qtd:"120g"},
+{nome:"Cebola", qtd:"1 unidade média picada"},
+{nome:"Alho", qtd:"2 dentes amassados"},
+{nome:"Tomate", qtd:"2 unidades médias picados sem sementes"},
+{nome:"Água", qtd:"1,2L"},
+{nome:"Azeite de oliva", qtd:"1 colher (sopa)"},
+{nome:"Sal", qtd:"a gosto"},
+{nome:"Cheiro-verde", qtd:"para finalizar"}
+],
+passos:[
+{texto:"Aqueça o azeite e refogue a cebola por 3 minutos, até ficar transparente. Junte o alho e o tomate e refogue por mais 3 minutos.", timer:6},
+{texto:"Junte a batata, a cenoura, a vagem e a água. Tempere com o sal e cozinhe em fogo médio por 15 minutos.", timer:15},
+{texto:"Junte a abobrinha e o macarrão e cozinhe por mais 10 minutos, até o macarrão ficar macio e os legumes cozidos mas sem desmanchar.", timer:10},
+{texto:"Acerte o sal e finalize com o cheiro-verde.", timer:0}
+]
+},
+{
+id:"caldo-mandioquinha-bacon", titulo:"Caldo de Mandioquinha com Bacon", categoria_principal:"Caldo", categorias:["Caldo","Brasileira"], tempo:"45 min", porcoes:"4 porções", foto:"assets/caldo-mandioquinha-bacon.jpg",
+ingredientes:[
+{nome:"Mandioquinha", qtd:"600g descascada em pedaços"},
+{nome:"Bacon", qtd:"120g em cubinhos"},
+{nome:"Cebola", qtd:"1/2 unidade média picada"},
+{nome:"Alho", qtd:"2 dentes amassados"},
+{nome:"Água", qtd:"900ml"},
+{nome:"Creme de leite", qtd:"100g"},
+{nome:"Sal", qtd:"a gosto"},
+{nome:"Pimenta-do-reino", qtd:"a gosto"},
+{nome:"Cheiro-verde", qtd:"para finalizar"}
+],
+passos:[
+{texto:"Frite o bacon em fogo médio por 6 minutos, até ficar crocante. Retire e reserve, deixando a gordura na panela.", timer:6},
+{texto:"Na mesma panela, refogue a cebola por 2 minutos e o alho por 1 minuto.", timer:3},
+{texto:"Junte a mandioquinha e a água, tempere com o sal e cozinhe por 20 minutos, até ficar bem macia.", timer:20},
+{texto:"Bata com o creme de leite até virar um creme liso. Se ficar grosso, junte um pouco de água quente.", timer:0},
+{texto:"Volte para a panela, ferva por 3 minutos, acerte o sal e finalize com o bacon crocante e o cheiro-verde.", timer:3}
+]
+},
+{
+id:"canja-galinha", titulo:"Canja de Galinha", categoria_principal:"Caldo", categorias:["Caldo","Brasileira","Saudável"], tempo:"50 min", porcoes:"5 porções", foto:"assets/canja-galinha.jpg",
+ingredientes:[
+{nome:"Peito de frango", qtd:"400g em cubos"},
+{nome:"Arroz branco", qtd:"150g lavado"},
+{nome:"Cenoura", qtd:"2 unidades médias em rodelas"},
+{nome:"Batata", qtd:"2 unidades médias em cubos"},
+{nome:"Cebola", qtd:"1 unidade média picada"},
+{nome:"Alho", qtd:"2 dentes amassados"},
+{nome:"Água", qtd:"1,5L"},
+{nome:"Azeite de oliva", qtd:"1 colher (sopa)"},
+{nome:"Sal", qtd:"a gosto"},
+{nome:"Limão", qtd:"suco de 1/2 unidade"},
+{nome:"Cheiro-verde", qtd:"para finalizar"}
+],
+passos:[
+{texto:"Tempere o frango com o sal e o limão. Doure no azeite por 6 minutos, até ficar dourado por fora.", timer:6},
+{texto:"Junte a cebola e o alho e refogue por 3 minutos.", timer:3},
+{texto:"Junte a cenoura, a batata, o arroz e a água. Cozinhe em fogo médio por 25 minutos, até o arroz e os legumes ficarem macios.", timer:25},
+{texto:"Desfie o frango com dois garfos dentro da própria panela, acerte o sal e finalize com o cheiro-verde.", timer:0}
+]
+},
+{
+id:"creme-milho-frango", titulo:"Creme de Milho com Frango", categoria_principal:"Caldo", categorias:["Caldo","Brasileira"], tempo:"35 min", porcoes:"4 porções", foto:"assets/creme-milho-frango.jpg",
+ingredientes:[
+{nome:"Milho verde", qtd:"400g - 2 latas escorridas ou 3 espigas"},
+{nome:"Frango desfiado já temperado", qtd:"250g"},
+{nome:"Leite integral", qtd:"300ml"},
+{nome:"Cebola", qtd:"1/2 unidade média picada"},
+{nome:"Alho", qtd:"1 dente amassado"},
+{nome:"Manteiga", qtd:"1 colher (sopa)"},
+{nome:"Farinha de trigo", qtd:"1 colher (sopa)"},
+{nome:"Sal", qtd:"a gosto"},
+{nome:"Pimenta-do-reino", qtd:"a gosto"},
+{nome:"Cheiro-verde", qtd:"para finalizar"}
+],
+passos:[
+{texto:"Bata o milho com o leite no liquidificador por 2 minutos, até ficar bem cremoso. Coe se quiser mais liso.", timer:2},
+{texto:"Derreta a manteiga e refogue a cebola por 2 minutos e o alho por 1 minuto. Junte a farinha e mexa por 1 minuto.", timer:4},
+{texto:"Junte o creme de milho batido, tempere com sal e pimenta e cozinhe em fogo baixo por 8 minutos, mexendo sempre, até engrossar.", timer:8},
+{texto:"Junte o frango desfiado, misture e ferva por mais 3 minutos. Finalize com o cheiro-verde.", timer:3}
+]
+},
+{
+id:"caldo-ervilha-linguica", titulo:"Caldo de Ervilha com Linguiça", categoria_principal:"Caldo", categorias:["Caldo","Brasileira"], tempo:"55 min", porcoes:"5 porções", foto:"assets/caldo-ervilha-linguica.jpg",
+ingredientes:[
+{nome:"Ervilha seca", qtd:"400g"},
+{nome:"Linguiça calabresa", qtd:"200g em rodelas"},
+{nome:"Cebola", qtd:"1 unidade média picada"},
+{nome:"Alho", qtd:"3 dentes amassados"},
+{nome:"Cenoura", qtd:"1 unidade média ralada"},
+{nome:"Água", qtd:"1,2L"},
+{nome:"Azeite de oliva", qtd:"1 colher (sopa)"},
+{nome:"Sal", qtd:"a gosto"},
+{nome:"Pimenta-do-reino", qtd:"a gosto"},
+{nome:"Cheiro-verde", qtd:"para finalizar"}
+],
+passos:[
+{texto:"Deixe a ervilha de molho por 2 horas, escorra e lave bem.", timer:0},
+{texto:"Doure a linguiça no azeite por 5 minutos. Retire e reserve.", timer:5},
+{texto:"Na mesma panela, refogue a cebola por 3 minutos, o alho por 1 minuto e a cenoura por 2 minutos.", timer:6},
+{texto:"Junte a ervilha e a água, tempere com sal e pimenta e cozinhe em fogo médio por 30 minutos, até a ervilha desmanchar e virar um creme grosso.", timer:30},
+{texto:"Junte a linguiça reservada, ferva por mais 5 minutos, acerte o sal e finalize com o cheiro-verde.", timer:5}
 ]
 }
 ];
