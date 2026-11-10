@@ -1,3 +1,19 @@
+// RECEITAS ORIENTAL
+// 1 - Karaage de Frango Crocante
+// 2 - Yakisoba de Frango Rápido
+// 3 - Tempurá de Legumes Crocante
+// 4 - Ramen Cremoso de Frango
+// 5 - Gyoza de Frango
+// 6 - Frango Teriyaki
+// 7 - Yakimeshi de Frango
+// 8 - Rolinho Primavera Crocante
+// 9 - Pad Thai de Frango
+// 10 - Sushi de Salmão Caseiro
+// 11 - Bibimbap Coreano
+// 12 - Curry Tailandês de Camarão
+// 13 - Tofu Grelhado com Legumes
+// 14 - Camarão Empanado Crocante
+// TOTAL: 14 receitas
 window.RECEITAS_ORIENTAL = [
 {
 id:"karaage", titulo:"Karaage de Frango Crocante", categoria_principal:"Oriental", categorias:["Oriental"], tempo:"40 min", porcoes:"3 porções", foto:"assets/karaage.jpg", airfryer:true,
@@ -191,6 +207,118 @@ passos:[
 {texto:"Aqueça o óleo em fogo alto e doure o frango por 5 minutos. Empurre para a lateral e faça os ovos mexidos.", timer:5},
 {texto:"Junte o macarrão, o shoyu, o açúcar e o limão. Misture por 2 minutos em fogo alto.", timer:2},
 {texto:"Junte o broto de feijão e a cebolinha, misture por 1 minuto e desligue. Finalize com amendoim e pimenta, se quiser.", timer:1}
+]
+},
+{
+id:"sushi-salmao", titulo:"Sushi de Salmão Caseiro", categoria_principal:"Oriental", categorias:["Oriental"], tempo:"50 min", porcoes:"16 peças", foto:"assets/sushi-salmao.jpg",
+ingredientes:[
+{nome:"Arroz japonês", qtd:"300g"},
+{nome:"Salmão fresco grau sashimi", qtd:"300g"},
+{nome:"Vinagre de arroz", qtd:"3 colheres (sopa)"},
+{nome:"Açúcar", qtd:"1 colher (sopa)"},
+{nome:"Sal", qtd:"1 colher (chá)"},
+{nome:"Nori", qtd:"2 folhas"},
+{nome:"Pepino", qtd:"1/2 unidade em tiras"},
+{nome:"Shoyu", qtd:"para servir"},
+{nome:"Wasabi", qtd:"a gosto"},
+{nome:"Gengibre em conserva", qtd:"para servir"},
+{nome:"Gergelim", qtd:"para finalizar"}
+],
+passos:[
+{texto:"Lave o arroz até a água sair limpa. Cozinhe com 360ml de água em fogo baixo tampado por 15 minutos. Desligue e deixe descansar 10 minutos.", timer:15},
+{texto:"Misture o vinagre, o açúcar e o sal até dissolver. Misture delicadamente no arroz ainda quente e deixe amornar.", timer:0},
+{texto:"Para nigiri: faça bolinhos de arroz com as mãos úmidas e coloque 1 fatia de salmão por cima. Para maki: espalhe arroz na nori, coloque salmão e pepino, enrole firme e corte em 6 peças.", timer:0},
+{texto:"Sirva com shoyu, wasabi, gengibre e gergelim.", timer:0}
+]
+},
+{
+id:"bibimbap", titulo:"Bibimbap Coreano", categoria_principal:"Oriental", categorias:["Oriental"], tempo:"35 min", porcoes:"2 porções", foto:"assets/bibimbap.jpg",
+ingredientes:[
+{nome:"Arroz cozido", qtd:"300g"},
+{nome:"Carne bovina em tiras finas", qtd:"200g"},
+{nome:"Espinafre", qtd:"100g"},
+{nome:"Cenoura", qtd:"1 unidade média em tiras"},
+{nome:"Broto de feijão", qtd:"100g"},
+{nome:"Cogumelo shitake", qtd:"100g fatiado"},
+{nome:"Ovo", qtd:"2 unidades"},
+{nome:"Pasta de pimenta coreana gochujang", qtd:"2 colheres (sopa)"},
+{nome:"Shoyu", qtd:"1 colher (sopa)"},
+{nome:"Óleo de gergelim", qtd:"1 colher (sopa)"},
+{nome:"Alho", qtd:"1 dente amassado"},
+{nome:"Gergelim", qtd:"para finalizar"},
+{nome:"Cebolinha", qtd:"para finalizar"}
+],
+passos:[
+{texto:"Tempere a carne com shoyu, alho e metade do óleo de gergelim. Grelhe em fogo alto por 4 minutos. Reserve.", timer:4},
+{texto:"Refogue o espinafre por 1 minuto, a cenoura por 2 minutos, o broto por 2 minutos e o shitake por 3 minutos, separadamente, com uma pitada de sal.", timer:8},
+{texto:"Frite os ovos em frigideira com gema mole.", timer:3},
+{texto:"Monte tigelas com arroz, os legumes e a carne em montinhos ao redor, o ovo no centro e o gochujang ao lado. Finalize com gergelim e cebolinha. Misture tudo na hora de comer.", timer:0}
+]
+},
+{
+id:"curry-tailandes-camarao", titulo:"Curry Tailandês de Camarão", categoria_principal:"Oriental", categorias:["Oriental"], tempo:"25 min", porcoes:"2 porções", foto:"assets/curry-tailandes-camarao.jpg",
+ingredientes:[
+{nome:"Camarão limpo", qtd:"300g"},
+{nome:"Leite de coco", qtd:"300ml"},
+{nome:"Pasta de curry verde", qtd:"2 colheres (sopa)"},
+{nome:"Pimentão", qtd:"1 unidade média em tiras"},
+{nome:"Abobrinha", qtd:"1 unidade pequena em meias-luas"},
+{nome:"Folhas de manjericão tailandês ou manjericão comum", qtd:"1/2 xícara"},
+{nome:"Shoyu ou molho de peixe", qtd:"1 colher (sopa)"},
+{nome:"Açúcar", qtd:"1 colher (chá)"},
+{nome:"Alho", qtd:"1 dente amassado"},
+{nome:"Óleo vegetal", qtd:"1 colher (sopa)"},
+{nome:"Arroz cozido", qtd:"para acompanhar"},
+{nome:"Limão", qtd:"suco de 1/2 unidade"}
+],
+passos:[
+{texto:"Aqueça o óleo e frite a pasta de curry com o alho por 1 minuto, até perfumar.", timer:1},
+{texto:"Junte o leite de coco e cozinhe por 3 minutos em fogo médio, até começar a engrossar.", timer:3},
+{texto:"Junte o pimentão e a abobrinha e cozinhe por 4 minutos, até ficarem macios mas ainda crocantes.", timer:4},
+{texto:"Junte o camarão e cozinhe por 4 minutos, até ficar rosado. Tempere com shoyu, açúcar e limão.", timer:4},
+{texto:"Desligue, junte o manjericão e sirva com arroz.", timer:0}
+]
+},
+{
+id:"tofu-grelhado", titulo:"Tofu Grelhado com Legumes", categoria_principal:"Oriental", categorias:["Oriental","Vegana"], tempo:"25 min", porcoes:"2 porções", foto:"assets/tofu-grelhado.jpg",
+ingredientes:[
+{nome:"Tofu firme", qtd:"300g"},
+{nome:"Brócolis", qtd:"150g em floretes"},
+{nome:"Cenoura", qtd:"1 unidade média em rodelas finas"},
+{nome:"Cogumelo", qtd:"100g fatiado"},
+{nome:"Shoyu", qtd:"3 colheres (sopa)"},
+{nome:"Óleo de gergelim", qtd:"1 colher (sopa)"},
+{nome:"Gengibre", qtd:"1 colher (chá) ralado"},
+{nome:"Alho", qtd:"1 dente amassado"},
+{nome:"Mel ou açúcar", qtd:"1 colher (chá)"},
+{nome:"Gergelim", qtd:"para finalizar"},
+{nome:"Cebolinha", qtd:"para finalizar"}
+],
+passos:[
+{texto:"Pressione o tofu em papel toalha por 10 minutos para tirar a água. Corte em fatias de 1cm.", timer:10},
+{texto:"Misture o shoyu, o óleo de gergelim, o gengibre, o alho e o mel.", timer:0},
+{texto:"Grelhe o tofu em frigideira antiaderente em fogo médio por 3 minutos de cada lado, pincelando o molho.", timer:6},
+{texto:"Na mesma frigideira, salteie o brócolis, a cenoura e o cogumelo por 4 minutos, até ficarem al dente. Junte o restante do molho.", timer:4},
+{texto:"Sirva o tofu com os legumes e finalize com gergelim e cebolinha.", timer:0}
+]
+},
+{
+id:"camarao-empanado", titulo:"Camarão Empanado Crocante", categoria_principal:"Oriental", categorias:["Oriental"], tempo:"25 min", porcoes:"2 porções", foto:"assets/camarao-empanado.jpg",
+ingredientes:[
+{nome:"Camarão grande limpo com rabo", qtd:"300g"},
+{nome:"Farinha de trigo", qtd:"60g"},
+{nome:"Ovo", qtd:"1 unidade batido"},
+{nome:"Farinha panko", qtd:"80g"},
+{nome:"Sal", qtd:"a gosto"},
+{nome:"Pimenta-do-reino", qtd:"a gosto"},
+{nome:"Limão", qtd:"1 unidade"},
+{nome:"Molho agridoce ou shoyu", qtd:"para servir"}
+],
+passos:[
+{texto:"Seque bem o camarão e tempere com sal, pimenta e suco de meio limão.", timer:0},
+{texto:"Passe na farinha, depois no ovo e depois na panko, apertando bem.", timer:0},
+{texto:"Frite em óleo quente a 180°C por 3 minutos, até dourar. Ou asse na Airfryer a 200°C por 8 minutos.", timer:3},
+{texto:"Sirva com o restante do limão e molho agridoce.", timer:0}
 ]
 }
 ];
