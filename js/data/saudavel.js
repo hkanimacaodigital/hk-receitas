@@ -1,3 +1,14 @@
+// RECEITAS SAUDAVEL - ATUALIZADO
+// 1 - Salmão Grelhado com Legumes
+// 2 - Batata Rústica com Alecrim
+// 3 - Bowl de Quinoa Colorido
+// 4 - Sopa Detox Verde
+// 5 - Bowl de Açaí com Frutas
+// 6 - Salada de Frango com Manga
+// 7 - Omelete de Espinafre com Cottage
+// 8 - Panqueca de Banana com Aveia
+// 9 - Frango Grelhado com Batata Doce e Brócolis
+// TOTAL: 9 receitas - SEM REPETIDAS
 window.RECEITAS_SAUDAVEL = [
 {
 id:"salmao-legumes", titulo:"Salmão Grelhado com Legumes", categoria_principal:"Saudável", categorias:["Saudável","Fit"], tempo:"25 min", porcoes:"2 porções", foto:"assets/salmao.jpg", airfryer:true,
@@ -80,6 +91,103 @@ passos:[
 {texto:"Junte a couve e cozinhe por mais 2 minutos, só até murchar e continuar bem verdinha. Desligue.", timer:2},
 {texto:"Bata apenas metade da sopa, até virar um creme, deixando a outra metade em pedaços para ficar cremosa mas com textura.", dica:"Bater só metade mantém a textura.", timer:0},
 {texto:"Prove, acerte o sal e junte o limão, se quiser. Sirva com sementes de abóbora por cima.", timer:0}
+]
+},
+{
+id:"bowl-acai", titulo:"Bowl de Açaí com Frutas", categoria_principal:"Saudável", categorias:["Saudável","Vegana","Fit"], tempo:"10 min", porcoes:"2 porções", foto:"assets/bowl-acai.jpg",
+ingredientes:[
+{nome:"Polpa de açaí congelada", qtd:"400g - 2 polpas"},
+{nome:"Banana", qtd:"1 unidade - metade para bater, metade para finalizar"},
+{nome:"Morango", qtd:"100g fatiado"},
+{nome:"Granola", qtd:"60g"},
+{nome:"Mirtilo", qtd:"50g"},
+{nome:"Chia", qtd:"1 colher (sopa)"},
+{nome:"Mel", qtd:"1 colher (sopa) - opcional"}
+],
+passos:[
+{texto:"Bata o açaí congelado com metade da banana no liquidificador até virar um creme grosso. Se precisar, junte 2 colheres de água.", timer:0},
+{texto:"Divida em 2 tigelas e finalize com o restante da banana em rodelas, morango, mirtilo, granola, chia e mel, se quiser.", timer:0}
+]
+},
+{
+id:"salada-frango-manga", titulo:"Salada de Frango com Manga", categoria_principal:"Saudável", categorias:["Saudável","Fit"], tempo:"25 min", porcoes:"2 porções", foto:"assets/salada-frango-manga.jpg",
+ingredientes:[
+{nome:"Peito de frango", qtd:"300g em 2 filés"},
+{nome:"Manga", qtd:"1 unidade média em cubos"},
+{nome:"Abacate", qtd:"1/2 unidade em fatias"},
+{nome:"Alface ou mix de folhas", qtd:"100g"},
+{nome:"Tomate cereja", qtd:"100g cortado ao meio"},
+{nome:"Pepino", qtd:"1/2 unidade em rodelas"},
+{nome:"Cebola roxa", qtd:"1/4 unidade fatiada fina"},
+{nome:"Limão", qtd:"suco de 1 unidade"},
+{nome:"Azeite de oliva", qtd:"2 colheres (sopa)"},
+{nome:"Sal", qtd:"a gosto"},
+{nome:"Pimenta-do-reino", qtd:"a gosto"},
+{nome:"Coentro", qtd:"para finalizar"}
+],
+passos:[
+{texto:"Tempere o frango com sal, pimenta e metade do limão. Grelhe em fogo médio-alto por 5 minutos de cada lado, até dourar e cozinhar por dentro. Deixe descansar 3 minutos e fatie.", timer:10},
+{texto:"Misture o azeite com o restante do limão, sal e pimenta para o molho.", timer:0},
+{texto:"Monte a salada com as folhas, tomate, pepino, cebola, manga e abacate. Coloque o frango por cima, regue com o molho e finalize com coentro.", timer:0}
+]
+},
+{
+id:"omelete-espinafre", titulo:"Omelete de Espinafre com Cottage", categoria_principal:"Saudável", categorias:["Saudável","Fit","Rápida"], tempo:"10 min", porcoes:"1 porção", foto:"assets/omelete-espinafre.jpg",
+ingredientes:[
+{nome:"Ovos", qtd:"2 unidades"},
+{nome:"Espinafre", qtd:"50g"},
+{nome:"Queijo cottage", qtd:"60g"},
+{nome:"Azeite de oliva", qtd:"1 colher (chá)"},
+{nome:"Sal", qtd:"a gosto"},
+{nome:"Pimenta-do-reino", qtd:"a gosto"},
+{nome:"Cebolinha", qtd:"para finalizar"},
+{nome:"Abacate", qtd:"1/4 unidade para acompanhar - opcional"}
+],
+passos:[
+{texto:"Bata os ovos com sal e pimenta.", timer:0},
+{texto:"Aqueça o azeite em frigideira antiaderente em fogo médio e refogue o espinafre por 1 minuto, até murchar.", timer:1},
+{texto:"Despeje os ovos, espalhe e cozinhe em fogo baixo por 3 minutos, até firmar embaixo e ainda estar úmido por cima.", timer:3},
+{texto:"Coloque o cottage em metade, dobre ao meio, tampe e cozinhe por 1 minuto. Finalize com cebolinha.", timer:1}
+]
+},
+{
+id:"panqueca-banana-aveia", titulo:"Panqueca de Banana com Aveia", categoria_principal:"Saudável", categorias:["Saudável","Fit"], tempo:"15 min", porcoes:"2 porções - 6 panquecas", foto:"assets/panqueca-banana-aveia.jpg",
+ingredientes:[
+{nome:"Banana madura", qtd:"2 unidades"},
+{nome:"Aveia em flocos", qtd:"100g - 1 xícara"},
+{nome:"Ovos", qtd:"2 unidades"},
+{nome:"Canela em pó", qtd:"1/2 colher (chá)"},
+{nome:"Fermento em pó", qtd:"1/2 colher (chá)"},
+{nome:"Sal", qtd:"1 pitada"},
+{nome:"Óleo de coco ou azeite", qtd:"1 colher (chá) para untar"},
+{nome:"Mel", qtd:"para finalizar - opcional"},
+{nome:"Frutas vermelhas", qtd:"para finalizar"}
+],
+passos:[
+{texto:"Amasse as bananas com garfo até virar um purê.", timer:0},
+{texto:"Junte os ovos, a aveia, a canela, o fermento e o sal e misture até virar uma massa grossa. Deixe descansar 2 minutos.", timer:2},
+{texto:"Aqueça frigideira antiaderente em fogo médio, unte levemente e faça discos com 2 colheres de massa. Cozinhe 2 minutos de cada lado, até dourar.", timer:4},
+{texto:"Empilhe e sirva com mel e frutas vermelhas.", timer:0}
+]
+},
+{
+id:"frango-batata-doce", titulo:"Frango Grelhado com Batata Doce e Brócolis", categoria_principal:"Saudável", categorias:["Saudável","Fit"], tempo:"35 min", porcoes:"2 porções", foto:"assets/frango-batata-doce.jpg",
+ingredientes:[
+{nome:"Peito de frango", qtd:"300g em 2 filés"},
+{nome:"Batata doce", qtd:"400g em gomos"},
+{nome:"Brócolis", qtd:"200g em floretes"},
+{nome:"Azeite de oliva", qtd:"1 colher (sopa)"},
+{nome:"Limão", qtd:"suco de 1/2 unidade"},
+{nome:"Alho", qtd:"1 dente amassado"},
+{nome:"Alecrim", qtd:"1/2 colher (chá)"},
+{nome:"Sal", qtd:"a gosto"},
+{nome:"Pimenta-do-reino", qtd:"a gosto"}
+],
+passos:[
+{texto:"Tempere o frango com limão, alho, sal e pimenta. Tempere a batata com metade do azeite, alecrim e sal.", timer:0},
+{texto:"Asse a batata em Airfryer preaquecida a 200°C por 15 minutos, até dourar e ficar macia.", timer:15},
+{texto:"Grelhe o frango em fogo médio-alto por 5 minutos de cada lado, até dourar e cozinhar por dentro. Deixe descansar 3 minutos e fatie.", timer:10},
+{texto:"Cozinhe o brócolis no vapor por 4 minutos, até ficar al dente. Sirva tudo junto com o restante do azeite.", timer:4}
 ]
 }
 ];
