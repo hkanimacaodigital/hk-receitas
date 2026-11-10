@@ -1,10 +1,10 @@
-// RECEITAS VEGANA
+// RECEITAS VEGANA - REVISADO
 // 1 - Curry de Grão de Bico Cremoso
 // 2 - Hambúrguer de Lentilha
 // 3 - Brownie Vegano de Chocolate
 // 4 - Strogonoff de Cogumelos Vegano
 // 5 - Cuscuz Marroquino com Legumes
-// 6 - Falafel com Molho de Tahine
+// 6 - Quiche de Legumes Vegana
 // 7 - Bolo de Cenoura Vegano
 // 8 - Moqueca de Banana da Terra
 // TOTAL: 8 receitas
@@ -124,27 +124,27 @@ passos:[
 ]
 },
 {
-id:"falafel", titulo:"Falafel com Molho de Tahine", categoria_principal:"Vegana", categorias:["Vegana","Lanche"], tempo:"35 min", porcoes:"12 unidades", foto:"assets/falafel.jpg", airfryer:true,
+id:"quiche-legumes-vegana", titulo:"Quiche de Legumes Vegana", categoria_principal:"Vegana", categorias:["Vegana","Saudável"], tempo:"55 min", porcoes:"6 fatias", foto:"assets/quiche-legumes-vegana.jpg",
 ingredientes:[
-{nome:"Grão-de-bico cru de molho por 12h", qtd:"250g - não use cozido"},
-{nome:"Salsinha", qtd:"30g"},
-{nome:"Coentro", qtd:"20g"},
-{nome:"Cebola", qtd:"1/2 unidade média"},
-{nome:"Alho", qtd:"2 dentes"},
-{nome:"Cominho", qtd:"1 colher (chá)"},
-{nome:"Farinha de trigo", qtd:"2 colheres (sopa)"},
-{nome:"Fermento em pó", qtd:"1/2 colher (chá)"},
+{nome:"Farinha de trigo", qtd:"200g para a massa"},
+{nome:"Óleo vegetal", qtd:"60ml para a massa"},
+{nome:"Água gelada", qtd:"60ml para a massa"},
 {nome:"Sal", qtd:"a gosto"},
-{nome:"Pimenta-do-reino", qtd:"a gosto"},
-{nome:"Tahine", qtd:"3 colheres (sopa) para o molho"},
-{nome:"Limão", qtd:"suco de 1 unidade para o molho"},
-{nome:"Água", qtd:"3 colheres (sopa) para o molho"}
+{nome:"Abobrinha", qtd:"1 unidade média em rodelas finas"},
+{nome:"Tomate cereja", qtd:"150g cortado ao meio"},
+{nome:"Espinafre", qtd:"100g"},
+{nome:"Tofu firme", qtd:"300g para o recheio"},
+{nome:"Leite vegetal", qtd:"100ml"},
+{nome:"Cúrcuma", qtd:"1/2 colher (chá)"},
+{nome:"Alho", qtd:"1 dente amassado"},
+{nome:"Azeite de oliva", qtd:"1 colher (sopa)"},
+{nome:"Pimenta-do-reino", qtd:"a gosto"}
 ],
 passos:[
-{texto:"Escorra bem o grão-de-bico de molho. Bata no processador com salsinha, coentro, cebola, alho, cominho, sal e pimenta até virar uma massa grossa com pedacinhos.", timer:0},
-{texto:"Junte a farinha e o fermento, misture e leve à geladeira por 15 minutos para firmar.", timer:15},
-{texto:"Modele 12 bolinhas apertando bem. Asse na Airfryer preaquecida a 200°C por 15 minutos, virando na metade, até dourar.", timer:15},
-{texto:"Para o molho, misture tahine, limão, água e sal até ficar cremoso. Sirva com salada.", timer:0}
+{texto:"Misture a farinha, o sal, o óleo e a água gelada até formar uma massa lisa. Forre forma de 22cm e fure com garfo. Leve à geladeira por 10 minutos.", timer:10},
+{texto:"Refogue o alho no azeite, junte o espinafre por 2 minutos até murchar. Reserve.", timer:2},
+{texto:"Bata o tofu com o leite vegetal, a cúrcuma, sal e pimenta até virar um creme liso.", timer:0},
+{texto:"Coloque o espinafre na massa, cubra com o creme, distribua abobrinha e tomate por cima. Asse em forno preaquecido a 180°C por 30 minutos, até firmar e dourar. Deixe amornar 10 minutos antes de cortar.", timer:30}
 ]
 },
 {
