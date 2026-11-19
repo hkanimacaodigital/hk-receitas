@@ -247,10 +247,8 @@ function enviarParaSW(msg){
 }
 function renderCategorias(){
   const c=document.getElementById('categorias'); if(!c||!CATEGORIAS) return;
-  const RECEITAS=getReceitasBase();
   const ord=[...CATEGORIAS].sort((a,b)=>a.nome.localeCompare(b.nome));
-  const contar=(id)=>{ if(id==='tudo') return RECEITAS.length; if(id==='airfryer') return RECEITAS.filter(r=>r.airfryer===true).length; if(id==='rapida') return RECEITAS.filter(r=>getTempo(r)<=12).length; const nome=CATEGORIAS.find(x=>x.id===id)?.nome.toLowerCase()||id; return RECEITAS.filter(r=>(r.categoria_principal||'').toLowerCase()===nome||(r.categorias||[]).map(x=>x.toLowerCase()).includes(nome)).length; };
-  c.innerHTML=[{id:'tudo',nome:'Tudo',icone:'✨'},...ord].map(cat=>`<button class="cat-btn ${categoriaAtiva===cat.id?'ativo':''}" onclick="setCategoria('${cat.id}')">${cat.icone}<br>${cat.nome}<br>(${contar(cat.id)})</button>`).join('');
+  c.innerHTML=[{id:'tudo',nome:'Tudo'},...ord].map(cat=>`<button class="cat-btn ${categoriaAtiva===cat.id?'ativo':''}" onclick="setCategoria('${cat.id}')">${cat.nome}</button>`).join('');
 }
 function setCategoria(id){ categoriaAtiva=id; renderCategorias(); filtrar(); }
 function getTempo(r){ const m=(r.tempo||'').match(/(\d+)/); return m?parseInt(m[1]):999; }
@@ -546,4 +544,4 @@ function salvarEFiltrar(){
   const box=document.getElementById('receitas-filtradas-possuo');
   if(box){if(filtradas.length===0){box.innerHTML=`<div style="text-align:center;padding:16px;background:#FFF0E6;border-radius:12px">Com <b>${ingredientesSelecionados.join(', ')}</b> ainda não dá pra fazer nenhuma receita completa</div>`;}else{box.innerHTML=`<div style="font-weight:800;margin-bottom:8px">✅ Você consegue fazer ${filtradas.length} receitas com: ${ingredientesSelecionados.join(', ')}</div>`;}}
   renderReceitas(filtradas,'grid-receitas');
-                       }
+    }
