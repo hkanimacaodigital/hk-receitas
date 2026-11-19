@@ -5,33 +5,33 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>HK Receitas Premium</title>
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#FF6B35">
+<meta name="theme-color" content="#1A1A1A">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <style>
   *{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,sans-serif}
-  body{background:#FFF8F3;padding-bottom:85px}
-  .logo-header{background:white;padding:14px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #FFE9DC}
-  .logo-header h1{font-size:20px;font-weight:900} .logo-header span{background:#FF6B35;color:white;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:800}
-  .header-fixo{position:sticky;top:0;z-index:100;background:#FFFBF8;padding:12px 16px;border-bottom:1px solid #FFE9DC}
-  .top-bar{display:flex;gap:8px} #busca{flex:1;padding:14px 16px;border-radius:18px;border:1.5px solid #FFE9DC;background:white;font-weight:600;outline:none}
-  #ordem{padding:12px;border-radius:18px;border:1.5px solid #FFE9DC;background:white;font-weight:700;font-size:13px}
+  body{background:#F8F8F8;padding-bottom:85px;color:#1A1A1A}
+  .logo-header{background:#1A1A1A;padding:14px 16px;display:flex;align-items:center;gap:10px}
+  .logo-header h1{font-size:20px;font-weight:900;color:#fff} .logo-header span{background:#D4AF37;color:#1A1A1A;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:900;letter-spacing:.5px}
+  .header-fixo{position:sticky;top:0;z-index:100;background:#fff;padding:12px 16px;border-bottom:1px solid #EEEEEE}
+  .top-bar{display:flex;gap:8px} #busca{flex:1;padding:16px 16px;border-radius:16px;border:1.5px solid #E5E5E5;background:#FAFAFA;font-weight:600;outline:none;font-size:15px}
+  #ordem{padding:12px;border-radius:16px;border:1.5px solid #E5E5E5;background:white;font-weight:700;font-size:13px}
   #categorias{display:flex;gap:8px;overflow-x:auto;padding-top:12px;scrollbar-width:none} #categorias::-webkit-scrollbar{display:none}
-  .cat-btn{white-space:nowrap;padding:10px 14px;border-radius:12px;border:1.5px solid #E8DDD6;background:white;font-weight:700;font-size:13px;flex-shrink:0;line-height:1.2;text-align:center;min-height:56px}
+  .cat-btn{white-space:nowrap;padding:10px 14px;border-radius:12px;border:1.5px solid #E5E5E5;background:white;font-weight:700;font-size:13px;flex-shrink:0;line-height:1.2;text-align:center;min-height:56px;color:#1A1A1A}
   .cat-btn.ativo{background:#1A1A1A;color:white;border-color:#1A1A1A}
   #grid-receitas{padding:14px;display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
-  .card{background:white;border-radius:20px;overflow:hidden;box-shadow:0 4px 12px rgba(0,0,0,0.05);cursor:pointer;position:relative}
-  .card img{width:100%;height:160px;object-fit:cover;display:block}
-  .card-body{padding:10px 12px 14px 12px} .badge{background:#FF8C42;color:white;padding:4px 10px;border-radius:20px;font-size:10px;font-weight:800}
-  .card-info{display:flex;gap:10px;font-size:12px;margin-top:4px;color:#6B5E57;align-items:center}
-  .fav-btn{position:absolute;top:8px;right:8px;background:rgba(255,255,255,0.9);border:none;width:32px;height:32px;border-radius:50%;font-size:16px}
+  .card{background:white;border-radius:20px;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,0.08);cursor:pointer;position:relative}
+  .card img{width:100%;height:170px;object-fit:cover;display:block}
+  .card-body{padding:12px 12px 14px 12px} .badge{background:white;color:#1A1A1A;padding:5px 10px;border-radius:20px;font-size:10px;font-weight:800;box-shadow:0 2px 8px rgba(0,0,0,0.12);border:1px solid #EEEEEE}
+  .card-info{display:flex;gap:10px;font-size:12px;margin-top:6px;color:#666;align-items:center;font-weight:600}
+  .fav-btn{position:absolute;top:10px;right:10px;background:white;border:none;width:36px;height:36px;border-radius:50%;font-size:16px;box-shadow:0 2px 10px rgba(0,0,0,0.15)}
   #modal{position:fixed;inset:0;background:white;z-index:999;overflow-y:auto;display:none;padding-bottom:90px} #modal.mostrar{display:block}
   #modal img.capa{width:100%;height:280px;object-fit:cover}
-  .modal-conteudo{padding:16px} .passo{display:flex;gap:12px;background:#FFF8F3;border:1.5px solid #FFE9DC;padding:12px;border-radius:16px;margin-bottom:10px}
+  .modal-conteudo{padding:16px} .passo{display:flex;gap:12px;background:#fff;border:1.5px solid #EEEEEE;padding:12px;border-radius:16px;margin-bottom:10px}
   .passo.feito{opacity:0.5;text-decoration:line-through} .passo input{width:22px;height:22px;flex-shrink:0}
   .timer-btn{background:#1A1A1A;color:white;border:none;padding:7px 12px;border-radius:20px;font-size:11px;font-weight:800;margin-top:6px}
-  .bottom-nav{position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid #FFE9DC;display:flex;justify-content:space-around;padding:8px 0 12px 0;z-index:200}
+  .bottom-nav{position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid #EEEEEE;display:flex;justify-content:space-around;padding:8px 0 12px 0;z-index:200}
   .nav-item{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:10px;font-weight:700;color:#9A8C83;background:none;border:none;flex:1;padding:0 2px}
-  .nav-item.ativo{color:#FF6B35} .nav-item span.icone{font-size:18px}
+  .nav-item.ativo{color:#1A1A1A} .nav-item span.icone{font-size:18px}
   .page{display:none} .page.ativa{display:block}
 </style>
 </head>
@@ -48,7 +48,7 @@
   </div>
 
   <!-- GELADEIRA INTELIGENTE - NOVO -->
-  <div id="box-ingredientes-possuo" style="margin:12px 16px;background:white;border:1.5px solid #FFE9DC;border-radius:16px;padding:14px">
+  <div id="box-ingredientes-possuo" style="margin:12px 16px;background:white;border:1.5px solid #EEEEEE;border-radius:16px;padding:14px;box-shadow:0 4px 16px rgba(0,0,0,0.05)">
     <button onclick="abrirModalIngredientesPossuo()" style="width:100%;background:#1A1A1A;color:white;border:none;padding:14px;border-radius:12px;font-weight:900;display:flex;justify-content:space-between;align-items:center;cursor:pointer">
       <span>🗄️ Ingredientes que você possui</span>
       <span id="contador-ingredientes-possuo" style="background:#FF6B35;padding:4px 10px;border-radius:20px;font-size:12px">0 selecionados</span>
@@ -65,8 +65,8 @@
 <div id="page-finalizadas" class="page"><div style="padding:16px"><h2>✅ Finalizadas</h2><div id="resumo-finalizadas" style="margin-top:12px"></div><div id="grid-finalizadas" style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:14px"></div></div></div>
 
 <div id="modal">
-  <div style="position:sticky;top:0;z-index:10;background:white;padding:12px;display:flex;justify-content:space-between;border-bottom:1px solid #FFE9DC">
-    <button onclick="fecharModal()" style="padding:8px 16px;border-radius:20px;border:1.5px solid #E8DDD6;background:white;font-weight:800">← Voltar</button>
+  <div style="position:sticky;top:0;z-index:10;background:white;padding:12px;display:flex;justify-content:space-between;border-bottom:1px solid #EEEEEE">
+    <button onclick="fecharModal()" style="padding:8px 16px;border-radius:20px;border:1.5px solid #E5E5E5;background:white;font-weight:800">← Voltar</button>
     <button id="rFavBtn" onclick="toggleFavAtual()" style="padding:8px 16px;border-radius:20px;background:#FF6B35;color:white;border:none;font-weight:800">♡ Favoritar</button>
   </div>
   <div id="modal-corpo"></div>
@@ -79,9 +79,9 @@
       <h2 style="font-weight:900;font-size:18px">Selecione o que tem na geladeira</h2>
       <button onclick="fecharModalIngredientesPossuo()" style="background:#F5F5F5;border:none;width:36px;height:36px;border-radius:50%;font-weight:900;cursor:pointer">✕</button>
     </div>
-    <input type="text" id="busca-ingrediente" placeholder="🔍 Buscar ingrediente..." oninput="filtrarListaIngredientes()" style="width:100%;padding:12px;border-radius:12px;border:1.5px solid #FFE9DC;margin-bottom:12px;outline:none">
+    <input type="text" id="busca-ingrediente" placeholder="🔍 Buscar ingrediente..." oninput="filtrarListaIngredientes()" style="width:100%;padding:12px;border-radius:12px;border:1.5px solid #EEEEEE;margin-bottom:12px;outline:none">
     <div style="display:flex;gap:8px;margin-bottom:16px">
-      <button onclick="limparSelecaoIngredientes()" style="flex:1;background:white;border:1.5px solid #E8DDD6;padding:12px;border-radius:10px;font-weight:700;cursor:pointer">Limpar tudo</button>
+      <button onclick="limparSelecaoIngredientes()" style="flex:1;background:white;border:1.5px solid #E5E5E5;padding:12px;border-radius:10px;font-weight:700;cursor:pointer">Limpar tudo</button>
       <button onclick="fecharModalIngredientesPossuo()" style="flex:1;background:#FF6B35;color:white;border:none;padding:12px;border-radius:10px;font-weight:800;cursor:pointer">Ver Receitas (filtrar)</button>
     </div>
     <div id="lista-todos-ingredientes" style="display:flex;flex-direction:column;gap:8px"></div>
