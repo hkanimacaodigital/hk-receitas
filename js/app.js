@@ -120,10 +120,8 @@ function init(){
   try{ renderCategorias(); }catch(e){}
   try{ filtrar(); }catch(e){}
   try{ restaurarTimersGlobais(); }catch(e){}
-  // CORREÇÃO IPHONE: não pede notificação no init, senão trava no Safari
   try{ getPushSubscription().catch(()=>{}); }catch(e){}
   try{ history.pushState({tela:'home'}, '', location.href); }catch(e){}
-  // CORREÇÃO IPHONE: se voltou pro app com timer vencido, já marca como finalizado
   try{ checarTimersVencidos(); }catch(e){}
 }
 function checarTimersVencidos(){
@@ -271,7 +269,6 @@ function calcularNivel(r){
   return 'Difícil';
 }
 function filtrar(){
-  // CORREÇÃO CATEGORIA: se o filtro "que eu tenho" estiver ativo, mantém ele em vez de mostrar todas da categoria
   if(typeof ingredientesSelecionados !== 'undefined' && ingredientesSelecionados.length > 0){
     try{ salvarEFiltrar(); return; }catch(e){}
   }
@@ -292,7 +289,7 @@ function filtrar(){
 function renderReceitas(lista, alvoId){
   const cont=document.getElementById(alvoId); if(!cont) return;
   if(lista.length===0){ cont.innerHTML=`<div style="grid-column:1/3;text-align:center;padding:30px">Nenhuma receita</div>`; return; }
-  cont.innerHTML=lista.map(r=>{ const isFav=favoritos.includes(r.id); return `<div class="card" onclick="abrirReceita('${r.id}')"><button class="fav-btn" data-fav-id="${r.id}" onclick="event.stopPropagation();toggleFav('${r.id}');return false;">${isFav?'❤️':'🤍'}</button><img src="${r.foto}" loading="lazy"><div class="card-body"><span class="badge">${r.categoria_principal}</span><h3 style="margin:8px 0 4px;font-weight:800">${r.titulo}</h3><div class="card-info"><span>⏰ ${r.tempo}</span><span>🍽️ ${r.porcoes||''}</span><span>📊 ${calcularNivel(r)}</span></div></div></div>`}).join('');
+  cont.innerHTML=lista.map(r=>{ const isFav=favoritos.includes(r.id); return `<div class="card" onclick="abrirReceita('${r.id}')"><div class="card-img-wrap"><img src="${r.foto}" loading="lazy"><span class="badge badge-foto">${r.categoria_principal}</span><button class="fav-btn" data-fav-id="${r.id}" onclick="event.stopPropagation();toggleFav('${r.id}');return false;">${isFav?'❤️':'🤍'}</button></div><div class="card-body"><h3 class="card-titulo">${r.titulo}</h3><div class="card-info"><span>⏰ ${r.tempo}</span><span>🍽️ ${r.porcoes||''}</span><span>📊 ${calcularNivel(r)}</span></div></div></div>`}).join('');
 }
 function normalizarPasso(p){ if(typeof p==='string') return {texto:p, tempoMin: extrairMin(p), dica:''}; return {texto:p.texto||p.passo||'', tempoMin: p.timer||p.tempoMin||extrairMin(p.texto||''), label:p.label||'', dica:p.dica||''}; }
 function extrairMin(t){ const m=(t||'').match(/(\d+)\s*min/); return m?parseInt(m[1]):0; }
@@ -371,7 +368,7 @@ function renderFinalizadas(){
   cont.innerHTML=ids.map(id=>{
     const r=RECEITAS.find(x=>x.id===id); if(!r) return '';
     const hist=[...finalizadas[id]].sort((a,b)=>new Date(b)-new Date(a)); const isFav=favoritos.includes(r.id);
-    return `<div class="card" onclick="abrirReceita('${r.id}')"><button class="fav-btn" data-fav-id="${r.id}" onclick="event.stopPropagation();toggleFav('${r.id}');return false;">${isFav?'❤️':'🤍'}</button><img src="${r.foto}" loading="lazy"><div style="position:absolute;top:8px;left:8px;background:#22C55E;color:white;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:800">✅ Feita ${hist.length}x</div><div class="card-body"><span class="badge">${r.categoria_principal}</span><h3 style="margin:8px 0 4px;font-weight:800">${r.titulo}</h3><div class="card-info"><span>🕒 Última: ${formatarDataCurta(hist[0])}</span></div><div style="font-size:11px;color:#9A8C83;margin-top:4px">Primeira: ${formatarDataCurta(hist[hist.length-1])}</div></div></div>`;
+    return `<div class="card" onclick="abrirReceita('${r.id}')"><div class="card-img-wrap"><img src="${r.foto}" loading="lazy"><span class="badge badge-foto">${r.categoria_principal}</span><button class="fav-btn" data-fav-id="${r.id}" onclick="event.stopPropagation();toggleFav('${r.id}');return false;">${isFav?'❤️':'🤍'}</button><div style="position:absolute;bottom:10px;left:10px;background:#22C55E;color:white;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:800">✅ Feita ${hist.length}x</div></div><div class="card-body"><h3 class="card-titulo">${r.titulo}</h3><div class="card-info"><span>🕒 Última: ${formatarDataCurta(hist[0])}</span></div><div style="font-size:11px;color:#9A8C83;margin-top:4px">Primeira: ${formatarDataCurta(hist[hist.length-1])}</div></div></div>`;
   }).join('');
 }
 function renderRecentes(){
@@ -453,7 +450,6 @@ function atualizarGridFavoritos(){ const RECEITAS=getReceitasBase(); const gridF
 function toggleFav(id){ if(favoritos.includes(id)) favoritos=favoritos.filter(x=>x!==id); else favoritos.push(id); try{ localStorage.setItem('hk_fav',JSON.stringify(favoritos)); }catch(e){} atualizarTodasAbasFav(); }
 function toggleFavAtual(){ if(!receitaAtual) return; const id=receitaAtual.id; if(favoritos.includes(id)) favoritos=favoritos.filter(x=>x!==id); else favoritos.push(id); try{ localStorage.setItem('hk_fav',JSON.stringify(favoritos)); }catch(e){} atualizarBotaoFavCima(); atualizarTodasAbasFav(); }
 window.addEventListener('popstate', function(){ const modalAberto=document.getElementById('modal')?.classList.contains('mostrar'); if(modalAberto){ fecharModal(); try{ history.pushState({tela:'home'}, '', location.href); }catch(e){} } else { try{ history.pushState({tela:'home'}, '', location.href); }catch(e){} } });
-// ===== TIMER - CORRIGIDO PRO IPHONE =====
 function iniciarTimer(min, idx){
   try{
     if(!receitaAtual||!min||min<=0) return;
@@ -461,7 +457,6 @@ function iniciarTimer(min, idx){
     if(timersFinalizados[key]){ alert('⏰ Esse timer já finalizou! Aperte ⏹️ PARAR ALARME para poder ligar de novo.'); return; }
     try{ desbloquearAudio(); }catch(e){}
     try{ travarTelaAcesa(); }catch(e){}
-    // NÃO pede Notification aqui - no iPhone isso travava o botão
     const fim=Date.now()+min*60*1000;
     timersAtivos[key]={fim, titulo:receitaAtual.titulo, passo:idx+1, min, idReceita:receitaAtual.id, pausado:false};
     salvarTimers();
@@ -508,7 +503,6 @@ document.addEventListener('DOMContentLoaded',init);
 const CONDIMENTOS_TIRAR = ['agua','água','alho','caldo','curcuma','cúrcuma','acucar','açucar','açúcar','sal','pimenta','oleo','óleo','azeite','vinagre','manteiga','margarina','cominho','oregano','orégano','salsinha','cebolinha','coentro','alecrim','manjericão','canela','cravo','noz moscada','paprica','páprica','curry','açafrão','cheiro verde','cheiro-verde','shoyu','molho shoyu','sal grosso','pimenta reino','pimenta-do-reino','limão','azeite de dendê','água com gás','amido','polvilho','fermento','louro','folha de louro','tempero verde','mix de folhas','mix folhas','folhas','folha','nori','gengibre'];
 let ingredientesSelecionados = [];
 try{ ingredientesSelecionados = JSON.parse(localStorage.getItem('hk_ing_possuo')||'[]'); }catch(e){ ingredientesSelecionados=[]; }
-// CORREÇÃO FILTRO: normaliza hífen/acento antes de comparar, senão "grão-de-bico" não batia com "grao de bico"
 function normTxt(s){ return (s||'').toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/-/g,' ').replace(/\s+/g,' ').trim(); }
 function paraRaiz(nome){nome=nome.toLowerCase().trim();let s=normTxt(nome);if(s.includes('guacamole'))return'abacate';if(s.includes('gema')||s.includes('clara'))return'ovo';if(s.includes('ovo'))return'ovo';if(s.includes('tomate'))return'tomate';if(s.includes('pimentao'))return'pimentão';if(s.includes('cebola'))return'cebola';if(s.includes('abobora'))return'abóbora';if(s.includes('batata'))return'batata';if(s.includes('feijao'))return'feijão';if(s.includes('tortilha')||s.includes('tortilla'))return'tortilha';if(s.includes('requeijao'))return'requeijão';if(s.includes('frango'))return'frango';if(s.includes('carne')||s.includes('patinho'))return'carne';if(s.includes('queijo')||s.includes('mucarela')||s.includes('mussarela')||s.includes('parmesao')||s.includes('cheddar')||s.includes('catupiry')||s.includes('meia cura')||s.includes('presunto'))return'queijo';if(s.includes('leite condensado'))return'leite condensado';if(s.includes('leite de coco'))return'leite de coco';if(s.includes('leite'))return'leite';if(s.includes('farinha')||s.includes('panko')||s.includes('massa')||s.includes('espaguete')||s.includes('macarrao'))return'massa';if(s.includes('abobrinha'))return'abobrinha';if(s.includes('cenoura'))return'cenoura';if(s.includes('couve'))return'couve';if(s.includes('alface'))return'alface';if(s.includes('arroz'))return'arroz';if(s.includes('grao de bico'))return'grão de bico';if(s.includes('lentilha'))return'lentilha';if(s.includes('ervilha'))return'ervilha';if(s.includes('quinoa'))return'quinoa';if(s.includes('aveia'))return'aveia';if(s.includes('hortela'))return'hortelã';if(s.includes('banana'))return'banana';if(s.includes('iogurte'))return'iogurte natural';if(s.includes('pao'))return'pão';if(s.includes('linguica')||s.includes('bacon')||s.includes('calabresa')||s.includes('paio')||s.includes('costela'))return'linguiça';if(s.includes('camarao')||s.includes('robalo')||s.includes('salmao'))return'peixe';if(s.includes('abacate'))return'abacate';if(s.includes('pepino'))return'pepino';if(s.includes('brocolis'))return'brócolis';if(s.includes('repolho'))return'repolho';if(s.includes('milho'))return'milho';if(s.includes('morango'))return'morango';if(s.includes('coco'))return'coco';if(s.includes('chocolate')||s.includes('cacau')||s.includes('pacoca')||s.includes('bolacha')||s.includes('doce de leite'))return'doce';return nome;}
 function getIngredientesObrigatoriosDaReceita(receita){let obrigatorios=[];if(!receita.ingredientes)return[];receita.ingredientes.forEach(ing=>{let nome=(ing.nome||'').toLowerCase().trim();if(!nome)return;let nomeNorm=normTxt(nome);if(CONDIMENTOS_TIRAR.some(c=>nomeNorm.includes(normTxt(c))))return;let raiz=paraRaiz(nome);if(raiz.length>=3&&!CONDIMENTOS_TIRAR.some(c=>normTxt(raiz)===normTxt(c)))obrigatorios.push(raiz);});return[...new Set(obrigatorios)];}
@@ -552,5 +546,4 @@ function salvarEFiltrar(){
   const box=document.getElementById('receitas-filtradas-possuo');
   if(box){if(filtradas.length===0){box.innerHTML=`<div style="text-align:center;padding:16px;background:#FFF0E6;border-radius:12px">Com <b>${ingredientesSelecionados.join(', ')}</b> ainda não dá pra fazer nenhuma receita completa</div>`;}else{box.innerHTML=`<div style="font-weight:800;margin-bottom:8px">✅ Você consegue fazer ${filtradas.length} receitas com: ${ingredientesSelecionados.join(', ')}</div>`;}}
   renderReceitas(filtradas,'grid-receitas');
-}
-// CORREÇÃO: removida a 2ª linha duplicada document.addEventListener('DOMContentLoaded',init); que estava aqui no final - agora o init() roda só 1x
+                       }
