@@ -13,7 +13,19 @@
 // 12 - Curry Tailandês de Camarão
 // 13 - Tofu Grelhado com Legumes
 // 14 - Camarão Empanado Crocante
-// TOTAL: 14 receitas
+// --------------------
+// Incluído no dia 21/11/2026
+// 15 - Frango Xadrez
+// 16 - Salmão Teriyaki
+// 17 - Chow Mein de Legumes
+// 18 - Frango Agridoce
+// 19 - Dumplings no Vapor
+// 20 - Carne com Brócolis ao Molho Shoyu
+// 21 - Arroz Frito com Camarão
+// 22 - Sopa de Missô
+// 23 - Katsu Curry de Frango
+// 24 - Salada de Pepino Oriental
+// TOTAL: 24 receitas
 window.RECEITAS_ORIENTAL = [
 {
 id:"karaage", titulo:"Karaage de Frango Crocante", categoria_principal:"Oriental", categorias:["Oriental"], tempo:"40 min", porcoes:"3 porções", foto:"assets/karaage.jpg", airfryer:true,
@@ -33,7 +45,7 @@ passos:[
 {texto:"Corte o frango em cubos de cerca de 4cm e seque bem. Misture com o shoyu, o alho, o gengibre, o saquê se for usar, o sal e a pimenta.", timer:0},
 {texto:"Cubra e deixe marinando na geladeira por 20 minutos. Se tiver mais tempo, pode deixar até 1 hora.", timer:20},
 {texto:"Misture a farinha com o amido. Escorra o frango, passe cada pedaço na mistura, apertando levemente para formar uma casquinha. Sacuda o excesso.", timer:0},
-{texto:"Coloque na cesta da Airfryer preaquecida a 180°C, sem amontoar, e borrife óleo por cima. Asse por 13 minutos, virando aos 6 minutos, até ficar bem dourado e crocante por fora e suculento por dentro. Sirva com limão e maionese.", timer:13}
+{texto:"Coloque na cesta da Airfryer preaquecida a 180°C, sem amontoar, e borrife óleo por cima. Asse por 13 minutos, virando aos 6 minutos, até ficar bem dourado e crocante por fora e suculento por dentro. Sirva com limão e maionese.", dica:"Sirva quente, com limão e maionese.", timer:13}
 ]
 },
 {
@@ -56,7 +68,7 @@ passos:[
 {texto:"Ferva bastante água com 1 pitada de sal. Cozinhe o macarrão por 5 minutos, até ficar al dente. Escorra, passe em água fria e reserve com 1 fio de óleo para não grudar.", timer:5},
 {texto:"Aqueça bem um wok ou frigideira grande em fogo alto com o óleo. Salteie o frango por 6 minutos, até dourar e cozinhar por dentro. Tempere com 1 pitada de sal.", timer:6},
 {texto:"Junte o alho e o gengibre e refogue por 30 segundos. Adicione a cenoura e o brócolis e salteie por 2 minutos, depois junte o repolho e salteie por mais 2 minutos, até ficarem al dente.", timer:4},
-{texto:"Junte o macarrão, o shoyu e o açúcar. Salteie tudo junto por 2 minutos, até o macarrão pegar o molho por igual. Prove e acerte o sal, finalize com cebolinha.", timer:2}
+{texto:"Junte o macarrão, o shoyu e o açúcar. Salteie tudo junto por 2 minutos, até o macarrão pegar o molho por igual. Prove e acerte o sal, finalize com cebolinha.", dica:"Sirva quente, na hora.", timer:2}
 ]
 },
 {
@@ -76,7 +88,7 @@ passos:[
 {texto:"Lave os legumes e seque bem para a massa grudar melhor. Corte a abobrinha em rodelas, a cenoura em palitos e separe o brócolis em floretes.", timer:0},
 {texto:"Misture a farinha, o amido e o sal. Adicione a água com gás bem gelada e o gelo e misture levemente com um garfo, só até incorporar, deixando a massa rala e com alguns grumos.", dica:"Não bata demais, os grumos deixam mais crocante.", timer:0},
 {texto:"Passe cada pedaço na massa, escorrendo o excesso, e coloque na cesta da Airfryer forrada com papel-manteiga, sem amontoar. Borrife óleo por cima.", timer:0},
-{texto:"Leve para Airfryer preaquecida a 200°C por 10 minutos, virando na metade, até ficar bem dourado e crocante. Sirva com shoyu ou molho de sua preferência.", timer:10}
+{texto:"Leve para Airfryer preaquecida a 200°C por 10 minutos, virando na metade, até ficar bem dourado e crocante. Sirva com shoyu ou molho de sua preferência.", dica:"Sirva quente, crocante.", timer:10}
 ]
 },
 {
@@ -98,7 +110,7 @@ passos:[
 {texto:"Cubra o ovo com água e leve ao fogo alto. Quando ferver, abaixe e cozinhe por 7 minutos para a gema ficar molinha. Desligue, coloque em água gelada, descasque e corte ao meio.", timer:7},
 {texto:"Em outra panela, ferva o caldo com o shoyu, o leite de coco ou creme de leite, o alho e o gengibre, se for usar, por 2 minutos, até ficar bem quente e cremoso. Prove e acerte o sal e a pimenta.", timer:2},
 {texto:"Coloque o macarrão, sem o sachê, dentro do caldo fervendo e cozinhe por 4 minutos, até ficar macio e o caldo engrossar levemente.", timer:4},
-{texto:"Transfira para tigela funda. Coloque por cima o frango, o ovo, a cebolinha e o nori em tiras. Sirva bem quente.", timer:0}
+{texto:"Transfira para tigela funda. Coloque por cima o frango, o ovo, a cebolinha e o nori em tiras. Sirva bem quente.", dica:"Sirva bem quente, na hora.", timer:0}
 ]
 },
 {
@@ -121,7 +133,7 @@ passos:[
 {texto:"Misture o frango com o repolho, a cebolinha, o alho, o gengibre, o shoyu, o óleo de gergelim, o sal e a pimenta até virar uma pasta.", timer:0},
 {texto:"Coloque 1 colher (chá) de recheio no centro de cada massa. Molhe a borda com água, feche ao meio e aperte fazendo preguinhas.", timer:0},
 {texto:"Aqueça o óleo em frigideira antiaderente em fogo médio e coloque as gyozas com a base para baixo. Doure por 3 minutos.", timer:3},
-{texto:"Jogue a água, tampe na hora e cozinhe por 6 minutos, até a água secar e a base ficar crocante. Sirva com shoyu.", dica:"Não abra a tampa no vapor, senão perde o cozimento.", timer:6}
+{texto:"Jogue a água, tampe na hora e cozinhe por 6 minutos, até a água secar e a base ficar crocante. Sirva com shoyu.", dica:"Não abra a tampa no vapor, senão perde o cozimento. Sirva quente.", timer:6}
 ]
 },
 {
@@ -142,7 +154,7 @@ passos:[
 {texto:"Misture o shoyu, o açúcar, o saquê, o alho e o gengibre até dissolver o açúcar.", timer:0},
 {texto:"Aqueça o óleo em fogo médio-alto e doure o frango por 6 minutos, mexendo de vez em quando.", timer:6},
 {texto:"Jogue o molho na frigideira e cozinhe por 4 minutos, mexendo, até engrossar e ficar brilhante grudando no frango.", timer:4},
-{texto:"Sirva sobre o arroz e finalize com gergelim e cebolinha.", timer:0}
+{texto:"Sirva sobre o arroz e finalize com gergelim e cebolinha.", dica:"Sirva quente, sobre o arroz.", timer:0}
 ]
 },
 {
@@ -164,7 +176,7 @@ passos:[
 {texto:"Aqueça o óleo em wok ou frigideira grande em fogo alto e doure o frango por 5 minutos. Reserve.", timer:5},
 {texto:"Na mesma frigideira, refogue o alho por 30 segundos, junte a cenoura e a ervilha e refogue por 2 minutos.", timer:2},
 {texto:"Empurre para a lateral, coloque os ovos e mexa até virar ovos mexidos. Junte o arroz, o frango e o shoyu.", timer:0},
-{texto:"Frite por 4 minutos em fogo alto, mexendo sempre, até o arroz ficar soltinho. Acerte o sal e a pimenta e finalize com cebolinha.", dica:"Arroz do dia anterior fica mais soltinho.", timer:4}
+{texto:"Frite por 4 minutos em fogo alto, mexendo sempre, até o arroz ficar soltinho. Acerte o sal e a pimenta e finalize com cebolinha.", dica:"Arroz do dia anterior fica mais soltinho. Sirva quente.", timer:4}
 ]
 },
 {
@@ -184,7 +196,7 @@ ingredientes:[
 passos:[
 {texto:"Refogue o alho e o gengibre por 30 segundos. Junte o repolho, a cenoura e o frango e refogue por 3 minutos. Tempere com shoyu e óleo de gergelim e deixe esfriar.", timer:3},
 {texto:"Coloque 2 colheres de recheio em cada folha, dobre as laterais, enrole firme e sele a ponta com água.", timer:0},
-{texto:"Coloque na Airfryer, borrife óleo e asse em Airfryer preaquecida a 200°C por 12 minutos, virando aos 6 minutos, até ficar dourado e crocante. Sirva com molho agridoce.", timer:12}
+{texto:"Coloque na Airfryer, borrife óleo e asse em Airfryer preaquecida a 200°C por 12 minutos, virando aos 6 minutos, até ficar dourado e crocante. Sirva com molho agridoce.", dica:"Sirva quente, crocante, com molho agridoce.", timer:12}
 ]
 },
 {
@@ -206,7 +218,7 @@ passos:[
 {texto:"Deixe o macarrão de molho em água quente por 8 minutos, até ficar macio. Escorra e reserve.", timer:8},
 {texto:"Aqueça o óleo em fogo alto e doure o frango por 5 minutos. Empurre para a lateral e faça os ovos mexidos.", timer:5},
 {texto:"Junte o macarrão, o shoyu, o açúcar e o limão. Misture por 2 minutos em fogo alto.", timer:2},
-{texto:"Junte o broto de feijão e a cebolinha, misture por 1 minuto e desligue. Finalize com amendoim e pimenta, se quiser.", timer:1}
+{texto:"Junte o broto de feijão e a cebolinha, misture por 1 minuto e desligue. Finalize com amendoim e pimenta, se quiser.", dica:"Sirva quente, na hora.", timer:1}
 ]
 },
 {
@@ -227,8 +239,8 @@ ingredientes:[
 passos:[
 {texto:"Lave o arroz até a água sair limpa. Cozinhe com 360ml de água em fogo baixo tampado por 15 minutos. Desligue e deixe descansar 10 minutos.", timer:15},
 {texto:"Misture o vinagre, o açúcar e o sal até dissolver. Misture delicadamente no arroz ainda quente e deixe amornar.", timer:0},
-{texto:"Para nigiri: faça bolinhos de arroz com as mãos úmidas e coloque 1 fatia de salmão por cima. Para maki: espalhe arroz na nori, coloque salmão e pepino, enrole firme e corte em 6 peças.", timer:0},
-{texto:"Sirva com shoyu, wasabi, gengibre e gergelim.", timer:0}
+{texto:"Para nigiri: faça bolinhos de arroz com as mãos úmidas e coloque 1 fatia de salmão por cima. Para maki: espalhe arroz na nori, coloque salmão e pepino, enrole firme e corte em 6 peças.", dica:"Mãos úmidas evitam o arroz grudar.", timer:0},
+{texto:"Sirva com shoyu, wasabi, gengibre e gergelim.", dica:"Sirva fresco, na hora.", timer:0}
 ]
 },
 {
@@ -252,7 +264,7 @@ passos:[
 {texto:"Tempere a carne com shoyu, alho e metade do óleo de gergelim. Grelhe em fogo alto por 4 minutos. Reserve.", timer:4},
 {texto:"Refogue o espinafre por 1 minuto, a cenoura por 2 minutos, o broto por 2 minutos e o shitake por 3 minutos, separadamente, com uma pitada de sal.", timer:8},
 {texto:"Frite os ovos em frigideira com gema mole.", timer:3},
-{texto:"Monte tigelas com arroz, os legumes e a carne em montinhos ao redor, o ovo no centro e o gochujang ao lado. Finalize com gergelim e cebolinha. Misture tudo na hora de comer.", timer:0}
+{texto:"Monte tigelas com arroz, os legumes e a carne em montinhos ao redor, o ovo no centro e o gochujang ao lado. Finalize com gergelim e cebolinha. Misture tudo na hora de comer.", dica:"Misture tudo na hora de comer, é assim que fica bom.", timer:0}
 ]
 },
 {
@@ -276,7 +288,7 @@ passos:[
 {texto:"Junte o leite de coco e cozinhe por 3 minutos em fogo médio, até começar a engrossar.", timer:3},
 {texto:"Junte o pimentão e a abobrinha e cozinhe por 4 minutos, até ficarem macios mas ainda crocantes.", timer:4},
 {texto:"Junte o camarão e cozinhe por 4 minutos, até ficar rosado. Tempere com shoyu, açúcar e limão.", timer:4},
-{texto:"Desligue, junte o manjericão e sirva com arroz.", timer:0}
+{texto:"Desligue, junte o manjericão e sirva com arroz.", dica:"Sirva quente, com arroz.", timer:0}
 ]
 },
 {
@@ -299,7 +311,7 @@ passos:[
 {texto:"Misture o shoyu, o óleo de gergelim, o gengibre, o alho e o mel.", timer:0},
 {texto:"Grelhe o tofu em frigideira antiaderente em fogo médio por 3 minutos de cada lado, pincelando o molho.", timer:6},
 {texto:"Na mesma frigideira, salteie o brócolis, a cenoura e o cogumelo por 4 minutos, até ficarem al dente. Junte o restante do molho.", timer:4},
-{texto:"Sirva o tofu com os legumes e finalize com gergelim e cebolinha.", timer:0}
+{texto:"Sirva o tofu com os legumes e finalize com gergelim e cebolinha.", dica:"Sirva quente.", timer:0}
 ]
 },
 {
@@ -318,7 +330,199 @@ passos:[
 {texto:"Seque bem o camarão e tempere com sal, pimenta e suco de meio limão.", timer:0},
 {texto:"Passe na farinha, depois no ovo e depois na panko, apertando bem.", timer:0},
 {texto:"Frite em óleo quente a 180°C por 3 minutos, até dourar. Ou asse na Airfryer a 200°C por 8 minutos.", timer:3},
-{texto:"Sirva com o restante do limão e molho agridoce.", timer:0}
+{texto:"Sirva com o restante do limão e molho agridoce.", dica:"Sirva quente, crocante.", timer:0}
+]
+},
+{
+id:"frango-xadrez", titulo:"Frango Xadrez", categoria_principal:"Oriental", categorias:["Oriental"], tempo:"25 min", porcoes:"3 porções", foto:"assets/frango-xadrez.jpg",
+ingredientes:[
+{nome:"Peito de frango", qtd:"400g em cubos"},
+{nome:"Pimentão vermelho", qtd:"1 unidade em cubos"},
+{nome:"Pimentão verde", qtd:"1 unidade em cubos"},
+{nome:"Amendoim torrado", qtd:"80g"},
+{nome:"Shoyu", qtd:"3 colheres (sopa)"},
+{nome:"Alho", qtd:"2 dentes"},
+{nome:"Gengibre", qtd:"1 colher (chá) ralado"},
+{nome:"Amido de milho", qtd:"1 colher (sopa)"},
+{nome:"Óleo", qtd:"1 colher (sopa)"},
+{nome:"Sal", qtd:"a gosto"},
+{nome:"Cebolinha", qtd:"para finalizar"}
+],
+passos:[
+{texto:"Tempere o frango com sal e metade do shoyu e o amido. Deixe 10 minutos.", timer:10},
+{texto:"Grelhe o frango em óleo em fogo alto por 6 minutos. Retire.", timer:6},
+{texto:"Refogue o alho, o gengibre e os pimentões por 3 minutos. Volte o frango, junte o restante do shoyu e o amendoim.", timer:3},
+{texto:"Finalize com cebolinha.", dica:"Sirva quente, com arroz.", timer:0}
+]
+},
+{
+id:"salmao-teriyaki", titulo:"Salmão Teriyaki", categoria_principal:"Oriental", categorias:["Oriental"], tempo:"20 min", porcoes:"2 porções", foto:"assets/salmao-teriyaki.jpg",
+ingredientes:[
+{nome:"Filé de salmão", qtd:"400g em 2 postas"},
+{nome:"Shoyu", qtd:"60ml"},
+{nome:"Açúcar", qtd:"2 colheres (sopa)"},
+{nome:"Saquê ou vinagre de arroz", qtd:"1 colher (sopa)"},
+{nome:"Gengibre", qtd:"1 colher (chá) ralado"},
+{nome:"Óleo", qtd:"1 colher (sopa)"},
+{nome:"Gergelim", qtd:"para finalizar"},
+{nome:"Cebolinha", qtd:"para finalizar"},
+{nome:"Arroz", qtd:"para acompanhar"}
+],
+passos:[
+{texto:"Misture o shoyu, o açúcar, o saquê e o gengibre.", timer:0},
+{texto:"Grelhe o salmão com a pele para baixo por 4 minutos. Vire e grelhe por mais 3 minutos.", timer:7},
+{texto:"Jogue o molho e cozinhe por 2 minutos, até engrossar e brilhar.", timer:2},
+{texto:"Finalize com gergelim e cebolinha.", dica:"Sirva quente, sobre o arroz.", timer:0}
+]
+},
+{
+id:"chow-mein-legumes", titulo:"Chow Mein de Legumes", categoria_principal:"Oriental", categorias:["Oriental","Vegana"], tempo:"20 min", porcoes:"2 porções", foto:"assets/chow-mein-legumes.jpg",
+ingredientes:[
+{nome:"Macarrão para chow mein", qtd:"200g"},
+{nome:"Repolho", qtd:"100g fatiado"},
+{nome:"Cenoura", qtd:"1 unidade em tiras"},
+{nome:"Broto de feijão", qtd:"100g"},
+{nome:"Cogumelo", qtd:"100g fatiado"},
+{nome:"Shoyu", qtd:"3 colheres (sopa)"},
+{nome:"Óleo de gergelim", qtd:"1 colher (sopa)"},
+{nome:"Alho", qtd:"1 dente"},
+{nome:"Gengibre", qtd:"1 colher (chá)"}
+],
+passos:[
+{texto:"Cozinhe o macarrão por 4 minutos, escorra e reserve.", timer:4},
+{texto:"Salteie o alho e o gengibre, junte os legumes e salteie por 4 minutos em fogo alto.", timer:4},
+{texto:"Junte o macarrão, o shoyu e o óleo de gergelim e salteie por 2 minutos.", timer:2},
+{texto:"Sirva quente.", dica:"Sirva quente, na hora.", timer:0}
+]
+},
+{
+id:"frango-agridoce", titulo:"Frango Agridoce", categoria_principal:"Oriental", categorias:["Oriental"], tempo:"30 min", porcoes:"3 porções", foto:"assets/frango-agridoce.jpg",
+ingredientes:[
+{nome:"Peito de frango", qtd:"400g em cubos"},
+{nome:"Abacaxi", qtd:"200g em cubos"},
+{nome:"Pimentão", qtd:"1 unidade em cubos"},
+{nome:"Ketchup", qtd:"3 colheres (sopa)"},
+{nome:"Vinagre de arroz", qtd:"2 colheres (sopa)"},
+{nome:"Açúcar", qtd:"2 colheres (sopa)"},
+{nome:"Shoyu", qtd:"1 colher (sopa)"},
+{nome:"Amido de milho", qtd:"2 colheres (sopa)"},
+{nome:"Óleo", qtd:"para fritar"},
+{nome:"Sal", qtd:"a gosto"}
+],
+passos:[
+{texto:"Tempere o frango com sal e amido e frite em óleo quente por 6 minutos, até dourar. Escorra.", timer:6},
+{texto:"Refogue o pimentão por 3 minutos, junte o abacaxi, o ketchup, o vinagre, o açúcar e o shoyu e cozinhe por 3 minutos.", timer:3},
+{texto:"Junte o frango e misture por 1 minuto.", timer:1},
+{texto:"Sirva com arroz.", dica:"Sirva quente, com arroz.", timer:0}
+]
+},
+{
+id:"dumplings-vapor", titulo:"Dumplings no Vapor", categoria_principal:"Oriental", categorias:["Oriental"], tempo:"40 min", porcoes:"16 unidades", foto:"assets/dumplings-vapor.jpg",
+ingredientes:[
+{nome:"Massa para dumpling", qtd:"16 unidades"},
+{nome:"Carne de porco moída ou frango moído", qtd:"300g"},
+{nome:"Repolho", qtd:"100g picado fino"},
+{nome:"Cebolinha", qtd:"30g picada"},
+{nome:"Gengibre", qtd:"1 colher (chá) ralado"},
+{nome:"Shoyu", qtd:"2 colheres (sopa)"},
+{nome:"Óleo de gergelim", qtd:"1 colher (chá)"}
+],
+passos:[
+{texto:"Misture a carne com repolho, cebolinha, gengibre, shoyu e óleo de gergelim.", timer:0},
+{texto:"Coloque recheio no centro de cada massa, molhe a borda e feche em preguinhas.", timer:0},
+{texto:"Coloque em cesta de vapor forrada e cozinhe no vapor por 12 minutos.", timer:12},
+{texto:"Sirva com shoyu.", dica:"Sirva quente, no vapor, com shoyu.", timer:0}
+]
+},
+{
+id:"carne-brocolis-shoyu", titulo:"Carne com Brócolis ao Molho Shoyu", categoria_principal:"Oriental", categorias:["Oriental"], tempo:"20 min", porcoes:"2 porções", foto:"assets/carne-brocolis-shoyu.jpg",
+ingredientes:[
+{nome:"Carne bovina em tiras", qtd:"300g"},
+{nome:"Brócolis", qtd:"300g em floretes"},
+{nome:"Shoyu", qtd:"3 colheres (sopa)"},
+{nome:"Alho", qtd:"2 dentes"},
+{nome:"Gengibre", qtd:"1 colher (chá)"},
+{nome:"Amido de milho", qtd:"1 colher (sopa)"},
+{nome:"Óleo", qtd:"1 colher (sopa)"},
+{nome:"Gergelim", qtd:"para finalizar"}
+],
+passos:[
+{texto:"Tempere a carne com metade do shoyu e o amido.", timer:0},
+{texto:"Grelhe a carne em óleo em fogo alto por 5 minutos. Retire.", timer:5},
+{texto:"Salteie o alho, o gengibre e o brócolis por 4 minutos. Volte a carne e junte o restante do shoyu.", timer:4},
+{texto:"Finalize com gergelim.", dica:"Sirva quente, com arroz.", timer:0}
+]
+},
+{
+id:"arroz-frito-camarao", titulo:"Arroz Frito com Camarão", categoria_principal:"Oriental", categorias:["Oriental"], tempo:"20 min", porcoes:"2 porções", foto:"assets/arroz-frito-camarao.jpg",
+ingredientes:[
+{nome:"Arroz cozido frio", qtd:"300g"},
+{nome:"Camarão limpo", qtd:"300g"},
+{nome:"Ovo", qtd:"2 unidades"},
+{nome:"Ervilha", qtd:"80g"},
+{nome:"Cenoura", qtd:"1 unidade em cubos"},
+{nome:"Shoyu", qtd:"2 colheres (sopa)"},
+{nome:"Alho", qtd:"1 dente"},
+{nome:"Óleo", qtd:"1 colher (sopa)"},
+{nome:"Cebolinha", qtd:"para finalizar"}
+],
+passos:[
+{texto:"Grelhe o camarão por 4 minutos. Reserve.", timer:4},
+{texto:"Refogue o alho, a cenoura e a ervilha por 3 minutos. Empurre e faça os ovos mexidos.", timer:3},
+{texto:"Junte o arroz, o camarão e o shoyu e frite por 4 minutos em fogo alto.", timer:4},
+{texto:"Finalize com cebolinha.", dica:"Sirva quente. Arroz frio fica mais soltinho.", timer:0}
+]
+},
+{
+id:"sopa-misso", titulo:"Sopa de Missô", categoria_principal:"Oriental", categorias:["Oriental","Caldo","Vegana"], tempo:"15 min", porcoes:"2 porções", foto:"assets/sopa-misso.jpg",
+ingredientes:[
+{nome:"Caldo dashi ou água", qtd:"600ml"},
+{nome:"Pasta de missô", qtd:"3 colheres (sopa)"},
+{nome:"Tofu", qtd:"150g em cubos"},
+{nome:"Alga wakame seca", qtd:"1 colher (sopa)"},
+{nome:"Cebolinha", qtd:"para finalizar"}
+],
+passos:[
+{texto:"Ferva o caldo e desligue. Dissolva o missô em um pouco do caldo quente e volte para a panela.", dica:"Não ferva o missô, senão perde o sabor.", timer:0},
+{texto:"Junte o tofu e a alga e deixe 2 minutos.", timer:2},
+{texto:"Finalize com cebolinha.", dica:"Sirva quente, na hora.", timer:0}
+]
+},
+{
+id:"katsu-curry-frango", titulo:"Katsu Curry de Frango", categoria_principal:"Oriental", categorias:["Oriental"], tempo:"40 min", porcoes:"2 porções", foto:"assets/katsu-curry-frango.jpg",
+ingredientes:[
+{nome:"Peito de frango", qtd:"400g em 2 filés"},
+{nome:"Farinha de trigo", qtd:"50g"},
+{nome:"Ovo", qtd:"1 unidade batido"},
+{nome:"Farinha panko", qtd:"100g"},
+{nome:"Curry em pó ou tablete", qtd:"2 colheres (sopa)"},
+{nome:"Cebola", qtd:"1 unidade picada"},
+{nome:"Cenoura", qtd:"1 unidade em cubos"},
+{nome:"Caldo", qtd:"400ml"},
+{nome:"Arroz", qtd:"para acompanhar"},
+{nome:"Óleo", qtd:"para fritar"}
+],
+passos:[
+{texto:"Empane o frango: farinha, ovo e panko. Frite por 5 minutos de cada lado, até dourar.", timer:10},
+{texto:"Refogue a cebola e a cenoura, junte o curry e o caldo e cozinhe por 10 minutos, até engrossar.", timer:10},
+{texto:"Fatie o frango e sirva sobre o arroz com o curry por cima.", dica:"Sirva quente, com o frango crocante por cima do curry.", timer:0}
+]
+},
+{
+id:"salada-pepino-oriental", titulo:"Salada de Pepino Oriental", categoria_principal:"Oriental", categorias:["Oriental","Vegana","Rápida"], tempo:"12 min", porcoes:"2 porções", foto:"assets/salada-pepino-oriental.jpg",
+ingredientes:[
+{nome:"Pepino japonês", qtd:"3 unidades em rodelas"},
+{nome:"Vinagre de arroz", qtd:"2 colheres (sopa)"},
+{nome:"Shoyu", qtd:"1 colher (sopa)"},
+{nome:"Açúcar", qtd:"1 colher (chá)"},
+{nome:"Óleo de gergelim", qtd:"1 colher (chá)"},
+{nome:"Gergelim", qtd:"para finalizar"},
+{nome:"Pimenta", qtd:"a gosto"}
+],
+passos:[
+{texto:"Misture o vinagre, o shoyu, o açúcar e o óleo de gergelim.", timer:0},
+{texto:"Misture com o pepino e deixe 5 minutos.", timer:5},
+{texto:"Finalize com gergelim.", dica:"Sirva fresca, gelada.", timer:0}
 ]
 }
 ];
